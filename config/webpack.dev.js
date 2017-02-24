@@ -11,11 +11,14 @@ const entries = getEntries('./src/pages/**/index.ts', './dist');
 
 Object.assign(config, {
 	entry: entries,
-	devServer: {
-		contentBase: false,
-		compress: false,
-		port: 9000
+	devtool: {
+
 	}
+	// devServer: {
+	// 	contentBase: false,
+	// 	compress: false,
+	// 	port: 9000
+	// }
 });
 
 module.exports = config;

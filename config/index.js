@@ -2,9 +2,9 @@ const path = require('path');
 module.exports = {
 	webpackConfig: {
 		output: {
-			path: path.resolve(__dirname, 'dist'),
+			path: '/',
 			filename: '[name]',
-			publicPath: '.',
+			publicPath: '',
 			library: 'ding'
 		},
 		module: {
@@ -36,7 +36,7 @@ module.exports = {
 		resolve: {
 			modules: [
 				'node_modules',
-				path.resolve(__dirname, 'src/components')
+				'src/components'
 			],
 			extensions: ['.ts', '.js']
 		},
