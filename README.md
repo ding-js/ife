@@ -1,2 +1,2 @@
-# ife.github.io
+# ife
 Baidu ife

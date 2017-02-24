@@ -1,0 +1,25 @@
+{
+  "name": "ife",
+  "version": "1.0.0",
+  "description": "Baidu ife",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ding-js/ife.git"
+  },
+  "author": "ding-js",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ding-js/ife/issues"
+  },
+  "homepage": "https://github.com/ding-js/ife#readme",
+  "devDependencies": {
+    "pug": "^2.0.0-beta11",
+    "pug-loader": "^2.3.0",
+    "ts-loader": "^2.0.1",
+    "typescript": "^2.2.1",
+    "webpack": "^2.2.1"
+  }
+}
