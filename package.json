@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Baidu ife",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --config config/webpack.dev.js"
   },
   "repository": {
     "type": "git",
@@ -16,10 +17,18 @@
   },
   "homepage": "https://github.com/ding-js/ife#readme",
   "devDependencies": {
+    "css-loader": "^0.26.1",
+    "get-entries": "^2.0.1",
+    "less": "^2.7.2",
+    "less-loader": "^2.2.3",
+    "postcss-loader": "^1.3.2",
     "pug": "^2.0.0-beta11",
     "pug-loader": "^2.3.0",
+    "style-loader": "^0.13.1",
     "ts-loader": "^2.0.1",
+    "tslint": "^4.4.2",
     "typescript": "^2.2.1",
-    "webpack": "^2.2.1"
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
   }
 }
