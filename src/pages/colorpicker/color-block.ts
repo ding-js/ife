@@ -59,7 +59,6 @@ export default class ColorBlock {
 		});
 
 		this.draw();
-
 	}
 
 
@@ -88,19 +87,19 @@ export default class ColorBlock {
 	private setCoordinate(x: number, y: number) {
 		const padding = this._padding;
 		let currentX, currentY;
-		if (x <= padding) {
-			currentX = padding + 1;
-		} else if (x >= this._contentWidth + padding) {
-			currentX = this._contentWidth + padding - 1;
+		if (x < padding) {
+			currentX = padding;
+		} else if (x > this._contentWidth + padding) {
+			currentX = this._contentWidth + padding;
 		} else {
 			currentX = x;
 		}
 
 
-		if (y <= padding) {
-			currentY = padding + 1;
-		} else if (y >= this._contentHeight + padding) {
-			currentY = this._contentHeight + padding - 1;
+		if (y < padding) {
+			currentY = padding;
+		} else if (y > this._contentHeight + padding) {
+			currentY = this._contentHeight + padding;
 		} else {
 			currentY = y;
 		}
@@ -119,7 +118,7 @@ export default class ColorBlock {
 			ctx.beginPath();
 			ctx.arc(x, y, this._padding / 2, 0, 2 * Math.PI);
 			ctx.stroke();
-
+			console.log(x, y, ctx.getImageData(x, y, 1, 1).data);
 			if (this._options.onColorChange) {
 				const data = ctx.getImageData(x, y, 1, 1);
 				this._options.onColorChange(data);
