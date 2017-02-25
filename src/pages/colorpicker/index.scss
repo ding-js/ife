@@ -1,0 +1,9 @@
+.colorpicker {
+	text-align: center;
+	canvas {
+		cursor: default;
+	}
+	canvas+canvas {
+		margin-left: 10px;
+	}
+}

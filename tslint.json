@@ -1,108 +1,108 @@
 {
-    "rules": {
-        "no-reference": true,
-        "no-var-requires": true,
-        "ban": true,
-        "curly": true,
-        "label-position": true,
-        "no-arg": true,
-        "no-bitwise": true,
-        "no-conditional-assignment": true,
-        "no-console": [
-            true,
-            "log"
-        ],
-        "no-construct": true,
-        "no-duplicate-variable": true,
-        "no-empty": true,
-        "no-eval": true,
-        "no-shadowed-variable": true,
-        "no-string-literal": true,
-        "no-switch-case-fall-through": true,
-        "no-unused-expression": true,
-        "no-unused-variable": true,
-        "no-use-before-declare": true,
-        "no-var-keyword": true,
-        "switch-default": true,
-        "triple-equals": true,
-        "use-isnan": true,
-        "eofline": true,
-        "linebreak-style": [
-            true,
-            "CRLF"
-        ],
-        "trailing-comma": [
-            true, {
-                "multiline": "never",
-                "singleline": "never"
-            }
-        ],
-        "class-name": true,
-        "comment-format": [
-            true,
-            "check-space"
-        ],
-        "interface-name": [
-            true,
-            "always-prefix"
-        ],
-        "jsdoc-format": true,
-        "new-parens": true,
-        "quotemark": [
-            true,
-            "single"
-        ],
-        "semicolon": [true, "always"],
-        "variable-name": [true, "ban-keywords", "check-format"]
-    },
-    "jsRules": {
-        "ban": true,
-        "curly": true,
-        "label-position": true,
-        "no-arg": true,
-        "no-bitwise": true,
-        "no-conditional-assignment": true,
-        "no-console": [
-            true,
-            "log"
-        ],
-        "no-construct": true,
-        "no-duplicate-variable": true,
-        "no-empty": true,
-        "no-eval": true,
-        "no-shadowed-variable": true,
-        "no-string-literal": true,
-        "no-switch-case-fall-through": true,
-        "no-unused-expression": true,
-        "no-unused-variable": true,
-        "no-use-before-declare": true,
-        "no-var-keyword": true,
-        "switch-default": true,
-        "triple-equals": true,
-        "use-isnan": true,
-        "eofline": true,
-        "linebreak-style": [
-            true,
-            "CRLF"
-        ],
-        "trailing-comma": [
-            true, {
-                "multiline": "never",
-                "singleline": "never"
-            }
-        ],
-        "class-name": true,
-        "comment-format": [
-            true,
-            "check-space"
-        ],
-        "jsdoc-format": true,
-        "new-parens": true,
-        "quotemark": [
-            true,
-            "single"
-        ],
-        "semicolon": [true, "always"],
-        "variable-name": [true, "ban-keywords", "check-format"]
-    }
+  "rules": {
+    "no-reference": true,
+    "no-var-requires": true,
+    "ban": true,
+    "curly": true,
+    "label-position": true,
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-conditional-assignment": true,
+    "no-console": [
+      true,
+      "log"
+    ],
+    "no-construct": true,
+    "no-duplicate-variable": true,
+    "no-empty": true,
+    "no-eval": true,
+    "no-shadowed-variable": true,
+    "no-string-literal": true,
+    "no-switch-case-fall-through": true,
+    "no-unused-expression": true,
+    "no-unused-variable": true,
+    "no-use-before-declare": true,
+    "no-var-keyword": true,
+    "switch-default": true,
+    "triple-equals": true,
+    "use-isnan": true,
+    "eofline": true,
+    "linebreak-style": [
+      true,
+      "CRLF"
+    ],
+    "trailing-comma": [
+      true, {
+        "multiline": "never",
+        "singleline": "never"
+      }
+    ],
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "interface-name": [
+      true,
+      "always-prefix"
+    ],
+    "jsdoc-format": true,
+    "new-parens": true,
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "semicolon": [true, "always"],
+    "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]
+  },
+  "jsRules": {
+    "ban": true,
+    "curly": true,
+    "label-position": true,
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-conditional-assignment": true,
+    "no-console": [
+      true,
+      "log"
+    ],
+    "no-construct": true,
+    "no-duplicate-variable": true,
+    "no-empty": true,
+    "no-eval": true,
+    "no-shadowed-variable": true,
+    "no-string-literal": true,
+    "no-switch-case-fall-through": true,
+    "no-unused-expression": true,
+    "no-unused-variable": true,
+    "no-use-before-declare": true,
+    "no-var-keyword": true,
+    "switch-default": true,
+    "triple-equals": true,
+    "use-isnan": true,
+    "eofline": true,
+    "linebreak-style": [
+      true,
+      "CRLF"
+    ],
+    "trailing-comma": [
+      true, {
+        "multiline": "never",
+        "singleline": "never"
+      }
+    ],
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "jsdoc-format": true,
+    "new-parens": true,
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "semicolon": [true, "always"],
+    "variable-name": [true, "ban-keywords", "check-format"]
+  }
 }

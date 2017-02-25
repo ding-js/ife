@@ -7,9 +7,9 @@
     "clean": "gulp clean --gulpfile config/gulpfile.js --cwd ./",
     "gulp": "gulp pug --gulpfile config/gulpfile.js --cwd ./",
     "gulp:w": "gulp watch --gulpfile config/gulpfile.js --cwd ./",
-    "webpack": "webpack --config config/webpack.dev.js",
+    "webpack:dev": "webpack --config config/webpack.dev.js",
     "webpack:w": "webpack-dev-server --config config/webpack.dev.js",
-    "dev": "concurrently \"npm run webpack:w\" \"npm run gulp:w\" "
+    "dev": "npm run clean && npm run webpack:dev && concurrently -r -k \"npm run webpack:w\" \"npm run gulp:w\" "
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
     "assets-webpack-plugin": "^3.5.1",
     "concurrently": "^3.3.0",
     "css-loader": "^0.26.1",
+    "cssnano": "^3.10.0",
     "del": "^2.2.2",
     "get-entries": "^2.0.1",
     "gulp": "^3.9.1",
@@ -44,6 +45,8 @@
     "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
+    "@types/bootstrap": "^3.3.32",
+    "@types/jquery": "^2.0.40",
     "bootstrap": "^4.0.0-alpha.6",
     "jquery": "^3.1.1"
   }

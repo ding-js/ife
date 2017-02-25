@@ -1,10 +1,15 @@
 const path = require('path');
 
-const AssetsPlugin = require('assets-webpack-plugin')
+const webpack = require('webpack');
+
+const AssetsPlugin = require('assets-webpack-plugin');
+
+const cssnano = require('cssnano'),
+	autoprefixer = require('autoprefixer');
 
 const config = {
-	src: './src/',
-	dist: './dist/'
+	src: 'src/',
+	dist: 'dist/'
 };
 
 Object.assign(config, {
@@ -12,8 +17,8 @@ Object.assign(config, {
 		output: {
 			path: '/',
 			filename: '[name]',
-			publicPath: '',
-			library: 'ding'
+			library: 'ding',
+			publicPath: ''
 		},
 		module: {
 			rules: [{
@@ -28,7 +33,10 @@ Object.assign(config, {
 						loader: 'postcss-loader',
 						options: {
 							plugins: () => [
-								require('autoprefixer')
+								autoprefixer,
+								cssnano({
+									safe: true
+								})
 							]
 						}
 					},
@@ -49,6 +57,10 @@ Object.assign(config, {
 		context: path.resolve(__dirname, '../'),
 		target: 'web',
 		plugins: [
+			new webpack.ProvidePlugin({
+				$: 'jquery',
+				jQuery: 'jquery'
+			}),
 			new AssetsPlugin({
 				path: 'config'
 			})

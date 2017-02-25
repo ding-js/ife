@@ -18,7 +18,7 @@ gulp.task('clean', () => {
 });
 
 gulp.task('pug', () =>
-	gulp.src(op.src + '**/index.pug')
+	gulp.src(op.src + 'pages/**/index.pug')
 	.pipe(plumber())
 	.pipe(data(file => {
 		const filePath = path.relative(path.resolve(op.src + 'pages'), file.path),
@@ -26,12 +26,19 @@ gulp.task('pug', () =>
 			assetName = path.join(op.dist, dirPath, 'index.js');
 
 
-		const unixAssetName = './' + assetName.replace(/\\/g, '/');
+		const unixAssetName = assetName.replace(/\\/g, '/');
 
 		const _asset = assets[unixAssetName];
 
+		const _assetFile = {};
+
+		for (let prop in _asset) {
+			_assetFile[prop] = path.basename(_asset[prop]);
+		}
+
 		return {
-			_asset: _asset
+			_asset: _asset,
+			_assetFile: _assetFile
 		};
 	}))
 	.pipe(pug({

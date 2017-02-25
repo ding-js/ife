@@ -9,6 +9,5 @@ html
   body
     .container
       block main
-
-    if _asset&&_asset.js
-      script(src=_asset.js)
+    if _assetFile&&_assetFile.js
+      script(src=_assetFile.js)
