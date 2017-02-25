@@ -1,10 +1,11 @@
 const path = require('path');
 
-const config = {
-	src: './src',
-	dist: './dist'
-};
+const AssetsPlugin = require('assets-webpack-plugin')
 
+const config = {
+	src: './src/',
+	dist: './dist/'
+};
 
 Object.assign(config, {
 	webpackConfig: {
@@ -47,7 +48,11 @@ Object.assign(config, {
 		},
 		context: path.resolve(__dirname, '../'),
 		target: 'web',
-		plugins: []
+		plugins: [
+			new AssetsPlugin({
+				path: 'config'
+			})
+		]
 	}
 });
 

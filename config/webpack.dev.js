@@ -1,12 +1,14 @@
 const path = require('path');
 
+const posix = path.posix;
+
 const getEntries = require('get-entries');
 
 const op = require('./index.js');
 
 const config = op.webpackConfig;
 
-const entries = getEntries(path.join(op.src, 'pages/**/index.ts'), op.dist);
+const entries = getEntries(op.src + 'pages/**/index.ts', op.dist);
 
 Object.assign(config, {
 	entry: entries,

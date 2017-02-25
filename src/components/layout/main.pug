@@ -10,5 +10,5 @@ html
     .container
       block main
 
-    if _js
-      script(src=_js)
+    if _asset&&_asset.js
+      script(src=_asset.js)
