@@ -1,5 +1,12 @@
 const path = require('path');
-module.exports = {
+
+const config = {
+	src: './src',
+	dist: './dist'
+};
+
+
+Object.assign(config, {
 	webpackConfig: {
 		output: {
 			path: '/',
@@ -12,7 +19,7 @@ module.exports = {
 				test: /\.ts$/,
 				loader: 'ts-loader',
 			}, {
-				test: /\.less$/,
+				test: /\.scss$/,
 				use: [
 					'style-loader',
 					'css-loader',
@@ -22,11 +29,9 @@ module.exports = {
 							plugins: () => [
 								require('autoprefixer')
 							]
-
 						}
-
 					},
-					'less-loader'
+					'sass-loader'
 				]
 			}, {
 				test: /\.pug$/,
@@ -44,4 +49,6 @@ module.exports = {
 		target: 'web',
 		plugins: []
 	}
-};
+});
+
+module.exports = config;

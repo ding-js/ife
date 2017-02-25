@@ -6,8 +6,7 @@ const op = require('./index.js');
 
 const config = op.webpackConfig;
 
-const entries = getEntries('./src/pages/**/index.ts', './dist');
-
+const entries = getEntries(path.join(op.src, 'pages/**/index.ts'), op.dist);
 
 Object.assign(config, {
 	entry: entries,
@@ -15,7 +14,9 @@ Object.assign(config, {
 		contentBase: path.resolve('./'),
 		compress: false,
 		port: 9000,
-		watchContentBase: true
+		watchContentBase: true,
+		hot: true,
+		overlay: true
 	}
 });
 
