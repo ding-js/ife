@@ -14,7 +14,7 @@ export default class ColorBar {
 	private _y: number;
 	private _showSlider: boolean = false;
 
-	private _colors: string[] = ['00f', '0ff', 'f00', 'f0f', 'ff0'];
+	private _colors: string[] = ['f00', 'ffA500', 'ff0', '008000', '00f', '4b0082', '800080'];
 
 	private _options: IOptions = {
 		lineWidth: 2,
