@@ -45,11 +45,5 @@
     "typescript": "^2.2.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1"
-  },
-  "dependencies": {
-    "@types/bootstrap": "^3.3.32",
-    "@types/jquery": "^2.0.40",
-    "bootstrap": "^4.0.0-alpha.6",
-    "jquery": "^3.1.1"
   }
 }
