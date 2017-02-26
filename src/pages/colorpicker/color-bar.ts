@@ -14,12 +14,14 @@ export default class ColorBar {
 	private _y: number;
 	private _showSlider: boolean = false;
 
+	// 拾色条的颜色渐变顺序
 	private _colors: string[] = ['f00', 'ffA500', 'ff0', '008000', '00f', '4b0082', '800080'];
 
 	private _options: IOptions = {
 		lineWidth: 2,
-		strokeStyle: '#FFC0CB'
+		strokeStyle: '#ffc0cb'
 	};
+
 	constructor(element: HTMLCanvasElement, options?: IOptions) {
 		if (options) {
 			Object.assign(this._options, options);
@@ -41,6 +43,8 @@ export default class ColorBar {
 		const gradient = ctx.createLinearGradient(padding, padding, padding, height - padding * 2);
 		const colors = this._colors,
 			length = colors.length;
+
+		// 填充背景色
 		colors.forEach((color, index) => {
 			gradient.addColorStop(index / (length - 1), '#' + color);
 		});
@@ -65,6 +69,7 @@ export default class ColorBar {
 		this.fill();
 	}
 
+	// 这里背景色不会改变,可以复用CanvasGradient
 	private fill() {
 		const gradient = this._gradient,
 			ctx = this._ctx,
@@ -94,7 +99,9 @@ export default class ColorBar {
 		this.draw();
 	}
 
+	// 渲染光标
 	private renderCurrentColor() {
+		// 可以选择是否显示光标
 		if (this._showSlider) {
 			const x = this._width / 2,
 				y = this._y;
@@ -116,6 +123,7 @@ export default class ColorBar {
 		this.renderCurrentColor();
 	}
 
+	// 隐藏光标
 	public hideSlider() {
 		if (this._showSlider) {
 			this._showSlider = false;

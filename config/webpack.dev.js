@@ -6,7 +6,9 @@ const op = require('./index.js');
 
 const config = op.webpackConfig;
 
-const entries = getEntries('./' + op.src + 'pages/**/index.ts', op.dist);
+const entries = getEntries('./' + op.src + 'pages/**/index.ts', op.dist, {
+	dir: true
+});
 
 Object.assign(config, {
 	entry: entries,

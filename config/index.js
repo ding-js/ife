@@ -16,7 +16,7 @@ Object.assign(config, {
 	webpackConfig: {
 		output: {
 			path: path.resolve(__dirname, '../'),
-			filename: '[name]',
+			filename: '[name].index.js',
 			library: 'ding',
 			publicPath: ''
 		},

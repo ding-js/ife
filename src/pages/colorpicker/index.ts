@@ -1,6 +1,7 @@
 import './index.scss';
 import ColorBlock from './color-block';
 import ColorBar from './color-bar';
+// 该页面使用到的公共方法
 import * as pub from './pub';
 
 const colorText = document.querySelector('#color-text');
@@ -25,7 +26,7 @@ const colorBlock = new ColorBlock(document.querySelector('#color-block') as HTML
 			el.value = hslData[index];
 		});
 
-		// 渲染文本信息
+		// 渲染文本信息和预览
 		colorText.innerHTML = `RGB: ${rgbData.join(',')}<br>HSL: ${hslData.join(',')}<br>HEX: ${hex}`;
 		colorPreview.style.backgroundColor = hex;
 	}
@@ -38,7 +39,7 @@ const colorBar = new ColorBar(document.querySelector('#color-bar') as HTMLCanvas
 	}
 });
 
-
+// 绑定rgb输入
 document.querySelector('#rgb-info').addEventListener('change', (e) => {
 	if ((e.target as HTMLElement).nodeName.toLowerCase() === 'input') {
 		const rgb: number[] = [];
@@ -67,6 +68,7 @@ document.querySelector('#rgb-info').addEventListener('change', (e) => {
 	}
 });
 
+// 绑定HSL输入
 document.querySelector('#hsl-info').addEventListener('change', (e) => {
 	if ((e.target as HTMLElement).nodeName.toLowerCase() === 'input') {
 		const hsl: number[] = [];

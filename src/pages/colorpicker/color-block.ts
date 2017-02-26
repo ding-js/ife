@@ -16,9 +16,11 @@ export default class ColorBlock {
 	private _middleColor: string;
 	private _x: number;
 	private _y: number;
+
+	// 默认的光圈样式
 	private _options: IOptions = {
 		lineWidth: 2,
-		strokeStyle: '#FFC0CB'
+		strokeStyle: '#ffc0cb'
 	};
 
 	constructor(element: HTMLCanvasElement, options?: IOptions) {
@@ -62,7 +64,7 @@ export default class ColorBlock {
 	}
 
 
-
+	// 填充背景色（拾色器）,同一个CanvasGradient复用会出现Bug,所以每次都新建一个CanvasGradient
 	private fill() {
 		const ctx = this._ctx;
 		const padding = this._padding;
@@ -85,9 +87,11 @@ export default class ColorBlock {
 		this.setCoordinate(e.layerX, e.layerY);
 	}
 
+	// 设置坐标
 	private setCoordinate(x: number, y: number) {
 		const padding = this._padding;
 		let currentX, currentY;
+		// 检查是否出界
 		if (x < padding) {
 			currentX = padding + 1;
 		} else if (x > this._contentWidth + padding) {
@@ -112,6 +116,7 @@ export default class ColorBlock {
 		this.draw();
 	}
 
+	// 渲染光标
 	private renderCurrentColor() {
 		const x = this._x,
 			y = this._y;
@@ -121,6 +126,7 @@ export default class ColorBlock {
 			ctx.beginPath();
 			ctx.arc(x, y, this._padding / 2, 0, 2 * Math.PI);
 			ctx.stroke();
+			// 颜色变化后的回调
 			if (this._options.onColorChange) {
 				const pixel = ctx.getImageData(x, y, 1, 1);
 				this._options.onColorChange(pixel);
@@ -139,7 +145,6 @@ export default class ColorBlock {
 		this._middleColor = color;
 		this.draw();
 	}
-
 
 	set currentColor(color: string) {
 		const x = Math.round(this._width / 2) - 1,
