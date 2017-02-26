@@ -1,4 +1,4 @@
-.colorpicker {
+.colorpicker-wrapper {
 	text-align: center;
 	canvas {
 		cursor: default;
@@ -12,6 +12,7 @@
 	.color-form {
 		vertical-align: top;
 		padding: 10px 0;
+		user-select: none;
 	}
 	.color-form-group:first-child {
 		padding-bottom: 4px;
@@ -44,9 +45,10 @@
 			}
 		}
 	}
-	.color-preview {
-		width: 100px;
-		height: 30px;
-		display: inline-block;
-	}
+}
+
+#color-preview {
+	width: 100px;
+	height: 30px;
+	display: inline-block;
 }
