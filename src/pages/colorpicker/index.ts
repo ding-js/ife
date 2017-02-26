@@ -3,7 +3,7 @@ import ColorBlock from './color-block';
 import ColorBar from './color-bar';
 import * as pub from './pub';
 
-const colors = document.querySelector('#colors');
+const colorText = document.querySelector('#color-text');
 
 const rgbElements = Array.prototype.slice.call(document.querySelectorAll('#rgb-info input'), 0),
 	hslElements = Array.prototype.slice.call(document.querySelectorAll('#hsl-info input'), 0);
@@ -22,7 +22,8 @@ const colorBlock = new ColorBlock(document.querySelector('#color-block') as HTML
 			el.value = hslData[index];
 		});
 
-		colors.innerHTML = `RGB:${rgbData.join(',')}<br>HSL:${hslData.join(',')}<br>HEX:#${pub.Rgb2Hex(rgbData)}`;
+		// 渲染文本信息
+		colorText.innerHTML = `RGB:${rgbData.join(',')}<br>HSL:${hslData.join(',')}<br>HEX:#${pub.Rgb2Hex(rgbData)}`;
 	}
 });
 
@@ -86,7 +87,6 @@ document.querySelector('#hsl-info').addEventListener('change', (e) => {
 		}
 		const rgb = pub.Hsl2Rgb(hsl);
 		const hex = '#' + pub.Rgb2Hex(rgb);
-		console.log(rgb, hsl, hex);
 		colorBlock.currentColor = hex;
 		colorBar.hideSlider();
 	}

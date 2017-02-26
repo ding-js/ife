@@ -1,7 +1,5 @@
 const path = require('path');
 
-const posix = path.posix;
-
 const getEntries = require('get-entries');
 
 const op = require('./index.js');

@@ -7,9 +7,11 @@
     "clean": "gulp clean --gulpfile config/gulpfile.js --cwd ./",
     "gulp": "gulp pug --gulpfile config/gulpfile.js --cwd ./",
     "gulp:w": "gulp watch --gulpfile config/gulpfile.js --cwd ./",
+    "webpack": "webpack --config config/webpack.prod.js",
     "webpack:dev": "webpack --config config/webpack.dev.js",
     "webpack:w": "webpack-dev-server --config config/webpack.dev.js",
-    "dev": "npm run clean && npm run webpack:dev && concurrently -r -k \"npm run webpack:w\" \"npm run gulp:w\" "
+    "dev": "npm run clean && npm run webpack:dev && concurrently -r -k \"npm run webpack:w\" \"npm run gulp:w\" ",
+    "prod": "npm run clean && npm run webpack && npm run gulp"
   },
   "repository": {
     "type": "git",
