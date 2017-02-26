@@ -23,7 +23,7 @@ gulp.task('pug', () =>
 	.pipe(data(file => {
 		const filePath = path.relative(path.resolve(op.src + 'pages'), file.path),
 			dirPath = path.dirname(filePath),
-			assetName = path.join(op.dist, dirPath, 'index.js');
+			assetName = path.join(op.dist, dirPath);
 
 		const root = filePath.split(path.sep).fill('../').join('');
 
@@ -32,6 +32,7 @@ gulp.task('pug', () =>
 		const _asset = assets[unixAssetName];
 
 		const _assetFile = {};
+
 
 		for (let prop in _asset) {
 			_assetFile[prop] = path.basename(_asset[prop]);

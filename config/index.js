@@ -2,6 +2,8 @@ const path = require('path');
 
 const webpack = require('webpack');
 
+const getEntries = require('get-entries');
+
 const AssetsPlugin = require('assets-webpack-plugin');
 
 const cssnano = require('cssnano'),
@@ -12,11 +14,17 @@ const config = {
 	dist: 'dist/'
 };
 
+const entries = getEntries('./' + config.src + 'pages/**/index.ts', config.dist, {
+	dir: true
+});
+
+
 Object.assign(config, {
 	webpackConfig: {
+		entry: entries,
 		output: {
 			path: path.resolve(__dirname, '../'),
-			filename: '[name].index.js',
+			filename: '[name]/index.js',
 			library: 'ding',
 			publicPath: ''
 		},

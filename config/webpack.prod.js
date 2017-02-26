@@ -2,17 +2,11 @@ const path = require('path');
 
 const webpack = require('webpack');
 
-const getEntries = require('get-entries');
-
 const op = require('./index.js'),
 
-	config = op.webpackConfig,
+	config = op.webpackConfig;
 
-	entries = getEntries('./' + op.src + 'pages/**/index.ts', op.dist);
-
-Object.assign(config, {
-	entry: entries
-});
+config.output.filename = '[name]/[hash].js';
 
 config.plugins.push(
 	new webpack.optimize.UglifyJsPlugin({
