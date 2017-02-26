@@ -25,6 +25,7 @@ gulp.task('pug', () =>
 			dirPath = path.dirname(filePath),
 			assetName = path.join(op.dist, dirPath, 'index.js');
 
+		const root = filePath.split(path.sep).fill('../').join('');
 
 		const unixAssetName = assetName.replace(/\\/g, '/');
 
@@ -38,7 +39,8 @@ gulp.task('pug', () =>
 
 		return {
 			_asset: _asset,
-			_assetFile: _assetFile
+			_assetFile: _assetFile,
+			_root: root
 		};
 	}))
 	.pipe(pug({
