@@ -10,7 +10,6 @@
 		margin-left: 10px;
 	}
 	.color-form {
-		width: 100px;
 		vertical-align: top;
 		padding: 10px 0;
 	}
@@ -23,6 +22,31 @@
 	}
 	.color-info {
 		height: 65px;
-		line-height: 65px;
+		label,
+		input {
+			display: inline-block;
+			height: 35px;
+			box-sizing: border-box;
+			margin: 0 8px;
+			font-size: 14px;
+			vertical-align: top;
+		}
+		label {
+			line-height: 35px;
+		}
+		input {
+			border: none;
+			outline: none;
+			border-bottom: 2px solid #eee;
+			transition: border-color .3s;
+			&:focus {
+				border-color: #FFC0CB;
+			}
+		}
+	}
+	.color-preview {
+		width: 100px;
+		height: 30px;
+		display: inline-block;
 	}
 }

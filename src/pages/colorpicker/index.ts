@@ -4,6 +4,7 @@ import ColorBar from './color-bar';
 import * as pub from './pub';
 
 const colorText = document.querySelector('#color-text');
+const colorPreview = document.querySelector('#color-preview') as HTMLElement;
 
 const rgbElements = Array.prototype.slice.call(document.querySelectorAll('#rgb-info input'), 0),
 	hslElements = Array.prototype.slice.call(document.querySelectorAll('#hsl-info input'), 0);
@@ -14,6 +15,8 @@ const colorBlock = new ColorBlock(document.querySelector('#color-block') as HTML
 
 		const hslData = pub.Rgb2Hsl(rgbData);
 
+		const hex = '#' + pub.Rgb2Hex(rgbData);
+
 		rgbElements.forEach((el, index) => {
 			el.value = rgbData[index];
 		});
@@ -23,7 +26,8 @@ const colorBlock = new ColorBlock(document.querySelector('#color-block') as HTML
 		});
 
 		// 渲染文本信息
-		colorText.innerHTML = `RGB:${rgbData.join(',')}<br>HSL:${hslData.join(',')}<br>HEX:#${pub.Rgb2Hex(rgbData)}`;
+		colorText.innerHTML = `RGB: ${rgbData.join(',')}<br>HSL: ${hslData.join(',')}<br>HEX: ${hex}`;
+		colorPreview.style.backgroundColor = hex;
 	}
 });
 
