@@ -3,7 +3,26 @@
 	canvas {
 		cursor: default;
 	}
-	canvas+canvas {
+	.colorpicker-item {
+		display: inline-block;
+	}
+	.colorpicker-item+.colorpicker-item {
 		margin-left: 10px;
+	}
+	.color-form {
+		width: 100px;
+		vertical-align: top;
+		padding: 10px 0;
+	}
+	.color-form-group:first-child {
+		padding-bottom: 4px;
+		border-bottom: 1px solid #eee;
+	}
+	.color-form-group:last-child {
+		padding-top: 5px;
+	}
+	.color-info {
+		height: 65px;
+		line-height: 65px;
 	}
 }
