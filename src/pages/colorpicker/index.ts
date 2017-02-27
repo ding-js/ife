@@ -74,7 +74,8 @@ document.querySelector('#hsl-info').addEventListener('change', (e) => {
 		const hsl: number[] = [];
 		const input = e.target as HTMLInputElement;
 		const _val = input.value,
-			_numberVal = parseInt(_val);
+			_numberVal = parseFloat(_val);
+
 		if (_val === '') {
 			return;
 		} else if (_numberVal < 0) {
@@ -93,6 +94,7 @@ document.querySelector('#hsl-info').addEventListener('change', (e) => {
 		}
 		const rgb = pub.Hsl2Rgb(hsl);
 		const hex = '#' + pub.Rgb2Hex(rgb);
+
 		colorBlock.currentColor = hex;
 		colorBar.hideSlider();
 	}
