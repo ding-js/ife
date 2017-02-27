@@ -29,6 +29,7 @@
     "css-loader": "^0.26.1",
     "cssnano": "^3.10.0",
     "del": "^2.2.2",
+    "extract-text-webpack-plugin": "^2.0.0",
     "get-entries": "^2.0.1",
     "gulp": "^3.9.1",
     "gulp-data": "^1.2.1",

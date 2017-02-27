@@ -2,11 +2,19 @@ const path = require('path');
 
 const webpack = require('webpack');
 
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+
 const op = require('./index.js'),
 
 	config = op.webpackConfig;
 
-config.output.filename = '[name]/[chunkhash].js?';
+config.output.filename = '[name]/[chunkhash].js';
+
+config.plugins.unshift(
+	new ExtractTextPlugin({
+		filename: '[name]/[chunkhash].css'
+	})
+);
 
 config.plugins.push(
 	new webpack.optimize.UglifyJsPlugin({
