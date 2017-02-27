@@ -4,7 +4,7 @@
   "description": "Baidu ife",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "gulp clean --gulpfile config/gulpfile.js --cwd ./",
+    "clean": "npm prune && npm update && gulp clean --gulpfile config/gulpfile.js --cwd ./",
     "gulp": "gulp pug --gulpfile config/gulpfile.js --cwd ./",
     "gulp:w": "gulp watch --gulpfile config/gulpfile.js --cwd ./",
     "webpack": "webpack --config config/webpack.prod.js",
@@ -46,5 +46,8 @@
     "typescript": "^2.2.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1"
+  },
+  "dependencies": {
+    "core-js": "^2.4.1"
   }
 }

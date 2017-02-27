@@ -41,7 +41,8 @@ gulp.task('pug', () => {
 			return {
 				_asset: _asset,
 				_assetFile: _assetFile,
-				_root: root
+				_root: root,
+				_common: assets['dist/common']
 			};
 		}))
 		.pipe(pug({

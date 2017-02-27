@@ -17,7 +17,8 @@ const config = {
 };
 
 const entries = getEntries('./' + config.src + 'pages/**/index.ts', config.dist, {
-	dir: true
+	dir: true,
+	publicModule: ['global']
 });
 
 
@@ -78,6 +79,9 @@ Object.assign(config, {
 		context: path.resolve(__dirname, '../'),
 		target: 'web',
 		plugins: [
+			new webpack.optimize.CommonsChunkPlugin({
+				name: 'dist/common'
+			}),
 			new AssetsPlugin({
 				path: 'config'
 			})

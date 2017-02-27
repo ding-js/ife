@@ -117,6 +117,8 @@ class Cloud {
 		// 	});
 		// }, 100);
 	}
+
+
 }
 
 new Cloud(tagcloud);
@@ -134,3 +136,4 @@ function createRandomText(): string {
 
 	return text;
 }
+
