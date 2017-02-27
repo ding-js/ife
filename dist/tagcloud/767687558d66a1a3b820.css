@@ -1,0 +1,5 @@
+/*!
+ * Copyright 2017 by ding
+ * @author Ding <ding-js@outlook.com>
+ */
+.tagcloud-wrapper .tagcloud{padding:0;width:400px;height:400px;margin:0 auto;list-style:none;position:relative}.tagcloud-wrapper .tagcloud li{display:inline-block;position:absolute;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%)}

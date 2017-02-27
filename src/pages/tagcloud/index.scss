@@ -1,0 +1,15 @@
+.tagcloud-wrapper {
+	.tagcloud {
+		padding: 0;
+		width: 400px;
+		height: 400px;
+		margin: 0 auto;
+		list-style: none;
+		position: relative;
+		li {
+			display: inline-block;
+			position: absolute;
+			transform: translate(-50%, -50%);
+		}
+	}
+}
