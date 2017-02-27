@@ -1,1 +1,1 @@
-import 'core-js/es6/object.js';
+import 'core-js/es6';
