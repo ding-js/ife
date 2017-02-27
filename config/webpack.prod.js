@@ -6,7 +6,7 @@ const op = require('./index.js'),
 
 	config = op.webpackConfig;
 
-config.output.filename = '[name]/[hash].js';
+config.output.filename = '[name]/[chunkhash].js?';
 
 config.plugins.push(
 	new webpack.optimize.UglifyJsPlugin({
