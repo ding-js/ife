@@ -6,7 +6,7 @@ const loading = document.querySelector('#loading') as HTMLElement,
 	total = document.querySelector('#scroll-controller [name="total"]') as HTMLInputElement,
 	step = document.querySelector('#scroll-controller [name="step"]') as HTMLInputElement;
 
-const distance = 200;	// 触发函数时离可视区域距离
+const distance = window.innerHeight * 0.2;	// 触发函数时离可视区域距离
 
 let data = [];	// 假数据
 
@@ -119,6 +119,7 @@ document.querySelector('#scroll-controller').addEventListener('change', (e) => {
 		const val = +el.value,
 			min = +el.getAttribute('min'),
 			max = +el.getAttribute('max');
+
 		if (val < min || val === 0) {
 			el.value = '';
 		} else if (val > max) {
