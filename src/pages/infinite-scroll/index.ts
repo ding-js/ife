@@ -78,14 +78,14 @@ function init() {
 		// 在loading时,等待loading结束重新调用
 		state.init = true;
 	} else {
-		const itemLength = +total.value;
+		const itemLength = +total.value || +(total.dataset as any).default;
 
 		// 如果上一轮中已经全部显示需要重新绑定事件和显示Loading元素
 		if (state.isLast) {
 			reset();
 		}
 
-		itemStep = +step.value;
+		itemStep = +step.value || +(step.dataset as any).default;
 
 		state = {
 			index: 0,
@@ -119,7 +119,7 @@ document.querySelector('#scroll-controller').addEventListener('change', (e) => {
 		const val = +el.value,
 			min = +el.getAttribute('min'),
 			max = +el.getAttribute('max');
-		if (val < min) {
+		if (val < min || val === 0) {
 			el.value = (el.dataset as any).default;
 		} else if (val > max) {
 			el.value = '' + max;

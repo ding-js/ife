@@ -6,9 +6,9 @@ block main
       h2 Infinite Scroll
       form#scroll-controller
         .form-group
-          input(type="number",placeholder="数据总数",name="total",min="0",data-default="100",max="3000",value="100")
+          input(type="number",placeholder="数据总数,默认为100",name="total",min="0",data-default="100",max="3000")
         .form-group
-          input(type="number",placeholder="每次载入的数量",name="step",min="0",data-default="20",max="3000",value="20")
+          input(type="number",placeholder="每次载入的数量,默认为20",name="step",min="0",data-default="20",max="3000")
     main
       ul#scroll-content.scroll-content
       #loading.loading
