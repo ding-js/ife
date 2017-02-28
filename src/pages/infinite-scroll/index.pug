@@ -1,0 +1,16 @@
+extends /layout/main
+
+block main
+  .contariner
+    header
+      h2 Infinite Scroll
+      form#scroll-controller
+        .form-group
+          input(type="number",placeholder="数据总数",name="total",min="0")
+        .form-group
+          input(type="number",placeholder="每次载入的数量",name="step",min="0")
+    main
+      ul#scroll-content.scroll-content
+      #loading.loading
+        span.loading-text i'm loading!
+

@@ -35,15 +35,6 @@
 		label {
 			line-height: 35px;
 		}
-		input {
-			border: none;
-			outline: none;
-			border-bottom: 2px solid #eee;
-			transition: border-color .3s;
-			&:focus {
-				border-color: #ffc0cb;
-			}
-		}
 	}
 }
 

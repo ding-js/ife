@@ -1,0 +1,16 @@
+.form-group {
+	input {
+		margin-bottom: 10px;
+	}
+}
+
+input {
+	border: none;
+	outline: none;
+	border-bottom: 2px solid #eee;
+	transition: border-color .3s;
+	height: 25px;
+	&:focus {
+		border-color: #ffc0cb;
+	}
+}
