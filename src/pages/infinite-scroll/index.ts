@@ -43,6 +43,7 @@ function fillElements(items) {
 
 const checkScroll = throttle(() => {
 	const distance = loading.offsetTop - document.body.scrollTop - window.innerHeight;	// loading元素距离页面底部
+
 	if (!state.isLast && !state.loading && distance < 200) {
 		state.loading = true;
 		getScrollData(state.index, itemStep, (items, isLast) => {
@@ -58,7 +59,7 @@ const checkScroll = throttle(() => {
 			}
 		});
 	}
-}, 200);
+}, 100);
 
 function init() {
 	// 在loading时改变则等待loading结束重新调用
@@ -67,9 +68,9 @@ function init() {
 			init();
 		}, 200);
 	} else {
-		const itemLength = +total.value || 100;
+		const itemLength = +total.value || +(total.dataset as any).default;
 
-		itemStep = +step.value || 20;
+		itemStep = +step.value || +(step.dataset as any).default;
 
 		state = {
 			index: 0,
@@ -84,6 +85,8 @@ function init() {
 			data.push(`Item ${i}`);
 		}
 
+		loading.style.display = 'block';
+
 		content.innerHTML = '';
 
 		checkScroll();
@@ -93,9 +96,13 @@ function init() {
 document.querySelector('#scroll-controller').addEventListener('change', (e) => {
 	const el = e.target as HTMLInputElement;
 	if (el.tagName.toLowerCase() === 'input') {
-		const val = +el.value;
-		if (val <= 0) {
-			el.value = '0';
+		const val = +el.value,
+			min = +el.getAttribute('min'),
+			max = +el.getAttribute('max');
+		if (val < min) {
+			el.value = (el.dataset as any).default;
+		} else if (val > max) {
+			el.value = '' + max;
 		}
 
 		init();
