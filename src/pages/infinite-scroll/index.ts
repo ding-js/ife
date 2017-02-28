@@ -120,7 +120,7 @@ document.querySelector('#scroll-controller').addEventListener('change', (e) => {
 			min = +el.getAttribute('min'),
 			max = +el.getAttribute('max');
 		if (val < min || val === 0) {
-			el.value = (el.dataset as any).default;
+			el.value = '';
 		} else if (val > max) {
 			el.value = '' + max;
 		}
