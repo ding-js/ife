@@ -15,7 +15,7 @@ const config = {
 	src: './src/',
 	dist: './dist/',
 	devName: '[name]/index',
-	prodName: '[name]/[hash]',
+	prodName: '[name]/[chunkhash]',
 	devPublicPath: '/dist/',
 	prodPublicPath: '/ife/dist/',
 	commonName: 'common'
