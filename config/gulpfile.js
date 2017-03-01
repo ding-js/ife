@@ -34,7 +34,7 @@ gulp.task('pug', () => {
 
 			const _common = assets[op.commonName];
 
-			const _root = filePath.split(path.sep).fill('../');
+			const _root = filePath.split(path.sep).fill('../').join('');
 
 			for (let prop in _asset) {
 				_assetFile[prop] = path.basename(_asset[prop]);
