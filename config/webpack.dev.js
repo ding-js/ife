@@ -9,7 +9,7 @@ const config = op.webpackConfig;
 
 config.plugins.unshift(
 	new ExtractTextPlugin({
-		filename: '[name]/index.css'
+		filename: op.devName + '.css'
 	})
 );
 

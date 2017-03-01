@@ -8,11 +8,15 @@ const op = require('./index.js'),
 
 	config = op.webpackConfig;
 
-config.output.filename = '[name]/[chunkhash].js';
+
+Object.assign(config.output, {
+	filename: op.prodName + '.js',
+	publicPath: op.prodPublicPath
+});
 
 config.plugins.unshift(
 	new ExtractTextPlugin({
-		filename: '[name]/[chunkhash].css'
+		filename: op.prodName + '.css'
 	})
 );
 

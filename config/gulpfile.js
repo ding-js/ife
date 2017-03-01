@@ -20,19 +20,21 @@ gulp.task('pug', () => {
 
 	return gulp.src(op.src + 'pages/**/index.pug')
 		.pipe(plumber())
+
 		.pipe(data(file => {
 			const filePath = path.relative(path.resolve(op.src + 'pages'), file.path),
-				dirPath = path.dirname(filePath),
-				assetName = path.join(op.dist, dirPath);
-
-			const root = filePath.split(path.sep).fill('../').join('');
+				dirPath = path.dirname(filePath);
 
 			// new RegExp(path.sep) 报错
-			const unixAssetName = assetName.split(path.sep).join(posix.sep);
+			const unixAssetName = dirPath.split(path.sep).join(posix.sep);
 
 			const _asset = assets[unixAssetName];
 
 			const _assetFile = {};
+
+			const _common = assets[op.commonName];
+
+			const _root = filePath.split(path.sep).fill('../');
 
 			for (let prop in _asset) {
 				_assetFile[prop] = path.basename(_asset[prop]);
@@ -41,8 +43,8 @@ gulp.task('pug', () => {
 			return {
 				_asset: _asset,
 				_assetFile: _assetFile,
-				_root: root,
-				_common: assets['dist/common']
+				_common: _common,
+				_root: _root
 			};
 		}))
 		.pipe(pug({

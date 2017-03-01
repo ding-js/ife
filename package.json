@@ -30,7 +30,7 @@
     "cssnano": "^3.10.0",
     "del": "^2.2.2",
     "extract-text-webpack-plugin": "^2.0.0",
-    "get-entries": "^2.0.1",
+    "get-entries": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-data": "^1.2.1",
     "gulp-plumber": "^1.1.0",

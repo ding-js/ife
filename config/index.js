@@ -12,11 +12,16 @@ const cssnano = require('cssnano'),
 	autoprefixer = require('autoprefixer');
 
 const config = {
-	src: 'src/',
-	dist: 'dist/'
+	src: './src/',
+	dist: './dist/',
+	devName: '[name]/index',
+	prodName: '[name]/[hash]',
+	devPublicPath: '/dist/',
+	prodPublicPath: '/ife/dist/',
+	commonName: 'common'
 };
 
-const entries = getEntries('./' + config.src + 'pages/**/index.ts', config.dist, {
+const entries = getEntries(config.src + 'pages/**/index.ts', {
 	dir: true,
 	publicModule: ['global']
 });
@@ -26,10 +31,10 @@ Object.assign(config, {
 	webpackConfig: {
 		entry: entries,
 		output: {
-			path: path.resolve(__dirname, '../'),
-			filename: '[name]/index.js',
-			library: 'ding',
-			publicPath: ''
+			path: path.resolve(__dirname, '../', config.dist),
+			filename: config.devName + '.js',
+			library: 'ding[id]',
+			publicPath: config.devPublicPath
 		},
 		module: {
 			rules: [{
@@ -42,8 +47,7 @@ Object.assign(config, {
 					use: [{
 							loader: 'css-loader',
 							options: {
-								sourceMap: true,
-								importLoaders: 2
+								sourceMap: true
 							}
 						}, {
 							loader: 'postcss-loader',
@@ -80,7 +84,7 @@ Object.assign(config, {
 		target: 'web',
 		plugins: [
 			new webpack.optimize.CommonsChunkPlugin({
-				name: 'dist/common'
+				name: config.commonName
 			}),
 			new AssetsPlugin({
 				path: 'config'

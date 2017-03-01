@@ -9,7 +9,7 @@ html
     meta(name="renderer",content="webkit")
     link(href=_root+"favicon.ico",rel="icon",type="image/x-icon")
     if _common&&_common.css
-      link(href=_root+_common.css,rel="stylesheet",type="text/css")
+      link(href=_common.css,rel="stylesheet",type="text/css")
     if _assetFile&&_assetFile.css
       link(href=_assetFile.css,rel="stylesheet",type="text/css")
 
@@ -17,6 +17,6 @@ html
   body
     block main
     if _common&&_common.js
-      script(src=_root+_common.js)
+      script(src=_common.js)
     if _assetFile&&_assetFile.js
       script(src=_assetFile.js)
