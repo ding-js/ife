@@ -17,6 +17,7 @@ if (window.innerWidth < 768) {
 }
 const clock = new Clock(clockCanvas);
 
+// 修改Input值
 timeFormGroup.addEventListener('change', (e) => {
 	const el = e.target as HTMLInputElement;
 	if (el.tagName.toLowerCase() !== 'input') {
@@ -44,7 +45,7 @@ timeFormGroup.addEventListener('change', (e) => {
 	}
 });
 
-
+// 设置时间
 setTimeBtn.addEventListener('click', (e) => {
 	const now = new Date();
 	const current = getInputDate();
@@ -54,6 +55,7 @@ setTimeBtn.addEventListener('click', (e) => {
 	clock.offset = current.getTime() - now.getTime();
 });
 
+// 设置时区
 pickZone.addEventListener('change', (e) => {
 	const el = e.target as HTMLSelectElement,
 		val = +el.value,
@@ -67,6 +69,7 @@ pickZone.addEventListener('change', (e) => {
 	clock.offset = offset + getMilliseconds(val);
 });
 
+// 设置闹钟
 setAlarmBtn.addEventListener('click', (e) => {
 	clock.setAlarm(getInputDate(), (index) => {
 		toast(`第${index + 1}个闹钟响啦!`);
@@ -74,20 +77,23 @@ setAlarmBtn.addEventListener('click', (e) => {
 	});
 
 	updateAlarmInfo();
+	pickZone.value = '';
 });
 
+// 重置时钟与闹钟
 resetClockBtn.addEventListener('click', () => {
 	clock.offset = 0;
 	clock.clearAlarm();
 	updateAlarmInfo();
 });
 
+// 跟新闹钟信息
 function updateAlarmInfo() {
 	const alarms = clock.alarm;
 	let str: string = '';
 	if (alarms && alarms.length > 0) {
 		alarms.forEach((a, index) => {
-			str += `<p>闹钟${index + 1} : ${a.time.toString()}</p>`;
+			str += `<p>闹钟${index + 1} : ${a.time.toLocaleTimeString()}</p>`;
 		});
 	} else {
 		str = '暂无闹钟';
@@ -96,7 +102,8 @@ function updateAlarmInfo() {
 	alarmInfo.innerHTML = str;
 }
 
-function getInputDate() {
+// 获取输去的时间
+function getInputDate(): Date {
 	const now = new Date();
 
 	const today = new Date(now.getTime() - getMilliseconds(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds())).getTime();
@@ -110,6 +117,7 @@ function getInputDate() {
 	return current;
 }
 
+// 计算毫秒数
 function getMilliseconds(...args): number {
 	const msList = [60, 60, 1000, 1],
 		len = msList.length;

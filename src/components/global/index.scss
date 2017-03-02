@@ -1,5 +1,7 @@
 .form-group {
-	input {
+	input,
+	select,
+	button {
 		margin-bottom: 10px;
 	}
 }
@@ -10,13 +12,24 @@ select {
 	outline: none;
 	border-bottom: 2px solid #eee;
 	transition: border-color .3s;
-	height: 25px;
+	height: 28px;
+	box-sizing: border-box;
+	padding: 1px 0;
+	vertical-align: middle;
 	&:focus {
 		border-color: #ffc0cb;
 	}
 }
 
+.form-group {
+	input+input,
+	input+select,
+	button+button {
+		margin-left: 10px;
+	}
+}
+
 button {
 	outline: none;
-	height: 29px;
+	height: 28px;
 }

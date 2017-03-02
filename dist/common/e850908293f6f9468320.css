@@ -1,5 +1,0 @@
-/*!
- * Copyright 2017 by ding
- * @author Ding <ding-js@outlook.com>
- */
-.form-group input{margin-bottom:10px}input,select{border:none;outline:none;border-bottom:2px solid #eee;-webkit-transition:border-color .3s;transition:border-color .3s;height:25px}input:focus,select:focus{border-color:pink}button{outline:none;height:29px}

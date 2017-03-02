@@ -9,10 +9,6 @@ block main
           input(type="number",placeholder="小时",step="1",min="0",max="23")
           input(type="number",placeholder="分钟",step="1",min="0",max="59")
           input(type="number",placeholder="秒",step="1",min="0",max="59")
-          button#set-time(type="button") 设置时间
-          button#set-alarm(type="button") 设置闹钟
-          button#reset-clock(type="reset") 重置时钟
-        .form-group
           select#pick-zone
             option(value="") 选择时区
             - for(let i=-11;i<=12;i++)
@@ -25,6 +21,10 @@ block main
                   if i>0
                      - before="UCT+";
                 option(value=i)= before+after
+        .form-group
+          button#set-time(type="button") 设置时间
+          button#set-alarm(type="button") 设置闹钟
+          button#reset-clock(type="reset") 重置时钟
       section
         h3 闹钟列表
         #alarm-info 暂无闹钟

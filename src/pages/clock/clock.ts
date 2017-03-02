@@ -12,6 +12,7 @@ interface IAlarm {
 	time: Date;
 	cb: Function;
 }
+
 export default class Clock {
 	private _canvas: HTMLCanvasElement;
 	private _ctx: CanvasRenderingContext2D;
@@ -61,6 +62,7 @@ export default class Clock {
 			color = op.color,
 			radius = op.radius,
 			borderWidth = radius * 0.08;
+
 		ctx.save();
 		ctx.clearRect(0, 0, width, height);
 
@@ -82,15 +84,15 @@ export default class Clock {
 
 		ctx.translate(radius, radius);
 
+		// 提前量
 		ctx.rotate(-Math.PI / 30);
 
 		for (let i = 0; i < 60; i++) {
-			const scaleWidth = i % 5 === 0 ? radius / 35 : radius / 70;
-			const scaleHeight = radius / 10;
+			const scaleWidth = i % 5 === 0 ? radius / 35 : radius / 70,
+				scaleHeight = radius / 10;
 
 			const x = -scaleWidth / 2,
 				y = distance2Top - radius;
-
 
 			ctx.rotate(Math.PI / 30);
 			ctx.beginPath();
@@ -209,6 +211,7 @@ export default class Clock {
 		window.requestAnimationFrame(this.draw);
 	}
 
+
 	private getCoordinate(radius: number, radian: number): ICoordinate {
 		const r = this._radius;
 
@@ -218,7 +221,7 @@ export default class Clock {
 		};
 	}
 
-
+	// 获取正确的时间
 	private getCurrentTime() {
 		const now = new Date();
 		let date;
@@ -228,7 +231,6 @@ export default class Clock {
 		} else {
 			date = now;
 		}
-
 
 		const [h, m, s, ms] = [
 			date.getHours(),
@@ -247,6 +249,7 @@ export default class Clock {
 		};
 	}
 
+	// 检验触发闹钟
 	private triggerAlarm(date: Date) {
 		const alarms = this._alarm;
 		if (!alarms || alarms.length <= 0) {
@@ -260,6 +263,7 @@ export default class Clock {
 
 		alarms.forEach((alarm, index) => {
 			if (Math.abs(date.getTime() - alarm.time.getTime()) < 100) {
+				// 不在这里出发回调是因为回调发生时_alarm还没有改变
 				deleteAlarms.push({
 					index: index,
 					alarm: alarm
@@ -268,12 +272,14 @@ export default class Clock {
 		});
 
 		deleteAlarms.forEach((deleteAlarm, index) => {
+			// 每次移除之后数组的长度就会变化,所以是升序,所以直接减去这个循环的index就正确的索引
 			const currentIndex = deleteAlarm.index - index;
 			this._alarm.splice(currentIndex, currentIndex + 1);
 			deleteAlarm.alarm.cb(index);
 		});
 	}
 
+	// 设置闹钟
 	public setAlarm(time: Date, cb: Function) {
 		if (!this._alarm) {
 			this._alarm = [];
@@ -296,5 +302,4 @@ export default class Clock {
 	get alarm() {
 		return this._alarm;
 	}
-
 }
