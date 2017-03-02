@@ -3,11 +3,12 @@ import { toast } from 'utils';
 import Clock from './clock';
 const timeFormGroup = document.querySelector('#time'),
 	timeFormInput: HTMLInputElement[] = Array.prototype.slice.call(timeFormGroup.querySelectorAll('input')),
-	pickZone = document.querySelector('#pick-zone') as HTMLSelectElement,
 	clockCanvas = document.querySelector('#clock') as HTMLCanvasElement,
-	setAlarm = document.querySelector('#set-alarm') as HTMLElement,
+	pickZone = document.querySelector('#pick-zone') as HTMLSelectElement,
 	alarmInfo = document.querySelector('#alarm-info') as HTMLElement,
-	resetClock = document.querySelector('#reset-clock') as HTMLElement;
+	setAlarmBtn = document.querySelector('#set-alarm') as HTMLElement,
+	resetClockBtn = document.querySelector('#reset-clock') as HTMLElement,
+	setTimeBtn = document.querySelector('#set-time') as HTMLElement;
 
 if (window.innerWidth < 768) {
 	const side = Math.min(window.innerWidth, window.innerHeight) - 10;
@@ -18,14 +19,12 @@ const clock = new Clock(clockCanvas);
 
 timeFormGroup.addEventListener('change', (e) => {
 	const el = e.target as HTMLInputElement;
-	if (el.tagName.toLowerCase() !== 'input' || setAlarm.dataset.set) {
+	if (el.tagName.toLowerCase() !== 'input') {
 		return;
 	}
 	const valStr = el.value,
 		val = +valStr,
 		max = +el.getAttribute('max');
-
-	const now = new Date();
 
 	if (valStr === '') {
 		el.value = '';
@@ -43,7 +42,11 @@ timeFormGroup.addEventListener('change', (e) => {
 			el.value = '' + val;
 		}
 	}
+});
 
+
+setTimeBtn.addEventListener('click', (e) => {
+	const now = new Date();
 	const current = getInputDate();
 
 	pickZone.value = '';
@@ -64,33 +67,27 @@ pickZone.addEventListener('change', (e) => {
 	clock.offset = offset + getMilliseconds(val);
 });
 
-setAlarm.addEventListener('click', (e) => {
-	const el = e.target as HTMLElement;
-	if (!el.dataset.set) {
-		el.innerHTML = '保存闹钟';
-		el.dataset.set = 'true';
-	} else {
-		el.innerHTML = '设置闹钟';
-		el.dataset.set = '';
-		clock.setAlarm(getInputDate(), () => {
-			toast('闹钟来了！');
-			updateAlarmInfo();
-		});
+setAlarmBtn.addEventListener('click', (e) => {
+	clock.setAlarm(getInputDate(), (index) => {
+		toast(`第${index + 1}个闹钟响啦!`);
 		updateAlarmInfo();
-	}
-	resetClock.click();
+	});
+
+	updateAlarmInfo();
 });
 
-resetClock.addEventListener('click', () => {
+resetClockBtn.addEventListener('click', () => {
 	clock.offset = 0;
+	clock.clearAlarm();
+	updateAlarmInfo();
 });
 
 function updateAlarmInfo() {
 	const alarms = clock.alarm;
 	let str: string = '';
 	if (alarms && alarms.length > 0) {
-		alarms.forEach(a => {
-			str += `<p>${a.time.toString()}</p>`;
+		alarms.forEach((a, index) => {
+			str += `<p>闹钟${index + 1} : ${a.time.toString()}</p>`;
 		});
 	} else {
 		str = '暂无闹钟';

@@ -153,6 +153,7 @@ export default class Clock {
 				topWidth: 0.02
 			}
 		];
+
 		const tanBottom = Math.tan(Math.PI * 60 / 180),
 			tanTop = Math.tan(Math.PI * 30 / 180);
 
@@ -269,7 +270,7 @@ export default class Clock {
 		deleteAlarms.forEach((deleteAlarm, index) => {
 			const currentIndex = deleteAlarm.index - index;
 			this._alarm.splice(currentIndex, currentIndex + 1);
-			deleteAlarm.alarm.cb();
+			deleteAlarm.alarm.cb(index);
 		});
 	}
 
@@ -282,6 +283,10 @@ export default class Clock {
 			time,
 			cb
 		});
+	}
+
+	public clearAlarm() {
+		this._alarm = [];
 	}
 
 	set offset(time: number) {
