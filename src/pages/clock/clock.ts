@@ -3,6 +3,15 @@ interface IClockOptions {
 	color?: string;
 }
 
+interface ICoordinate {
+	x?: number;
+	y?: number;
+}
+
+interface IAlarm {
+	time: Date;
+	cb: Function;
+}
 export default class Clock {
 	private _canvas: HTMLCanvasElement;
 	private _ctx: CanvasRenderingContext2D;
@@ -10,6 +19,8 @@ export default class Clock {
 	private _height: number;
 	private _radius: number;
 	private _options: IClockOptions;
+	private _timeOffset: number;
+	private _alarm: IAlarm[];
 
 	constructor(canvas: HTMLCanvasElement, options?: IClockOptions) {
 		this._canvas = canvas;
@@ -38,10 +49,11 @@ export default class Clock {
 	}
 
 	private draw = () => {
+		const time = this.getCurrentTime();
 		const ctx = this._ctx,
 			width = this._width,
 			height = this._height,
-			center = {
+			center: ICoordinate = {
 				x: width / 2,
 				y: height / 2
 			},
@@ -89,7 +101,6 @@ export default class Clock {
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 
 		ctx.restore();
-
 		ctx.save();
 
 		// 绘制数字
@@ -102,36 +113,122 @@ export default class Clock {
 		ctx.textBaseline = 'middle';
 
 		for (let i = 1; i <= 12; i++) {
-			const radian = i / 12 * 2 * Math.PI,
-				x = radius + Math.sin(radian) * numberRadius,
-				y = radius - Math.cos(radian) * numberRadius;
+			const radian = i / 12 * 2 * Math.PI;
+			const coordinate = this.getCoordinate(numberRadius, radian),
+				x = coordinate.x,
+				y = coordinate.y;
 			ctx.fillText('' + i, x, y);
 		}
 
+		// 绘制表盘文字
+
+
+		ctx.font = `${font * 0.6}px sans-serif`;
+		ctx.fillText(`${time.h > 12 ? 'P.M' : 'A.M'}`, center.x, height * 0.3);
+
 		ctx.restore();
-
 		ctx.save();
+		// 绘制指针
 
-		const time = this.getCurrentTime();
-		// 绘制秒针
-		const secondRadius = radius * 0.75;
+		const pointerList = [
+			{
+				top: 0.72,
+				bottom: 0.24,
+				r: time.sR,
+				bottomWidth: 0.02,
+				topWidth: 0.01
+			},
+			{
+				top: 0.6,
+				bottom: 0.18,
+				r: time.mR,
+				bottomWidth: 0.06,
+				topWidth: 0.03
+			},
+			{
+				top: 0.4,
+				bottom: 0.13,
+				r: time.hR,
+				bottomWidth: 0.045,
+				topWidth: 0.02
+			}
+		];
+		const tanBottom = Math.tan(Math.PI * 60 / 180),
+			tanTop = Math.tan(Math.PI * 30 / 180);
 
 		ctx.fillStyle = color;
 
+		pointerList.forEach(p => {
+			const bottom = radius * p.bottom,
+				bottomWidth = radius * p.bottomWidth / 2,
+				bottomHeight = bottomWidth / tanBottom;
+
+			const top = radius * p.top,
+				topWidth = radius * p.topWidth / 2,
+				topHeight = topWidth / tanTop;
+			ctx.translate(radius, radius);
+			ctx.rotate(p.r);
+			ctx.beginPath();
+			ctx.moveTo(0, bottom);
+			// buttomLeft
+			ctx.lineTo(-bottomWidth, bottom - bottomHeight);
+
+			// topLeft
+			ctx.lineTo(-topWidth, -top + topHeight);
+
+			// top
+			ctx.lineTo(0, -top);
+
+			// topRight
+			ctx.lineTo(topWidth, -top + topHeight);
+
+			// bottomRight
+			ctx.lineTo(bottomWidth, bottom - bottomHeight);
+
+			// bottom
+			ctx.lineTo(0, bottom);
+
+
+			ctx.fill();
+			ctx.setTransform(1, 0, 0, 1, 0, 0);
+		});
+
+		ctx.restore();
+		ctx.save();
+
+		ctx.fillStyle = '#fff';
 		ctx.beginPath();
+		ctx.arc(center.x, center.y, radius * 0.02, 0, 2 * Math.PI);
+		ctx.fill();
 
-		ctx.moveTo(radius, radius);
-		ctx.lineTo(radius + secondRadius * Math.sin(time.sR), radius - secondRadius * Math.cos(time.sR));
+		ctx.restore();
 
-		ctx.stroke();
+		this.triggerAlarm(time.date);
 
 		window.requestAnimationFrame(this.draw);
 	}
 
+	private getCoordinate(radius: number, radian: number): ICoordinate {
+		const r = this._radius;
+
+		return {
+			x: r + radius * Math.sin(radian),
+			y: r - radius * Math.cos(radian)
+		};
+	}
 
 
 	private getCurrentTime() {
-		const date = new Date();
+		const now = new Date();
+		let date;
+
+		if (this._timeOffset) {
+			date = new Date(now.getTime() + this._timeOffset);
+		} else {
+			date = now;
+		}
+
+
 		const [h, m, s, ms] = [
 			date.getHours(),
 			date.getMinutes(),
@@ -139,11 +236,60 @@ export default class Clock {
 			date.getMilliseconds()
 		];
 
-		const [hR, mR, sR] = [(h + m / 60) / 12, (m + s / 60) / 60, (s + ms / 1000) / 60].map(v => v * 2 * Math.PI);
+		const cS = s + ms / 1000,
+			cM = m + cS / 60,
+			cH = h + cM / 60;
 
+		const [hR, mR, sR] = [cH / 12, cM / 60, cS / 60].map(v => v * 2 * Math.PI);
 		return {
-			h, m, s, hR, mR, sR
+			hR, mR, sR, date, h, s, m
 		};
+	}
+
+	private triggerAlarm(date: Date) {
+		const alarms = this._alarm;
+		if (!alarms || alarms.length <= 0) {
+			return;
+		}
+
+		const deleteAlarms: {
+			index: number;
+			alarm: IAlarm;
+		}[] = [];
+
+		alarms.forEach((alarm, index) => {
+			if (Math.abs(date.getTime() - alarm.time.getTime()) < 100) {
+				deleteAlarms.push({
+					index: index,
+					alarm: alarm
+				});
+			}
+		});
+
+		deleteAlarms.forEach((deleteAlarm, index) => {
+			const currentIndex = deleteAlarm.index - index;
+			this._alarm.splice(currentIndex, currentIndex + 1);
+			deleteAlarm.alarm.cb();
+		});
+	}
+
+	public setAlarm(time: Date, cb: Function) {
+		if (!this._alarm) {
+			this._alarm = [];
+		}
+
+		this._alarm.push({
+			time,
+			cb
+		});
+	}
+
+	set offset(time: number) {
+		this._timeOffset = time;
+	}
+
+	get alarm() {
+		return this._alarm;
 	}
 
 }

@@ -4,7 +4,8 @@
 	}
 }
 
-input {
+input,
+select {
 	border: none;
 	outline: none;
 	border-bottom: 2px solid #eee;
@@ -13,4 +14,9 @@ input {
 	&:focus {
 		border-color: #ffc0cb;
 	}
+}
+
+button {
+	outline: none;
+	height: 29px;
 }
