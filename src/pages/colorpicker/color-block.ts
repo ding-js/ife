@@ -1,10 +1,10 @@
-import * as pub from './pub';
-interface IOptions {
+import * as utils from './utils';
+export interface IColorBlockOptions {
 	lineWidth?: number;
 	onColorChange?(pixel: ImageData);
 }
 
-export default class ColorBlock {
+export class ColorBlock {
 	private _padding: number = 10;
 	private _element: HTMLCanvasElement;
 	private _ctx: CanvasRenderingContext2D;
@@ -18,11 +18,11 @@ export default class ColorBlock {
 	private _moveEvt: boolean = false;
 
 	// 默认的光圈样式
-	private _options: IOptions = {
+	private _options: IColorBlockOptions = {
 		lineWidth: 1
 	};
 
-	constructor(element: HTMLCanvasElement, options?: IOptions) {
+	constructor(element: HTMLCanvasElement, options?: IColorBlockOptions) {
 		if (options) {
 			Object.assign(this._options, options);
 		}
@@ -189,7 +189,7 @@ export default class ColorBlock {
 		}
 
 		for (let p of closestPixel) {
-			const hex = '#' + pub.Rgb2Hex(pub.ImageData2Rgb(ctx.getImageData(p.x, p.y, 1, 1)));
+			const hex = '#' + utils.Rgb2Hex(utils.ImageData2Rgb(ctx.getImageData(p.x, p.y, 1, 1)));
 			if (hex === color) {
 				this._x = p.x;
 				this._y = p.y;
@@ -203,3 +203,4 @@ export default class ColorBlock {
 		this.draw();
 	}
 }
+

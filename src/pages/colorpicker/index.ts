@@ -1,22 +1,20 @@
 import './index.scss';
-import ColorBlock from './color-block';
-import ColorBar from './color-bar';
-// 该页面使用到的公共方法
-import * as pub from './pub';
+import { ColorPicker, utils } from './colorpicker';
+
+const container = document.querySelector('#container') as HTMLElement;
+const rgbElements = Array.prototype.slice.call(document.querySelectorAll('#rgb-info input'), 0),
+	hslElements = Array.prototype.slice.call(document.querySelectorAll('#hsl-info input'), 0);
 
 const colorText = document.querySelector('#color-text');
 const colorPreview = document.querySelector('#color-preview') as HTMLElement;
 
-const rgbElements = Array.prototype.slice.call(document.querySelectorAll('#rgb-info input'), 0),
-	hslElements = Array.prototype.slice.call(document.querySelectorAll('#hsl-info input'), 0);
+const picker = new ColorPicker(container, {
+	onBlockColorChange: (pixel) => {
+		const rgbData = utils.ImageData2Rgb(pixel);
 
-const colorBlock = new ColorBlock(document.querySelector('#color-block') as HTMLCanvasElement, {
-	onColorChange: (pixel) => {
-		const rgbData = pub.ImageData2Rgb(pixel);
+		const hslData = utils.Rgb2Hsl(rgbData);
 
-		const hslData = pub.Rgb2Hsl(rgbData);
-
-		const hex = '#' + pub.Rgb2Hex(rgbData);
+		const hex = '#' + utils.Rgb2Hex(rgbData);
 
 		rgbElements.forEach((el, index) => {
 			el.value = rgbData[index];
@@ -29,13 +27,6 @@ const colorBlock = new ColorBlock(document.querySelector('#color-block') as HTML
 		// 渲染文本信息和预览
 		colorText.innerHTML = `RGB: ${rgbData.join(',')}<br>HSL: ${hslData.join(',')}<br>HEX: ${hex}`;
 		colorPreview.style.backgroundColor = hex;
-	}
-});
-
-const colorBar = new ColorBar(document.querySelector('#color-bar') as HTMLCanvasElement, {
-	onColorChange: (pixel) => {
-		const data = pub.ImageData2Rgb(pixel);
-		colorBlock.color = '#' + pub.Rgb2Hex(data);
 	}
 });
 
@@ -62,9 +53,9 @@ document.querySelector('#rgb-info').addEventListener('change', (e) => {
 				rgb.push(parseInt(val));
 			}
 		}
-		const hex = '#' + pub.Rgb2Hex(rgb);
-		colorBlock.currentColor = hex;
-		colorBar.hideSlider();
+		const hex = '#' + utils.Rgb2Hex(rgb);
+		picker.block.currentColor = hex;
+		picker.bar.hideSlider();
 	}
 });
 
@@ -92,10 +83,11 @@ document.querySelector('#hsl-info').addEventListener('change', (e) => {
 				hsl.push(parseFloat(val));
 			}
 		}
-		const rgb = pub.Hsl2Rgb(hsl);
-		const hex = '#' + pub.Rgb2Hex(rgb);
 
-		colorBlock.currentColor = hex;
-		colorBar.hideSlider();
+		const rgb = utils.Hsl2Rgb(hsl);
+		const hex = '#' + utils.Rgb2Hex(rgb);
+
+		picker.block.currentColor = hex;
+		picker.bar.hideSlider();
 	}
 });

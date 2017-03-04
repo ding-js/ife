@@ -3,8 +3,9 @@ extends /layout/main.pug
 block main
   .colorpicker-wrapper
     section
-      canvas#color-block.colorpicker-item(width="420",height="420")
-      canvas#color-bar.colorpicker-item(width="50",height="420")
+      #container.colorpicker-item
+      //- canvas#color-block.colorpicker-item(width="420",height="420")
+      //- canvas#color-bar.colorpicker-item(width="50",height="420")
       form.colorpicker-item.color-form
         #rgb-info.color-form-group
           each item in ['r','g','b']

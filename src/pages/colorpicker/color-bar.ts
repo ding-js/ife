@@ -1,9 +1,9 @@
-interface IOptions {
+export interface IColorBarOptions {
 	lineWidth?: number;
 	onColorChange?(color: ImageData);
 }
 
-export default class ColorBar {
+export class ColorBar {
 	private _element: HTMLCanvasElement;
 	private _ctx: CanvasRenderingContext2D;
 	private _width: number;
@@ -17,11 +17,11 @@ export default class ColorBar {
 	// 拾色条的颜色渐变顺序
 	private _colors: string[] = ['f00', 'ffA500', 'ff0', '008000', '00f', '4b0082', '800080'];
 
-	private _options: IOptions = {
+	private _options: IColorBarOptions = {
 		lineWidth: 1
 	};
 
-	constructor(element: HTMLCanvasElement, options?: IOptions) {
+	constructor(element: HTMLCanvasElement, options?: IColorBarOptions) {
 		if (options) {
 			Object.assign(this._options, options);
 		}
