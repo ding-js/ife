@@ -51,7 +51,6 @@ export class ColorBlock {
 		this._contentWidth = contentWidth;
 		this._contentHeight = contentHeight;
 
-
 		canvas.addEventListener('mousedown', (e) => {
 			if (e.which === 1) {
 				this._moveEvt = true;
