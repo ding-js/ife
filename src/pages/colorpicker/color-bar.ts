@@ -1,6 +1,5 @@
 interface IOptions {
 	lineWidth?: number;
-	strokeStyle?: string;
 	onColorChange?(color: ImageData);
 }
 
@@ -12,14 +11,14 @@ export default class ColorBar {
 	private _padding: number = 10;
 	private _gradient: CanvasGradient;
 	private _y: number;
-	private _showSlider: boolean = false;
+	private _showSlider: boolean = true;
+	private _moveEvt: boolean = false;
 
 	// 拾色条的颜色渐变顺序
 	private _colors: string[] = ['f00', 'ffA500', 'ff0', '008000', '00f', '4b0082', '800080'];
 
 	private _options: IOptions = {
-		lineWidth: 2,
-		strokeStyle: '#ffc0cb'
+		lineWidth: 1
 	};
 
 	constructor(element: HTMLCanvasElement, options?: IOptions) {
@@ -57,16 +56,24 @@ export default class ColorBar {
 
 
 		ctx.lineWidth = this._options.lineWidth;
-		ctx.strokeStyle = this._options.strokeStyle;
+		// ctx.strokeStyle = this._options.strokeStyle;
 
-		canvas.addEventListener('click', this.mouseHandle);
-		canvas.addEventListener('mousemove', (e) => {
+		canvas.addEventListener('mousedown', (e) => {
 			if (e.which === 1) {
-				this.mouseHandle(e);
+				this._moveEvt = true;
+				this.setCoordinateByEvent(e);
+				canvas.addEventListener('mousemove', this.handleMouseMove);
 			}
 		});
 
-		this.fill();
+		document.addEventListener('mouseup', (e) => {
+			if (this._moveEvt && e.which === 1) {
+				this._moveEvt = false;
+				canvas.removeEventListener('mousemove', this.handleMouseMove);
+			}
+		});
+
+		this.setCoordinate(0);
 	}
 
 	// 这里背景色不会改变,可以复用CanvasGradient
@@ -79,9 +86,15 @@ export default class ColorBar {
 		ctx.fillRect(this._padding, this._padding, this._width - padding * 2, this._height - padding * 2);
 	}
 
-	private mouseHandle = (e: MouseEvent) => {
+	private setCoordinateByEvent = (e: MouseEvent) => {
 		this._showSlider = true;
 		this.setCoordinate(e.layerY);
+	}
+
+	private handleMouseMove = (e: MouseEvent) => {
+		if (e.which === 1) {
+			this.setCoordinateByEvent(e);
+		}
 	}
 
 	private setCoordinate(y: number) {
@@ -103,11 +116,24 @@ export default class ColorBar {
 	private renderCurrentColor() {
 		// 可以选择是否显示光标
 		if (this._showSlider) {
-			const x = this._width / 2,
-				y = this._y;
+			const lineWidth = this._options.lineWidth,
+				x = this._width / 2,
+				y = this._y,
+				sliderWidth = this._width,
+				sliderHeight = lineWidth * 6;
+
 			if (y !== undefined) {
 				const ctx = this._ctx;
-				ctx.strokeRect(0, y - 3, this._width, 6);
+
+				ctx.save();
+				ctx.strokeStyle = '#000';
+				ctx.strokeRect(lineWidth / 2, y - sliderHeight / 2, sliderWidth - lineWidth, sliderHeight);
+
+				ctx.strokeStyle = '#fff';
+				ctx.strokeRect(lineWidth + lineWidth / 2, y - sliderHeight / 2 + lineWidth, sliderWidth - lineWidth * 3, sliderHeight - lineWidth * 2);
+				ctx.stroke();
+
+				ctx.restore();
 				if (this._options.onColorChange) {
 					const data = ctx.getImageData(x, y, 1, 1);
 					this._options.onColorChange(data);

@@ -1,7 +1,6 @@
 import * as pub from './pub';
 interface IOptions {
 	lineWidth?: number;
-	strokeStyle?: string;
 	onColorChange?(pixel: ImageData);
 }
 
@@ -16,11 +15,11 @@ export default class ColorBlock {
 	private _middleColor: string;
 	private _x: number;
 	private _y: number;
+	private _moveEvt: boolean = false;
 
 	// 默认的光圈样式
 	private _options: IOptions = {
-		lineWidth: 2,
-		strokeStyle: '#ffc0cb'
+		lineWidth: 1
 	};
 
 	constructor(element: HTMLCanvasElement, options?: IOptions) {
@@ -44,7 +43,7 @@ export default class ColorBlock {
 			contentHeight = height - padding * 2;
 
 		ctx.lineWidth = this._options.lineWidth;
-		ctx.strokeStyle = this._options.strokeStyle;
+		// ctx.strokeStyle = this._options.strokeStyle;
 
 		this._ctx = ctx;
 		this._width = width;
@@ -53,14 +52,23 @@ export default class ColorBlock {
 		this._contentHeight = contentHeight;
 
 
-		canvas.addEventListener('click', this.mouseHandle);
-		canvas.addEventListener('mousemove', (e) => {
+		canvas.addEventListener('mousedown', (e) => {
 			if (e.which === 1) {
-				this.mouseHandle(e);
+				this._moveEvt = true;
+				this.setCoordinateByEvent(e);
+				canvas.addEventListener('mousemove', this.handleMouseMove);
 			}
 		});
 
-		this.draw();
+		document.addEventListener('mouseup', (e) => {
+			if (this._moveEvt && e.which === 1) {
+				this._moveEvt = false;
+				canvas.removeEventListener('mousemove', this.handleMouseMove);
+			}
+		});
+
+		this.setCoordinate(width / 2, height / 2);
+		// this.draw();
 	}
 
 
@@ -83,8 +91,15 @@ export default class ColorBlock {
 		ctx.fillRect(this._padding, this._padding, this._contentWidth, this._contentHeight);
 	}
 
-	private mouseHandle = (e: MouseEvent) => {
+
+	private setCoordinateByEvent = (e: MouseEvent) => {
 		this.setCoordinate(e.layerX, e.layerY);
+	}
+
+	private handleMouseMove = (e: MouseEvent) => {
+		if (e.which === 1) {
+			this.setCoordinateByEvent(e);
+		}
 	}
 
 	// 设置坐标
@@ -123,9 +138,20 @@ export default class ColorBlock {
 		if (x !== undefined && y !== undefined) {
 			const ctx = this._ctx;
 
+			ctx.save();
+
+
+			ctx.strokeStyle = '#000';
 			ctx.beginPath();
 			ctx.arc(x, y, this._padding / 2, 0, 2 * Math.PI);
 			ctx.stroke();
+
+			ctx.strokeStyle = '#fff';
+			ctx.beginPath();
+			ctx.arc(x, y, this._padding / 2 - this._options.lineWidth, 0, 2 * Math.PI);
+			ctx.stroke();
+
+			ctx.restore();
 			// 颜色变化后的回调
 			if (this._options.onColorChange) {
 				const pixel = ctx.getImageData(x, y, 1, 1);
