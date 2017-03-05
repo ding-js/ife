@@ -28,7 +28,7 @@ config.plugins.push(
 		comments: false,
 		sourceMap: false
 	}),
-	new webpack.BannerPlugin(`Copyright 2017 by ding\n@author Ding <ding-js@outlook.com>`)
+	new webpack.BannerPlugin(op.copyright)
 );
 
 module.exports = config;

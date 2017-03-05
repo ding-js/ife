@@ -18,7 +18,8 @@ const config = {
 	prodName: '[name]/[chunkhash]',
 	devPublicPath: '/dist/',
 	prodPublicPath: '/ife/dist/',
-	commonName: 'common'
+	commonName: 'common',
+	copyright: `Copyright ${new Date().getFullYear().toString()} by Ding\n@author Ding <ding-js@outlook.com>`
 };
 
 const entries = getEntries(config.src + 'pages/**/index.ts', {
@@ -87,7 +88,10 @@ Object.assign(config, {
 				name: config.commonName
 			}),
 			new AssetsPlugin({
-				path: 'config'
+				path: 'config',
+				metadata: {
+					copyright: config.copyright
+				}
 			})
 		]
 	}
