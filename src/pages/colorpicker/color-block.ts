@@ -76,7 +76,7 @@ export class ColorBlock {
 		const ctx = this._ctx;
 		const padding = this._padding;
 		const gradient = ctx.createLinearGradient(this._width - padding, this._height - padding, padding, padding);
-
+		ctx.save();
 		gradient.addColorStop(0, '#000');
 
 		if (this._middleColor !== undefined) {
@@ -85,9 +85,10 @@ export class ColorBlock {
 
 		gradient.addColorStop(1, '#fff');
 
-
 		ctx.fillStyle = gradient;
 		ctx.fillRect(this._padding, this._padding, this._contentWidth, this._contentHeight);
+
+		ctx.restore();
 	}
 
 

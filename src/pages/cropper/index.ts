@@ -14,6 +14,6 @@ fileInput.addEventListener('change', (e) => {
 		return;
 	}
 
-	cropper.fillImage(el.files[0]);
+	cropper.changeImage(el.files[0]);
 });
 
