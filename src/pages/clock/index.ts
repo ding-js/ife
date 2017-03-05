@@ -72,7 +72,7 @@ pickZone.addEventListener('change', (e) => {
 // 设置闹钟
 setAlarmBtn.addEventListener('click', (e) => {
 	clock.setAlarm(getInputDate(), (index) => {
-		toast(`第${index + 1}个闹钟响啦!`);
+		toast(`闹钟响啦!`);
 		updateAlarmInfo();
 	});
 
@@ -130,4 +130,3 @@ function getMilliseconds(...args): number {
 	});
 	return ms;
 }
-

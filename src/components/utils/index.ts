@@ -1,14 +1,9 @@
-import './index.scss';
-export function toast(msg: string, delay: number = 5000) {
-	const el = document.createElement('div'),
-		text = document.createTextNode(msg);
+import toast from '../toast';
 
-	el.classList.add('ding-toast');
+const t = toast({
+	delay: 5000
+});
 
-	el.appendChild(text);
-	document.body.appendChild(el);
-
-	setTimeout(() => {
-		document.body.removeChild(el);
-	}, delay);
-}
+export {
+	t as toast
+};

@@ -275,7 +275,7 @@ export default class Clock {
 			// 每次移除之后数组的长度就会变化,所以是升序,所以直接减去这个循环的index就正确的索引
 			const currentIndex = deleteAlarm.index - index;
 			this._alarm.splice(currentIndex, currentIndex + 1);
-			deleteAlarm.alarm.cb(index);
+			deleteAlarm.alarm.cb();
 		});
 	}
 

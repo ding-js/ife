@@ -1,0 +1,46 @@
+@keyframes show-toast {
+	from {
+		visibility: hidden;
+		opacity: 0;
+		transform: translateY(100%);
+	}
+	to {
+		visibility: visible;
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes hide-toast {
+	from {
+		visibility: visible;
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		visibility: hidden;
+		opacity: 0;
+		transform: translateY(-100%);
+	}
+}
+
+.toast {
+	position: absolute;
+	width: 180px;
+	background-color: #fff;
+	color: pink;
+	padding: 20px 30px;
+	border-radius: 3px;
+	border: 1px solid #eee;
+	box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+	animation-duration: .3s;
+	animation-fill-mode: both;
+	opacity: 0;
+	visibility: hidden;
+	&.show {
+		animation-name: show-toast;
+	}
+	&.hide {
+		animation-name: hide-toast;
+	}
+}
