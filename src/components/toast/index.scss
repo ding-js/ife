@@ -37,6 +37,8 @@
 	animation-fill-mode: both;
 	opacity: 0;
 	visibility: hidden;
+	transition-duration: .3s;
+	transition-property: top, right;
 	&.show {
 		animation-name: show-toast;
 	}
