@@ -2,20 +2,33 @@ interface ICropperOptions {
 	preview?: HTMLElement;
 }
 
+enum Area {
+	cropper,
+	image,
+	background
+}
+
 export class Cropper {
 	private _container: HTMLElement;
 	private _options: ICropperOptions;
-	private _cropperCtx: CanvasRenderingContext2D;
+	private _ctx: CanvasRenderingContext2D;
+	private _canvas: HTMLCanvasElement;
 	private _width: number;
 	private _height: number;
 	private _image: HTMLImageElement;
 	private _imageWidth: number;
 	private _imageHeight: number;
+	private _imageX: number;
+	private _imageY: number;
 	private _scaleOffset: number = 0;
 	private _cropperX: number;
 	private _cropperY: number;
+	private _xOffset: number;
+	private _yOffset: number;
 	private _cropperWidth: number;
 	private _cropperHeight: number;
+	private _area: Area;
+	private _moving: boolean;
 	constructor(container: HTMLElement, options?: ICropperOptions) {
 		this._container = container;
 		this._options = options;
@@ -24,32 +37,124 @@ export class Cropper {
 
 	private init() {
 		const container = this._container;
-		const cropperCanvas = document.createElement('canvas'),
-			cropperCtx = cropperCanvas.getContext('2d');
+		const canvas = document.createElement('canvas'),
+			ctx = canvas.getContext('2d');
 
 		this._width = +container.offsetWidth;
 		this._height = +container.offsetHeight;
 
-		Object.assign(cropperCanvas, {
+		Object.assign(canvas, {
 			width: this._width,
 			height: this._height
 		});
 
-		this._cropperCtx = cropperCtx;
+		this._ctx = ctx;
+		this._canvas = canvas;
 
-		container.appendChild(cropperCanvas);
+		container.appendChild(canvas);
 
-		cropperCanvas.addEventListener('mousewheel', (e) => {
+		canvas.addEventListener('mousewheel', (e) => {
+			const image = this._image;
 			if (this._image) {
-				this._scaleOffset += e.deltaY;
+				let width = image.width,
+					height = image.height;
+				const scale = this._scaleOffset + e.deltaY;
+
+				this._scaleOffset = scale;
+
+				if (scale !== 0) {
+					let k;
+					if (scale > 0) {
+						k = 1 / (1 + scale / 800);
+					} else {
+						k = 1 + Math.abs(scale) / 800;
+					}
+
+					width *= k;
+					height *= k;
+
+					this._imageX += (this._imageWidth - width) / 2;
+					this._imageY += (this._imageHeight - height) / 2;
+
+					this._imageWidth = width;
+					this._imageHeight = height;
+				}
+
+				this.draw();
+			}
+		});
+
+
+		canvas.addEventListener('mousedown', (e) => {
+			if (e.which === 1) {
+				const [x, y] = [e.layerX, e.layerY];
+				this._moving = true;
+				if (x > this._cropperX && x < this._cropperX + this._cropperWidth && y > this._cropperY && y < this._cropperY + this._cropperHeight) {
+					this._xOffset = x - this._cropperX;
+					this._yOffset = y - this._cropperY;
+					this._area = Area.cropper;
+				} else if (x > this._imageX && x < this._imageX + this._imageWidth && y > this._imageY && y < this._imageY + this._imageHeight) {
+					this._area = Area.image;
+				} else {
+					this._area = Area.background;
+					this._moving = false;
+				}
+			}
+		});
+
+		window.addEventListener('mouseup', (e) => {
+			if (e.which === 1) {
+				this._moving = false;
+			}
+		});
+
+
+		canvas.addEventListener('mousemove', (e) => {
+			if (this._moving) {
+				switch (this._area) {
+					case Area.cropper:
+						this.handleCropperMove(e);
+						break;
+					default:
+						break;
+				}
+
 				this.draw();
 			}
 		});
 	}
+	private handleCropperMove = (e: MouseEvent) => {
+		const [x, y] = [e.layerX, e.layerY];
+		const [oX, oY, cW, cH, w, h] = [this._xOffset, this._yOffset, this._cropperWidth, this._cropperHeight, this._width, this._height];
 
+		let currentX = x - oX,
+			currentY = y - oY;
+
+
+
+		if (x < oX) {
+			currentX = 0;
+		}
+
+		if (x > w - cW + oX) {
+			currentX = w - cW;
+		}
+
+		if (y < oY) {
+			currentY = 0;
+		}
+
+		if (y > h - cH + oY) {
+			currentY = h - cH;
+		}
+
+		this._cropperX = currentX;
+		this._cropperY = currentY;
+
+	}
 
 	private fillBackground() {
-		const ctx = this._cropperCtx,
+		const ctx = this._ctx,
 			width = this._width,
 			height = this._height,
 			side = width / 40,
@@ -78,52 +183,66 @@ export class Cropper {
 	}
 
 	private fillImage() {
-		const image = this._image;
+		const ctx = this._ctx,
+			image = this._image;
 		if (image) {
-			const scale = this._scaleOffset;
-
-			let width = image.width,
-				height = image.height;
-
-			if (scale !== 0) {
-				let k;
-				if (scale > 0) {
-					k = 1 / (1 + scale / 800);
-				} else {
-					k = 1 + Math.abs(scale) / 800;
-				}
-
-				width *= k;
-				height *= k;
-
-				this._imageWidth = width;
-				this._imageHeight = height;
+			if (this._imageWidth === undefined) {
+				this._imageWidth = image.width;
 			}
 
-			this._cropperCtx.drawImage(image, (this._width - width) / 2, (this._height - height) / 2, width, height);
+			if (this._imageHeight === undefined) {
+				this._imageHeight = image.height;
+			}
+
+			if (this._imageX === undefined) {
+				this._imageX = (this._width - this._imageWidth) / 2;
+			}
+
+			if (this._imageY === undefined) {
+				this._imageY = (this._height - this._imageHeight) / 2;
+			}
+
+			ctx.drawImage(image, this._imageX, this._imageY, this._imageWidth, this._imageHeight);
 		}
 	}
 
 	private fillCropper() {
-		if (!this._cropperWidth) {
-			this._cropperWidth = this._imageWidth / 2;
-		} else if (this._cropperWidth > this._imageWidth) {
-			this._cropperWidth = this._imageWidth;
+		if (this._image) {
+			const ctx = this._ctx,
+				image = this._image,
+				imageWidth = image.width,
+				imageHeight = image.height,
+				lineWidth = 1;
+			ctx.save();
+
+			if (this._cropperWidth === undefined) {
+				this._cropperWidth = imageWidth / 2;
+			}
+
+			if (this._cropperHeight === undefined) {
+				this._cropperHeight = imageHeight / 2;
+			}
+
+			if (this._cropperX === undefined) {
+				this._cropperX = this._width / 2 - this._imageWidth / 4;
+			}
+
+			if (this._cropperY === undefined) {
+				this._cropperY = this._height / 2 - this._imageHeight / 4;
+			}
+
+			ctx.strokeStyle = '#000';
+			ctx.lineWidth = lineWidth;
+
+			ctx.strokeRect(this._cropperX, this._cropperY, this._cropperWidth, this._cropperHeight);
+
+			ctx.restore();
 		}
 
-		if (!this._cropperHeight) {
-			this._cropperHeight = this._imageHeight / 2;
-		} else if (this._cropperHeight > this._imageHeight) {
-			this._cropperHeight = this._imageHeight;
-		}
-
-		if (!this._cropperX) {
-			this._cropperX = this._width / 2;
-		}
 	}
 
 	public draw() {
-		const ctx = this._cropperCtx;
+		const ctx = this._ctx;
 
 		ctx.clearRect(0, 0, this._width, this._height);
 
@@ -131,6 +250,7 @@ export class Cropper {
 
 		this.fillImage();
 
+		this.fillCropper();
 	}
 
 	public changeImage(file: File) {
