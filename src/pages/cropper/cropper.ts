@@ -85,15 +85,20 @@ export class Cropper {
 		});
 
 
+		// 判断点击区域
 		canvas.addEventListener('mousedown', (e) => {
 			if (e.which === 1) {
 				const [x, y] = [e.layerX, e.layerY];
 				this._moving = true;
+
+				// 设置偏移(点击坐标与定点坐标)
 				if (x > this._cropperX && x < this._cropperX + this._cropperWidth && y > this._cropperY && y < this._cropperY + this._cropperHeight) {
 					this._xOffset = x - this._cropperX;
 					this._yOffset = y - this._cropperY;
 					this._area = Area.cropper;
 				} else if (x > this._imageX && x < this._imageX + this._imageWidth && y > this._imageY && y < this._imageY + this._imageHeight) {
+					this._xOffset = x - this._imageX;
+					this._yOffset = y - this._imageY;
 					this._area = Area.image;
 				} else {
 					this._area = Area.background;
@@ -115,14 +120,26 @@ export class Cropper {
 					case Area.cropper:
 						this.handleCropperMove(e);
 						break;
-					default:
+					case Area.image:
+						this.handleImageMove(e);
 						break;
+					default:
+						return;
 				}
 
 				this.draw();
 			}
 		});
 	}
+
+	private handleImageMove = (e: MouseEvent) => {
+		const [x, y] = [e.layerX, e.layerY];
+		const [oX, oY] = [this._xOffset, this._yOffset];
+
+		this._imageX = x - oX;
+		this._imageY = y - oY;
+	}
+
 	private handleCropperMove = (e: MouseEvent) => {
 		const [x, y] = [e.layerX, e.layerY];
 		const [oX, oY, cW, cH, w, h] = [this._xOffset, this._yOffset, this._cropperWidth, this._cropperHeight, this._width, this._height];
@@ -131,6 +148,7 @@ export class Cropper {
 			currentY = y - oY;
 
 
+		// 判断边界
 
 		if (x < oX) {
 			currentX = 0;
@@ -231,14 +249,13 @@ export class Cropper {
 				this._cropperY = this._height / 2 - this._imageHeight / 4;
 			}
 
-			ctx.strokeStyle = '#000';
+			ctx.strokeStyle = '#39f';
 			ctx.lineWidth = lineWidth;
 
 			ctx.strokeRect(this._cropperX, this._cropperY, this._cropperWidth, this._cropperHeight);
 
 			ctx.restore();
 		}
-
 	}
 
 	public draw() {

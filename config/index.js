@@ -13,7 +13,7 @@ const cssnano = require('cssnano'),
 
 const config = {
 	src: './src/',
-	dist: './dist/',
+	dist: './public/dist/',
 	devName: '[name]/index',
 	prodName: '[name]/[chunkhash]',
 	devPublicPath: '/dist/',
@@ -26,7 +26,6 @@ const entries = getEntries(config.src + 'pages/**/index.ts', {
 	dir: true,
 	publicModule: ['global']
 });
-
 
 Object.assign(config, {
 	webpackConfig: {
