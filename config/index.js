@@ -17,7 +17,7 @@ const config = {
 	devName: '[name]',
 	prodName: '[chunkhash]',
 	devPublicPath: '/public/dist/',
-	prodPublicPath: '/ife/dist/',
+	prodPublicPath: '/ife/public/dist/',
 	commonName: 'common',
 	copyright: `Copyright ${new Date().getFullYear().toString()} by Ding\n@author Ding <ding-js@outlook.com>`
 };
