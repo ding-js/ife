@@ -1,3 +1,15 @@
+.pick-file {
+	cursor: pointer;
+	color: #217AC0;
+}
+
+input[type=file] {
+	width: 0;
+	height: 0;
+	opacity: 0;
+	visibility: hidden;
+}
+
 main {
 	text-align: center;
 }
@@ -6,8 +18,12 @@ section {
 	margin-bottom: 10px;
 }
 
-.cropper {
+canvas {
+	cursor: default;
+}
+
+.cropper,
+.preview {
 	display: inline-block;
-	width: 400px;
-	height: 400px;
+	border: 1px solid #eee;
 }

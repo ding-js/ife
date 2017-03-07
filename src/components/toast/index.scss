@@ -39,6 +39,7 @@
 	visibility: hidden;
 	transition-duration: .3s;
 	transition-property: top, right;
+	word-break: break-all;
 	&.show {
 		animation-name: show-toast;
 	}

@@ -27,6 +27,7 @@ select {
 
 .form-group {
 	input+input,
+	input+button,
 	input+select,
 	button+button {
 		margin-left: 10px;

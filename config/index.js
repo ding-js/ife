@@ -22,6 +22,10 @@ const config = {
 	copyright: `Copyright ${new Date().getFullYear().toString()} by Ding\n@author Ding <ding-js@outlook.com>`
 };
 
+Object.assign(config, {
+	path: path.resolve(__dirname, '../', config.dist)
+});
+
 const entries = getEntries(config.src + 'pages/**/index.ts', {
 	dir: true,
 	publicModule: ['global']
@@ -31,7 +35,7 @@ Object.assign(config, {
 	webpackConfig: {
 		entry: entries,
 		output: {
-			path: path.resolve(__dirname, '../', config.dist),
+			path: config.path,
 			filename: config.devName + '.js',
 			library: 'ding[id]',
 			publicPath: config.devPublicPath
@@ -71,6 +75,15 @@ Object.assign(config, {
 			}, {
 				test: /\.pug$/,
 				loader: 'pug-loader'
+			}, {
+				test: /\.(png|je?pg)$/,
+				use: [{
+					loader: 'url-loader',
+					options: {
+						limit: 8192,
+						name: 'file/[hash:16].[ext]'
+					}
+				}]
 			}]
 		},
 		resolve: {

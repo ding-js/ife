@@ -30,6 +30,7 @@
     "cssnano": "^3.10.0",
     "del": "^2.2.2",
     "extract-text-webpack-plugin": "^2.0.0",
+    "file-loader": "^0.10.1",
     "get-entries": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-data": "^1.2.1",
@@ -45,6 +46,7 @@
     "ts-loader": "^2.0.1",
     "tslint": "^4.4.2",
     "typescript": "^2.2.1",
+    "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1"
   },
