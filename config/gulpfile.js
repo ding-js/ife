@@ -4,6 +4,7 @@ const posix = path.posix;
 
 const gulp = require('gulp'),
 	plumber = require('gulp-plumber'),
+	rename = require('gulp-rename'),
 	data = require('gulp-data'),
 	pug = require('gulp-pug');
 
@@ -34,7 +35,11 @@ gulp.task('pug', () => {
 
 			const _common = assets[op.commonName];
 
-			const _root = filePath.split(path.sep).fill('../').join('');
+			const _root = '../../';
+
+			const _public = '../';
+
+			const _image = '../image/';
 
 			for (let prop in _asset) {
 				_assetFile[prop] = path.basename(_asset[prop]);
@@ -45,11 +50,17 @@ gulp.task('pug', () => {
 				_assetFile: _assetFile,
 				_common: _common,
 				_root: _root,
+				_public: _public,
+				_image: _image,
 				metadata: assets.metadata
 			};
 		}))
 		.pipe(pug({
 			basedir: './src/components'
+		}))
+		.pipe(rename(p => {
+			p.basename = p.dirname;
+			p.dirname = '';
 		}))
 		.pipe(gulp.dest(op.dist));
 });

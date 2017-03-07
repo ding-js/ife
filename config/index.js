@@ -14,9 +14,9 @@ const cssnano = require('cssnano'),
 const config = {
 	src: './src/',
 	dist: './public/dist/',
-	devName: '[name]/index',
-	prodName: '[name]/[chunkhash]',
-	devPublicPath: '/dist/',
+	devName: '[name]',
+	prodName: '[chunkhash]',
+	devPublicPath: '/public/dist/',
 	prodPublicPath: '/ife/dist/',
 	commonName: 'common',
 	copyright: `Copyright ${new Date().getFullYear().toString()} by Ding\n@author Ding <ding-js@outlook.com>`
