@@ -180,7 +180,7 @@ export class Cropper {
 
 	private handlePointMove(e: MouseEvent) {
 		const [x, y] = [e.layerX, e.layerY];
-		const [w, h] = [x - this._cropperX - this._xOffset, y - this._cropperY - this._yOffset];
+		const [w, h] = [x - this._cropperX - this._xOffset + this._pointWidth / 2, y - this._cropperY - this._yOffset + this._pointHeight / 2];
 		if (w <= 0 || h <= 0) {
 			return;
 		}
