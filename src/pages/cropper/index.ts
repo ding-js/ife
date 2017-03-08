@@ -2,6 +2,9 @@ import './index.scss';
 import { Cropper } from './cropper';
 import { toast } from 'utils';
 import * as defaultImage from './asset/default.jpg';
+
+let downloadCount = 0;
+
 const container = document.querySelector('#cropper') as HTMLElement,
 	preview = document.querySelectorAll('.preview'),
 	fileInput = document.querySelector('#file') as HTMLInputElement,
@@ -11,7 +14,7 @@ const container = document.querySelector('#cropper') as HTMLElement,
 	heightInput = setCropper.querySelector('[name="height"]') as HTMLInputElement,
 	setBtn = document.querySelector('#set-btn'),
 	cropBtn = document.querySelector('#crop-btn'),
-	cropImage = document.querySelector('#crop-image') as HTMLImageElement;
+	download = document.createElement('a');
 
 const w = 700, h = 450;
 
@@ -41,6 +44,8 @@ fileInput.addEventListener('change', (e) => {
 	if (file.type.match(/^image\/.+/)) {
 		cropper.setImage(file);
 		pick.innerHTML = file.name;
+	} else {
+		toast('请选择正确的图片');
 	}
 });
 
@@ -75,15 +80,25 @@ setBtn.addEventListener('click', () => {
 });
 
 cropBtn.addEventListener('click', () => {
-	const canvas = cropper.crop();
-	cropImage.src = canvas.toDataURL();
-	toast('裁剪成功,我就不假装上传了!');
+	try {
+		const canvas = cropper.crop();
+		download.href = canvas.toDataURL();
+		download.download = `ding-cropper-${++downloadCount}.png`;
+		download.click();
+		toast('我就不假装上传了!');
+	} catch (e) {
+		console.error(e);
+		toast('不支持HTML5,建议使用<a href="https://www.google.com/chrome/">「Chrome浏览器」浏览本页面!</a>');
+	}
 });
 
-const image = new Image();
+// 载入默认图片
+(function () {
+	const image = new Image();
 
-image.src = defaultImage;
+	image.src = defaultImage;
 
-image.onload = () => {
-	cropper.setImage(image);
-};
+	image.onload = () => {
+		cropper.setImage(image);
+	};
+}());

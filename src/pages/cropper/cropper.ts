@@ -68,7 +68,14 @@ export class Cropper {
 
 		this._width = _options.width;
 		this._height = _options.height;
-		this.init();
+
+		try {
+			this.init();
+		}
+		catch (e) {
+			alert('不支持canvas');
+			console.error(e);
+		}
 	}
 
 	private init() {
@@ -87,6 +94,7 @@ export class Cropper {
 		this._canvas = canvas;
 
 		container.appendChild(canvas);
+
 		if (op.preview && Array.isArray(op.preview)) {
 			op.preview.forEach(p => {
 				const pCanvas = document.createElement('canvas'),
@@ -148,7 +156,7 @@ export class Cropper {
 		// 判断点击区域
 		canvas.addEventListener('mousedown', (e) => {
 			if (e.which === 1) {
-				const [x, y] = [e.layerX, e.layerY];
+				const [x, y] = [e.offsetX, e.offsetY];
 				const point = this.getPoint();
 				const cropper = this._cropper;
 				const image = this._image;
@@ -173,6 +181,7 @@ export class Cropper {
 					this._targetType = Types.background;
 					this._moving = false;
 				}
+
 			}
 		});
 
@@ -205,7 +214,7 @@ export class Cropper {
 	}
 
 	private handlePointMove(e: MouseEvent) {
-		const [x, y] = [e.layerX, e.layerY];
+		const [x, y] = [e.offsetX, e.offsetY];
 		const [w, h] = [x - this._cropper.x - this._xOffset + this._pointWidth / 2, y - this._cropper.y - this._yOffset + this._pointHeight / 2];
 		if (w <= 0 || h <= 0) {
 			return;
@@ -229,7 +238,7 @@ export class Cropper {
 	}
 
 	private handleImageMove = (e: MouseEvent) => {
-		const [x, y] = [e.layerX, e.layerY];
+		const [x, y] = [e.offsetX, e.offsetY];
 		const [oX, oY] = [this._xOffset, this._yOffset];
 
 		this._image.x = x - oX;
@@ -237,7 +246,7 @@ export class Cropper {
 	}
 
 	private handleCropperMove = (e: MouseEvent) => {
-		const [x, y] = [e.layerX, e.layerY];
+		const [x, y] = [e.offsetX, e.offsetY];
 		const [oX, oY, cW, cH, w, h] = [this._xOffset, this._yOffset, this._cropper.width, this._cropper.height, this._width, this._height];
 
 		let currentX = x - oX,
@@ -289,7 +298,7 @@ export class Cropper {
 			}
 		}
 
-		ctx.fillStyle = 'rgba(0,0,0,0.2)';
+		ctx.fillStyle = 'rgba(0,0,0,0.1)';
 
 		ctx.fillRect(0, 0, width, height);
 

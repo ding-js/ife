@@ -69,12 +69,11 @@ class Toast {
 	}
 
 	private init() {
-		const el = document.createElement('div'),
-			text = document.createTextNode(this._msg);
+		const el = document.createElement('div');
 
 		el.classList.add('toast');
 
-		el.appendChild(text);
+		el.innerHTML = this._msg;
 
 		document.body.appendChild(el);
 
