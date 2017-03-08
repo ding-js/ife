@@ -3,7 +3,7 @@ import { Cropper } from './cropper';
 import { toast } from 'utils';
 import * as defaultImage from './asset/default.jpg';
 const container = document.querySelector('#cropper') as HTMLElement,
-	preview = document.querySelector('#preview') as HTMLElement,
+	preview = document.querySelectorAll('.preview'),
 	fileInput = document.querySelector('#file') as HTMLInputElement,
 	pick = document.querySelector('#pick-file') as HTMLElement,
 	setCropper = document.querySelector('#set-cropper') as HTMLElement,
@@ -16,10 +16,14 @@ const container = document.querySelector('#cropper') as HTMLElement,
 const w = 700, h = 450;
 
 const cropper = new Cropper(container, {
-	preview: preview,
+	preview: Array.prototype.map.call(preview, (el, index) => {
+		return {
+			container: el,
+			scale: 0.7 + index * 0.3
+		};
+	}),
 	width: w,
-	height: h,
-	previewScale: 0.6
+	height: h
 });
 
 widthInput.setAttribute('max', '' + w);

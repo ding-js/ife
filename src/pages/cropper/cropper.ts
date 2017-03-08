@@ -18,8 +18,6 @@ interface IPreview {
 	canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
 	scale: number;
-	sCanvas?: HTMLCanvasElement;
-	sCtx?: CanvasRenderingContext2D;
 }
 
 export class Cropper {
@@ -29,29 +27,22 @@ export class Cropper {
 	private _canvas: HTMLCanvasElement;
 	private _width: number;
 	private _height: number;
+
 	private image: {
-		element: HTMLImageElement;
-		width: number;
-		height: number;
-		x: number;
-		y: number;
-	};
+		element?: HTMLImageElement;
+		width?: number;
+		height?: number;
+		x?: number;
+		y?: number;
+	} = {};
+
 	private _cropper: {
-		width: number;
-		height: number;
-		x: number;
-		y: number;
-	};
-	private _image: HTMLImageElement;
-	private _imageWidth: number;
-	private _imageHeight: number;
-	private _imageX: number;
-	private _imageY: number;
+		width?: number;
+		height?: number;
+		x?: number;
+		y?: number;
+	} = {};
 	private _scale: number = 1;
-	private _cropperX: number;
-	private _cropperY: number;
-	private _cropperWidth: number;
-	private _cropperHeight: number;
 	private _xOffset: number;
 	private _yOffset: number;
 	private _targetType: Types;
@@ -96,7 +87,6 @@ export class Cropper {
 		this._canvas = canvas;
 
 		container.appendChild(canvas);
-
 		if (op.preview && Array.isArray(op.preview)) {
 			op.preview.forEach(p => {
 				const pCanvas = document.createElement('canvas'),
@@ -111,23 +101,23 @@ export class Cropper {
 					scale: scale > 0 ? scale : 1
 				};
 
-				if (preview.scale !== 1) {
-					preview.sCanvas = document.createElement('canvas');
-					preview.sCtx = preview.canvas.getContext('2d');
-				}
-
 				this._previewList.push(preview);
 			});
+
+			this._previewScaleCanvas = document.createElement('canvas');
+			this._previewScaleCtx = this._previewScaleCanvas.getContext('2d');
+
+			this._isPreview = true;
 		}
 
 		canvas.addEventListener('mousewheel', (e) => {
-			const image = this._image;
+			const image = this.image;
 
 			e.preventDefault();
 
-			if (this._image) {
-				let width = image.width,
-					height = image.height,
+			if (image.element) {
+				let width = image.element.width,
+					height = image.element.height,
 					k;
 				const scale = this._scale,
 					offset = e.deltaY / 800;
@@ -145,11 +135,11 @@ export class Cropper {
 				width *= k;
 				height *= k;
 
-				this._imageX += (this._imageWidth - width) / 2;
-				this._imageY += (this._imageHeight - height) / 2;
+				image.x += (image.width - width) / 2;
+				image.y += (image.height - height) / 2;
 
-				this._imageWidth = width;
-				this._imageHeight = height;
+				image.width = width;
+				image.height = height;
 
 				this.draw();
 			}
@@ -160,6 +150,8 @@ export class Cropper {
 			if (e.which === 1) {
 				const [x, y] = [e.layerX, e.layerY];
 				const point = this.getPoint();
+				const cropper = this._cropper;
+				const image = this.image;
 				this._moving = true;
 
 				// 设置偏移(点击坐标与定点坐标)
@@ -168,13 +160,13 @@ export class Cropper {
 					this._yOffset = y - point.y;
 					this._targetType = Types.point;
 				}
-				else if (x > this._cropperX && x < this._cropperX + this._cropperWidth && y > this._cropperY && y < this._cropperY + this._cropperHeight) {
-					this._xOffset = x - this._cropperX;
-					this._yOffset = y - this._cropperY;
+				else if (x > cropper.x && x < cropper.x + cropper.width && y > cropper.y && y < cropper.y + cropper.height) {
+					this._xOffset = x - cropper.x;
+					this._yOffset = y - cropper.y;
 					this._targetType = Types.cropper;
-				} else if (x > this._imageX && x < this._imageX + this._imageWidth && y > this._imageY && y < this._imageY + this._imageHeight) {
-					this._xOffset = x - this._imageX;
-					this._yOffset = y - this._imageY;
+				} else if (x > image.x && x < image.x + image.width && y > image.y && y < image.y + image.height) {
+					this._xOffset = x - image.x;
+					this._yOffset = y - image.y;
 					this._targetType = Types.image;
 				}
 				else {
@@ -214,7 +206,7 @@ export class Cropper {
 
 	private handlePointMove(e: MouseEvent) {
 		const [x, y] = [e.layerX, e.layerY];
-		const [w, h] = [x - this._cropperX - this._xOffset + this._pointWidth / 2, y - this._cropperY - this._yOffset + this._pointHeight / 2];
+		const [w, h] = [x - this._cropper.x - this._xOffset + this._pointWidth / 2, y - this._cropper.y - this._yOffset + this._pointHeight / 2];
 		if (w <= 0 || h <= 0) {
 			return;
 		}
@@ -222,10 +214,11 @@ export class Cropper {
 	}
 
 	private getPoint() {
-		const w = this._pointWidth,
+		const cropper = this._cropper,
+			w = this._pointWidth,
 			h = this._pointHeight,
-			x = this._cropperX + this._cropperWidth - w / 2,
-			y = this._cropperY + this._cropperHeight - h / 2;
+			x = cropper.x + cropper.width - w / 2,
+			y = cropper.y + cropper.height - h / 2;
 
 		return {
 			width: w,
@@ -239,13 +232,13 @@ export class Cropper {
 		const [x, y] = [e.layerX, e.layerY];
 		const [oX, oY] = [this._xOffset, this._yOffset];
 
-		this._imageX = x - oX;
-		this._imageY = y - oY;
+		this.image.x = x - oX;
+		this.image.y = y - oY;
 	}
 
 	private handleCropperMove = (e: MouseEvent) => {
 		const [x, y] = [e.layerX, e.layerY];
-		const [oX, oY, cW, cH, w, h] = [this._xOffset, this._yOffset, this._cropperWidth, this._cropperHeight, this._width, this._height];
+		const [oX, oY, cW, cH, w, h] = [this._xOffset, this._yOffset, this._cropper.width, this._cropper.height, this._width, this._height];
 
 		let currentX = x - oX,
 			currentY = y - oY;
@@ -269,8 +262,8 @@ export class Cropper {
 			currentY = h - cH;
 		}
 
-		this._cropperX = currentX;
-		this._cropperY = currentY;
+		this._cropper.x = currentX;
+		this._cropper.y = currentY;
 
 	}
 
@@ -305,22 +298,24 @@ export class Cropper {
 
 	private fillImage() {
 		const ctx = this._ctx,
-			image = this._image;
+			image = this.image;
 		if (image) {
-			ctx.drawImage(image, this._imageX, this._imageY, this._imageWidth, this._imageHeight);
+			ctx.drawImage(image.element, image.x, image.y, image.width, image.height);
 		}
 	}
 
 	private fillCropper() {
-		if (this._image) {
-			const ctx = this._ctx;
+		const image = this.image;
+		if (image.element) {
+			const ctx = this._ctx,
+				cropper = this._cropper;
 
 			ctx.save();
 
 			ctx.strokeStyle = '#39f';
 			ctx.lineWidth = this._lineWidth;
 
-			ctx.strokeRect(this._cropperX, this._cropperY, this._cropperWidth, this._cropperHeight);
+			ctx.strokeRect(cropper.x, cropper.y, cropper.width, cropper.height);
 
 			ctx.fillStyle = '#39f';
 			const point = this.getPoint();
@@ -332,32 +327,36 @@ export class Cropper {
 	}
 
 	private getCropperData() {
+		const image = this.image,
+			cropper = this._cropper;
 
-		const [imageX, imageY, imageH, imageW] = [this._imageX, this._imageY, this._imageHeight, this._imageWidth];
-		const [cropperX, cropperY, cropperH, cropperW] = [this._cropperX, this._cropperY, this._cropperHeight, this._cropperWidth];
-
-		let [currentX, currentY, currentH, currentW] = [cropperX, cropperY, cropperH, cropperW];
+		let [currentX, currentY, currentH, currentW] = [cropper.x, cropper.y, cropper.height, cropper.width];
 
 		let offsetX = 0, offsetY = 0;
 
-		if (cropperX < imageX) {
-			currentX = imageX;
-			offsetX = currentX - cropperX;
+		// 左边超出边界
+		if (cropper.x < image.x) {
+			currentX = image.x;
+			offsetX = image.x - cropper.x;
 			currentW -= offsetX;
 		}
 
-		if (cropperY < imageY) {
-			currentY = imageY;
-			offsetY = currentY - cropperY;
+
+		// 上边超出边界
+		if (cropper.y < image.y) {
+			currentY = image.y;
+			offsetY = image.y - cropper.y;
 			currentH -= offsetY;
 		}
 
-		if (cropperX + cropperW > imageX + imageW) {
-			currentW -= (cropperX + cropperW) - (imageX + imageW);
+		// 右边超出边界
+		if (cropper.x + cropper.width > image.x + image.width) {
+			currentW -= (cropper.x + cropper.width) - (image.x + image.width);
 		}
 
-		if (cropperY + cropperH > imageY + imageH) {
-			currentH -= (cropperY + cropperH) - (imageY + imageH);
+		// 下边超出边界
+		if (cropper.y + cropper.height > image.y + image.height) {
+			currentH -= (cropper.y + cropper.height) - (image.y + image.height);
 		}
 
 		if (currentW < 0 || currentH < 0) {
@@ -376,19 +375,21 @@ export class Cropper {
 	}
 
 	private preview = () => {
-		if (this._image && this._isPreview) {
+		if (this.image.element && this._isPreview) {
 			const data = this.getCropperData();
+
 			if (data) {
-				this._previewScaleCtx.clearRect(0, 0, this._cropperWidth, this._cropperHeight);
+				this._previewScaleCtx.clearRect(0, 0, this._cropper.width, this._cropper.height);
 
 				this._previewScaleCtx.putImageData(data.imageData, data.offsetX, data.offsetY);
 
 				this._previewList.forEach(p => {
 					const ctx = p.ctx,
 						canvas = p.canvas;
-					if (p.scale !== 1) {
-						ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+					if (p.scale !== 1) {
 						ctx.scale(p.scale, p.scale);
 
 						ctx.drawImage(this._previewScaleCanvas, 0, 0);
@@ -416,7 +417,7 @@ export class Cropper {
 	}
 
 	public crop(): HTMLCanvasElement {
-		if (!this._image) {
+		if (!this.image.element) {
 			console.error('请添加一张图片');
 			return;
 		}
@@ -431,8 +432,8 @@ export class Cropper {
 				ctx = canvas.getContext('2d');
 
 			Object.assign(canvas, {
-				width: this._cropperWidth,
-				height: this._cropperHeight
+				width: this._cropper.width,
+				height: this._cropper.height
 			});
 
 			ctx.putImageData(data.imageData, data.offsetX, data.offsetY);
@@ -445,16 +446,17 @@ export class Cropper {
 
 	private resetImage(image?: HTMLImageElement) {
 		if (!image) {
-			if (!this._image) {
+			if (!this.image.element) {
 				return;
 			}
 
-			image = this._image;
+			image = this.image.element;
 		}
 
 		if (!image.src) {
 			return;
 		}
+
 		const iW = image.width,
 			iH = image.height,
 			w = this._width,
@@ -479,15 +481,18 @@ export class Cropper {
 			currentW = k * iW;
 		}
 
+
+
 		// 清空配置
-		Object.assign(this, {
-			_image: image,
-			_imageWidth: currentW,
-			_imageHeight: currentH,
-			_imageX: (w - currentW) / 2,
-			_imageY: (h - currentH) / 2,
-			_scale: k
+		Object.assign(this.image, {
+			element: image,
+			width: currentW,
+			height: currentH,
+			x: (w - currentW) / 2,
+			y: (h - currentH) / 2
 		});
+
+		this._scale = k;
 
 		this.setCropper(cW, cH);
 	}
@@ -501,7 +506,8 @@ export class Cropper {
 				console.error('请选择正确的图片文件');
 			}
 			const reader = new FileReader();
-			this._image = null;
+
+			this.image = {};
 
 			reader.onload = (e: any) => {
 				const _image = new Image();
@@ -520,38 +526,37 @@ export class Cropper {
 
 
 	private setPreview(resetCoordinate: boolean = true) {
-		const width = this._cropperWidth;
-		const height = this._cropperHeight;
+		const cropper = this._cropper;
 		if (this._isPreview) {
 			const [w, h] = [this._width, this._height];
-			if (resetCoordinate) {
-				this._cropperX = w / 2 - width / 2;
-				this._cropperY = h / 2 - height / 2;
-			}
-			this._previewWidth = width;
-			this._previewHeight = height;
-			if (this._previewScale) {
-				const scale = this._previewScale;;
-				this._previewWidth *= scale;
-				this._previewHeight *= scale;
 
+			if (resetCoordinate) {
+				cropper.x = w / 2 - cropper.width / 2;
+				cropper.y = h / 2 - cropper.height / 2;
+			}
+
+			if (this._previewScaleCanvas) {
 				Object.assign(this._previewScaleCanvas, {
-					width: width,
-					height: height
+					width: cropper.width,
+					height: cropper.height
 				});
 			}
 
-			Object.assign(this._previewCanvas, {
-				width: this._previewWidth,
-				height: this._previewHeight
+			this._previewList.forEach(p => {
+				Object.assign(p.canvas, {
+					width: cropper.width * p.scale,
+					height: cropper.height * p.scale
+				});
 			});
 		}
 	}
 
 
 	public setCropper(width: number, height: number, resetCoordinate: boolean = true) {
-		this._cropperWidth = width;
-		this._cropperHeight = height;
+		Object.assign(this._cropper, {
+			width: width,
+			height: height
+		});
 
 		this.setPreview(resetCoordinate);
 
