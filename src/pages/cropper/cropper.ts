@@ -1,15 +1,25 @@
 interface ICropperOptions {
-	preview?: HTMLElement;
-	previewScale?: number;
+	preview?: {
+		container: HTMLElement;
+		scale?: number;
+	}[];
 	width?: number;
 	height?: number;
 }
 
-enum Area {
+enum Types {
 	cropper,
 	image,
 	point,
 	background
+}
+
+interface IPreview {
+	canvas: HTMLCanvasElement;
+	ctx: CanvasRenderingContext2D;
+	scale: number;
+	sCanvas?: HTMLCanvasElement;
+	sCtx?: CanvasRenderingContext2D;
 }
 
 export class Cropper {
@@ -19,6 +29,19 @@ export class Cropper {
 	private _canvas: HTMLCanvasElement;
 	private _width: number;
 	private _height: number;
+	private image: {
+		element: HTMLImageElement;
+		width: number;
+		height: number;
+		x: number;
+		y: number;
+	};
+	private _cropper: {
+		width: number;
+		height: number;
+		x: number;
+		y: number;
+	};
 	private _image: HTMLImageElement;
 	private _imageWidth: number;
 	private _imageHeight: number;
@@ -27,18 +50,14 @@ export class Cropper {
 	private _scale: number = 1;
 	private _cropperX: number;
 	private _cropperY: number;
-	private _xOffset: number;
-	private _yOffset: number;
 	private _cropperWidth: number;
 	private _cropperHeight: number;
-	private _area: Area;
+	private _xOffset: number;
+	private _yOffset: number;
+	private _targetType: Types;
 	private _moving: boolean;
-	private _preview: boolean = false;
-	private _previewWidth: number;
-	private _previewHeight: number;
-	private _previewCanvas: HTMLCanvasElement;
-	private _previewCtx: CanvasRenderingContext2D;
-	private _previewScale: number;
+	private _isPreview: boolean = false;
+	private _previewList: IPreview[] = [];
 	private _previewScaleCanvas: HTMLCanvasElement;
 	private _previewScaleCtx: CanvasRenderingContext2D;
 	private _lineWidth: number = 1;
@@ -78,20 +97,27 @@ export class Cropper {
 
 		container.appendChild(canvas);
 
-		if (op.preview) {
-			const previewCanvas = document.createElement('canvas'),
-				previewCtx = previewCanvas.getContext('2d');
+		if (op.preview && Array.isArray(op.preview)) {
+			op.preview.forEach(p => {
+				const pCanvas = document.createElement('canvas'),
+					pCtx = pCanvas.getContext('2d'),
+					scale = +p.scale;
 
-			op.preview.appendChild(previewCanvas);
+				p.container.appendChild(pCanvas);
 
-			this._previewCanvas = previewCanvas;
-			this._previewCtx = previewCtx;
-			this._preview = true;
-			if (op.previewScale !== undefined) {
-				this._previewScale = op.previewScale;
-				this._previewScaleCanvas = document.createElement('canvas');
-				this._previewScaleCtx = this._previewScaleCanvas.getContext('2d');
-			}
+				const preview: IPreview = {
+					canvas: pCanvas,
+					ctx: pCtx,
+					scale: scale > 0 ? scale : 1
+				};
+
+				if (preview.scale !== 1) {
+					preview.sCanvas = document.createElement('canvas');
+					preview.sCtx = preview.canvas.getContext('2d');
+				}
+
+				this._previewList.push(preview);
+			});
 		}
 
 		canvas.addEventListener('mousewheel', (e) => {
@@ -140,19 +166,19 @@ export class Cropper {
 				if (x > point.x && x < point.x + point.width && y > point.y && y < point.y + point.height) {
 					this._xOffset = x - point.x;
 					this._yOffset = y - point.y;
-					this._area = Area.point;
+					this._targetType = Types.point;
 				}
 				else if (x > this._cropperX && x < this._cropperX + this._cropperWidth && y > this._cropperY && y < this._cropperY + this._cropperHeight) {
 					this._xOffset = x - this._cropperX;
 					this._yOffset = y - this._cropperY;
-					this._area = Area.cropper;
+					this._targetType = Types.cropper;
 				} else if (x > this._imageX && x < this._imageX + this._imageWidth && y > this._imageY && y < this._imageY + this._imageHeight) {
 					this._xOffset = x - this._imageX;
 					this._yOffset = y - this._imageY;
-					this._area = Area.image;
+					this._targetType = Types.image;
 				}
 				else {
-					this._area = Area.background;
+					this._targetType = Types.background;
 					this._moving = false;
 				}
 			}
@@ -167,14 +193,14 @@ export class Cropper {
 
 		canvas.addEventListener('mousemove', (e) => {
 			if (this._moving) {
-				switch (this._area) {
-					case Area.cropper:
+				switch (this._targetType) {
+					case Types.cropper:
 						this.handleCropperMove(e);
 						break;
-					case Area.image:
+					case Types.image:
 						this.handleImageMove(e);
 						break;
-					case Area.point:
+					case Types.point:
 						this.handlePointMove(e);
 						break;
 					default:
@@ -350,28 +376,28 @@ export class Cropper {
 	}
 
 	private preview = () => {
-		if (this._image && this._preview) {
-			const data = this.getCropperData(),
-				ctx = this._previewCtx;
-
-			ctx.clearRect(0, 0, this._width, this._height);
-
+		if (this._image && this._isPreview) {
+			const data = this.getCropperData();
 			if (data) {
-				if (this._previewScale && this._previewScale !== 1) {
-					this._previewScaleCtx.clearRect(0, 0, this._cropperWidth, this._cropperHeight);
+				this._previewScaleCtx.clearRect(0, 0, this._cropperWidth, this._cropperHeight);
 
-					this._previewScaleCtx.putImageData(data.imageData, data.offsetX, data.offsetY);
+				this._previewScaleCtx.putImageData(data.imageData, data.offsetX, data.offsetY);
 
-					ctx.scale(this._previewScale, this._previewScale);
+				this._previewList.forEach(p => {
+					const ctx = p.ctx,
+						canvas = p.canvas;
+					if (p.scale !== 1) {
+						ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-					ctx.drawImage(this._previewScaleCanvas, 0, 0);
+						ctx.scale(p.scale, p.scale);
 
-					ctx.setTransform(1, 0, 0, 1, 0, 0);
+						ctx.drawImage(this._previewScaleCanvas, 0, 0);
 
-				} else {
-					ctx.putImageData(data.imageData, data.offsetX, data.offsetY);
-				}
-
+						ctx.setTransform(1, 0, 0, 1, 0, 0);
+					} else {
+						ctx.putImageData(data.imageData, data.offsetX, data.offsetY);
+					}
+				});
 			}
 		}
 	}
@@ -496,7 +522,7 @@ export class Cropper {
 	private setPreview(resetCoordinate: boolean = true) {
 		const width = this._cropperWidth;
 		const height = this._cropperHeight;
-		if (this._preview) {
+		if (this._isPreview) {
 			const [w, h] = [this._width, this._height];
 			if (resetCoordinate) {
 				this._cropperX = w / 2 - width / 2;
