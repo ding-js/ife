@@ -1,5 +1,6 @@
 interface ICropperOptions {
 	preview?: HTMLElement;
+	previewScale?: number;
 	width?: number;
 	height?: number;
 }
@@ -37,6 +38,9 @@ export class Cropper {
 	private _previewHeight: number;
 	private _previewCanvas: HTMLCanvasElement;
 	private _previewCtx: CanvasRenderingContext2D;
+	private _previewScale: number;
+	private _previewScaleCanvas: HTMLCanvasElement;
+	private _previewScaleCtx: CanvasRenderingContext2D;
 	private _lineWidth: number = 1;
 	private _pointWidth: number = 8;
 	private _pointHeight: number = 8;
@@ -83,7 +87,11 @@ export class Cropper {
 			this._previewCanvas = previewCanvas;
 			this._previewCtx = previewCtx;
 			this._preview = true;
-
+			if (op.previewScale !== undefined) {
+				this._previewScale = op.previewScale;
+				this._previewScaleCanvas = document.createElement('canvas');
+				this._previewScaleCtx = this._previewScaleCanvas.getContext('2d');
+			}
 		}
 
 		canvas.addEventListener('mousewheel', (e) => {
@@ -349,7 +357,21 @@ export class Cropper {
 			ctx.clearRect(0, 0, this._width, this._height);
 
 			if (data) {
-				ctx.putImageData(data.imageData, data.offsetX, data.offsetY);
+				if (this._previewScale && this._previewScale !== 1) {
+					this._previewScaleCtx.clearRect(0, 0, this._cropperWidth, this._cropperHeight);
+
+					this._previewScaleCtx.putImageData(data.imageData, data.offsetX, data.offsetY);
+
+					ctx.scale(this._previewScale, this._previewScale);
+
+					ctx.drawImage(this._previewScaleCanvas, 0, 0);
+
+					ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+				} else {
+					ctx.putImageData(data.imageData, data.offsetX, data.offsetY);
+				}
+
 			}
 		}
 	}
@@ -482,6 +504,17 @@ export class Cropper {
 			}
 			this._previewWidth = width;
 			this._previewHeight = height;
+			if (this._previewScale) {
+				const scale = this._previewScale;;
+				this._previewWidth *= scale;
+				this._previewHeight *= scale;
+
+				Object.assign(this._previewScaleCanvas, {
+					width: width,
+					height: height
+				});
+			}
+
 			Object.assign(this._previewCanvas, {
 				width: this._previewWidth,
 				height: this._previewHeight

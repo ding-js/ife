@@ -18,7 +18,8 @@ const w = 700, h = 450;
 const cropper = new Cropper(container, {
 	preview: preview,
 	width: w,
-	height: h
+	height: h,
+	previewScale: 0.6
 });
 
 widthInput.setAttribute('max', '' + w);
