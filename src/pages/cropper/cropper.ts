@@ -28,7 +28,7 @@ export class Cropper {
 	private _width: number;
 	private _height: number;
 
-	private image: {
+	private _image: {
 		element?: HTMLImageElement;
 		width?: number;
 		height?: number;
@@ -111,7 +111,7 @@ export class Cropper {
 		}
 
 		canvas.addEventListener('mousewheel', (e) => {
-			const image = this.image;
+			const image = this._image;
 
 			e.preventDefault();
 
@@ -151,7 +151,7 @@ export class Cropper {
 				const [x, y] = [e.layerX, e.layerY];
 				const point = this.getPoint();
 				const cropper = this._cropper;
-				const image = this.image;
+				const image = this._image;
 				this._moving = true;
 
 				// 设置偏移(点击坐标与定点坐标)
@@ -232,8 +232,8 @@ export class Cropper {
 		const [x, y] = [e.layerX, e.layerY];
 		const [oX, oY] = [this._xOffset, this._yOffset];
 
-		this.image.x = x - oX;
-		this.image.y = y - oY;
+		this._image.x = x - oX;
+		this._image.y = y - oY;
 	}
 
 	private handleCropperMove = (e: MouseEvent) => {
@@ -298,14 +298,14 @@ export class Cropper {
 
 	private fillImage() {
 		const ctx = this._ctx,
-			image = this.image;
+			image = this._image;
 		if (image) {
 			ctx.drawImage(image.element, image.x, image.y, image.width, image.height);
 		}
 	}
 
 	private fillCropper() {
-		const image = this.image;
+		const image = this._image;
 		if (image.element) {
 			const ctx = this._ctx,
 				cropper = this._cropper;
@@ -327,7 +327,7 @@ export class Cropper {
 	}
 
 	private getCropperData() {
-		const image = this.image,
+		const image = this._image,
 			cropper = this._cropper;
 
 		let [currentX, currentY, currentH, currentW] = [cropper.x, cropper.y, cropper.height, cropper.width];
@@ -375,7 +375,7 @@ export class Cropper {
 	}
 
 	private preview = () => {
-		if (this.image.element && this._isPreview) {
+		if (this._image.element && this._isPreview) {
 			const data = this.getCropperData();
 
 			if (data) {
@@ -406,18 +406,24 @@ export class Cropper {
 	private draw() {
 		this._ctx.clearRect(0, 0, this._width, this._height);
 
-		this.fillBackground();
-
 		this.fillImage();
 
 		this.preview();
+
+		// 避免预览到背景
+
+		this._ctx.clearRect(0, 0, this._width, this._height);
+
+		this.fillBackground();
+
+		this.fillImage();
 
 		this.fillCropper();
 
 	}
 
 	public crop(): HTMLCanvasElement {
-		if (!this.image.element) {
+		if (!this._image.element) {
 			console.error('请添加一张图片');
 			return;
 		}
@@ -446,11 +452,11 @@ export class Cropper {
 
 	private resetImage(image?: HTMLImageElement) {
 		if (!image) {
-			if (!this.image.element) {
+			if (!this._image.element) {
 				return;
 			}
 
-			image = this.image.element;
+			image = this._image.element;
 		}
 
 		if (!image.src) {
@@ -484,7 +490,7 @@ export class Cropper {
 
 
 		// 清空配置
-		Object.assign(this.image, {
+		Object.assign(this._image, {
 			element: image,
 			width: currentW,
 			height: currentH,
@@ -507,7 +513,7 @@ export class Cropper {
 			}
 			const reader = new FileReader();
 
-			this.image = {};
+			this._image = {};
 
 			reader.onload = (e: any) => {
 				const _image = new Image();
