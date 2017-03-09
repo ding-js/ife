@@ -1,3 +1,9 @@
+import './index.scss';
 import { Snake } from './snake';
 
-new Snake(document.querySelector('#snake-wrapper') as HTMLElement);
+const wrapper = document.querySelector('#snake-wrapper') as HTMLElement;
+
+new Snake(wrapper, {
+	width: 600,
+	height: 600
+});
