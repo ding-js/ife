@@ -7,10 +7,21 @@ interface ICropperOptions {
 	height?: number;
 }
 
+interface IType {
+	cursor: string;
+	handle?(e: MouseEvent): void;
+}
+
+interface ITypeInfo {
+	type?: Types;
+	offsetX?: number;
+	offsetY?: number;
+}
+
 enum Types {
 	cropper,
 	image,
-	point,
+	pointRD,
 	background
 }
 
@@ -42,10 +53,14 @@ export class Cropper {
 		x?: number;
 		y?: number;
 	} = {};
+
 	private _scale: number = 1;
 	private _xOffset: number;
 	private _yOffset: number;
 	private _targetType: Types;
+	private _targetTypes: {
+		[key: number]: IType;
+	};
 	private _moving: boolean;
 	private _isPreview: boolean = false;
 	private _previewList: IPreview[] = [];
@@ -68,6 +83,24 @@ export class Cropper {
 
 		this._width = _options.width;
 		this._height = _options.height;
+
+		this._targetTypes = {
+			[Types.cropper]: {
+				cursor: 'all-scroll',
+				handle: this.handleCropperMove
+			},
+			[Types.image]: {
+				cursor: 'default',
+				handle: this.handleImageMove
+			},
+			[Types.pointRD]: {
+				cursor: 'nwse-resize',
+				handle: this.handlePointMove
+			},
+			[Types.background]: {
+				cursor: 'default'
+			}
+		};
 
 		try {
 			this.init();
@@ -156,32 +189,15 @@ export class Cropper {
 		// 判断点击区域
 		canvas.addEventListener('mousedown', (e) => {
 			if (e.which === 1) {
-				const [x, y] = [e.offsetX, e.offsetY];
-				const point = this.getPoint();
-				const cropper = this._cropper;
-				const image = this._image;
-				this._moving = true;
-
-				// 设置偏移(点击坐标与定点坐标)
-				if (x > point.x && x < point.x + point.width && y > point.y && y < point.y + point.height) {
-					this._xOffset = x - point.x;
-					this._yOffset = y - point.y;
-					this._targetType = Types.point;
-				}
-				else if (x > cropper.x && x < cropper.x + cropper.width && y > cropper.y && y < cropper.y + cropper.height) {
-					this._xOffset = x - cropper.x;
-					this._yOffset = y - cropper.y;
-					this._targetType = Types.cropper;
-				} else if (x > image.x && x < image.x + image.width && y > image.y && y < image.y + image.height) {
-					this._xOffset = x - image.x;
-					this._yOffset = y - image.y;
-					this._targetType = Types.image;
-				}
-				else {
-					this._targetType = Types.background;
+				const info = this.getTypeInfo(e);
+				if (info.type === Types.background) {
 					this._moving = false;
+				} else {
+					this._targetType = info.type;
+					this._xOffset = info.offsetX;
+					this._yOffset = info.offsetY;
+					this._moving = true;
 				}
-
 			}
 		});
 
@@ -193,32 +209,62 @@ export class Cropper {
 
 
 		canvas.addEventListener('mousemove', (e) => {
-			if (this._moving) {
-				switch (this._targetType) {
-					case Types.cropper:
-						this.handleCropperMove(e);
-						break;
-					case Types.image:
-						this.handleImageMove(e);
-						break;
-					case Types.point:
-						this.handlePointMove(e);
-						break;
-					default:
-						return;
-				}
+			const info = this.getTypeInfo(e),
+				moveType = this._targetTypes[info.type],
+				currentType = this._targetTypes[this._targetType];
 
+			if (this._moving && currentType.handle) {
+				currentType.handle(e);
 				this.draw();
+			}
+			else if (moveType.cursor) {
+				const oldCursor = this._container.style.cursor;
+				if (oldCursor !== moveType.cursor) {
+					this._container.style.cursor = moveType.cursor;
+				}
 			}
 		});
 	}
 
-	private handlePointMove(e: MouseEvent) {
+	private getTypeInfo(e: MouseEvent): ITypeInfo {
 		const [x, y] = [e.offsetX, e.offsetY];
-		const [w, h] = [x - this._cropper.x - this._xOffset + this._pointWidth / 2, y - this._cropper.y - this._yOffset + this._pointHeight / 2];
+		const point = this.getPoint();
+		const cropper = this._cropper;
+		const image = this._image;
+		const info: ITypeInfo = {};
+
+		// 设置偏移(点击坐标与定点坐标)
+		if (x > point.x && x < point.x + point.width && y > point.y && y < point.y + point.height) {
+			info.offsetX = x - point.x;
+			info.offsetY = y - point.y;
+			info.type = Types.pointRD;
+		}
+		else if (x > cropper.x && x < cropper.x + cropper.width && y > cropper.y && y < cropper.y + cropper.height) {
+			info.offsetX = x - cropper.x;
+			info.offsetY = y - cropper.y;
+			info.type = Types.cropper;
+		} else if (x > image.x && x < image.x + image.width && y > image.y && y < image.y + image.height) {
+			info.offsetX = x - image.x;
+			info.offsetY = y - image.y;
+			info.type = Types.image;
+		}
+		else {
+			info.type = Types.background;
+		}
+
+		return info;
+	}
+	private handlePointMove = (e: MouseEvent) => {
+		const [x, y] = [e.offsetX, e.offsetY];
+
+		const w = x - this._cropper.x - this._xOffset + this._pointWidth / 2,
+			h = y - this._cropper.y - this._yOffset + this._pointHeight / 2;
+
+
 		if (w <= 0 || h <= 0) {
 			return;
 		}
+
 		this.setCropper(w, h, false);
 	}
 
@@ -251,7 +297,6 @@ export class Cropper {
 
 		let currentX = x - oX,
 			currentY = y - oY;
-
 
 		// 判断边界
 
