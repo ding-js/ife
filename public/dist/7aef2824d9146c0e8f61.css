@@ -1,5 +1,0 @@
-/*!
- * Copyright 2017 by Ding
- * @author Ding <ding-js@outlook.com>
- */
-.colorpicker-wrapper{text-align:center}.colorpicker-wrapper canvas{cursor:default}.colorpicker-wrapper .colorpicker-item{display:inline-block}.colorpicker-wrapper .colorpicker-item+.colorpicker-item{margin-left:10px}.colorpicker-wrapper .color-form{vertical-align:top;padding:10px 0;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.colorpicker-wrapper .color-form-group:first-child{padding-bottom:4px;border-bottom:1px solid #eee}.colorpicker-wrapper .color-form-group:last-child{padding-top:5px}.colorpicker-wrapper .color-info{height:65px}.colorpicker-wrapper .color-info input,.colorpicker-wrapper .color-info label{display:inline-block;height:35px;box-sizing:border-box;margin:0 8px;font-size:14px;vertical-align:top}.colorpicker-wrapper .color-info label{line-height:35px}#color-preview{width:100px;height:30px;display:inline-block}

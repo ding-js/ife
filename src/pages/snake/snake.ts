@@ -60,24 +60,52 @@ export class Snake {
 	private _snakeDirection: Direction = Direction.right;
 	private _keys: Direction[] = [];
 
+	private _timer: number;
+
 	private _boxTypes: {
 		[key: number]: IBoxType;
 	} = {
-		[BoxType.empty]: {
-			background: '#f5f5f5'
-		},
+		[BoxType.empty]: {},
 		[BoxType.wall]: {},
 		[BoxType.head]: {
-			background: 'red'
+			background: '#555',
+			render: (ctx, x, y, sideLength) => {
+				const k = sideLength / 14,	// 基数
+					d = this._direction[this._snakeDirection],
+					r = sideLength / 2,
+					eyes = [
+						{
+							x: x + r + d.x * k * 3 + (d.x === 0 ? k * 2.5 : 0),
+							y: y + r + d.y * k * 3 + (d.y === 0 ? k * 2.5 : 0)
+						},
+						{
+							x: x + r + d.x * k * 3 + (d.x === 0 ? -k * 2.5 : 0),
+							y: y + r + d.y * k * 3 + (d.y === 0 ? -k * 2.5 : 0)
+						}
+					];
+				ctx.fillStyle = '#fff';
+
+				eyes.forEach(eye => {
+
+					ctx.beginPath();
+
+					ctx.arc(eye.x, eye.y, 2 * k, 0, Math.PI * 2);
+
+
+					ctx.fill();
+				});
+
+
+			}
 		},
 		[BoxType.body]: {
-			background: 'green'
+			background: '#888'
 		},
 		[BoxType.footer]: {
-			background: 'green'
+			background: '#888'
 		},
 		[BoxType.food]: {
-			background: 'yellow'
+			background: 'orange'
 		}
 	};
 
@@ -175,13 +203,22 @@ export class Snake {
 		document.addEventListener('keydown', (e) => {
 			const direction = this._direction,
 				code = e.keyCode;
-			for (let i in direction) {
-				if (direction[i].keyCode.indexOf(code) > -1) {
+
+			switch (code) {
+				case 32:
 					e.preventDefault();
-					this._keys.push(+i);
-					// if (type !== snakeDirection && type !== direction[snakeDirection].opposite) {
-					// 	this._snakeDirection = type;
-					// }
+					this._timer ? this.pause() : this.continue();
+					break;
+				default:
+					break;
+			}
+
+			if (this._timer) {
+				for (let i in direction) {
+					if (direction[i].keyCode.indexOf(code) > -1) {
+						e.preventDefault();
+						this._keys.push(+i);
+					}
 				}
 			}
 		});
@@ -201,18 +238,48 @@ export class Snake {
 
 	}
 
-	private start() {
+	public start() {
 		const originSnake = [6, 5, 4, 3].map(x => this.getBox(x, 4));
 		this._snake = originSnake;
 		this.createAFood();
-		setInterval(this.update, 300);
+		this.continue();
+	}
+
+	public pause() {
+		if (this._timer) {
+			const ctx = this._ctx,
+				op = this._options,
+				content = this._content;
+			clearInterval(this._timer);
+			this._timer = null;
+			ctx.save();
+			ctx.fillStyle = 'rgba(0,0,0,.15)';
+			ctx.fillRect(content.x, content.y, content.width, content.height);
+
+			ctx.fillStyle = '#fff';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.font = op.sideLength * 4 + 'px serif';
+
+			ctx.fillText('Pause', op.width / 2, op.height / 3);
+		}
+	}
+
+	public continue() {
+		if (!this._timer) {
+			this.draw();
+			this._timer = setInterval(this.update, 300);
+		}
+	}
+
+	private eat() {
+		this.createAFood();
 	}
 
 	private update = () => {
 		const keys = this._keys,
 			keysLen = keys.length;
 
-		console.log(this._keys);
 		if (keysLen > 0) {
 			for (let i = keysLen - 1; i >= 0; i--) {
 				const type = keys[i];
@@ -241,8 +308,13 @@ export class Snake {
 					snake.pop();
 					break;
 				case BoxType.food:
-					this.createAFood();
+					this.eat();
 					break;
+				case BoxType.body:
+				case BoxType.footer:
+					this.gameOver('自残');
+					this.draw();
+					return;
 				default:
 					return;
 			}
@@ -257,9 +329,16 @@ export class Snake {
 			this.draw();
 
 		} else {
-			console.info('Game over!', ' : ', '撞墙');
+			this.gameOver('撞墙');
 		}
 
+	}
+
+	private gameOver(result?: string) {
+		if (this._timer) {
+			clearInterval(this._timer);
+			console.info('Game over!', result);
+		}
 	}
 
 	private createAFood() {
@@ -276,9 +355,11 @@ export class Snake {
 
 		return box;
 	}
+
 	private draw() {
 		const op = this._options,
 			ctx = this._ctx,
+			content = this._content,
 			types = this._boxTypes,
 			side = op.sideLength;
 
@@ -286,9 +367,16 @@ export class Snake {
 
 		ctx.save();
 
+		ctx.fillStyle = '#f7f7f7';
+		ctx.fillRect(content.x, content.y, content.width, content.height);
+
+		ctx.restore();
+
 		this._boxes.forEach(column => {
 			column.forEach(box => {
 				const type = types[box.type];
+				ctx.save();
+
 				if (type.background) {
 					ctx.fillStyle = type.background;
 					ctx.fillRect(box.x, box.y, side, side);
@@ -297,7 +385,7 @@ export class Snake {
 				if (type.render) {
 					type.render(ctx, box.x, box.y, side);
 				}
-
+				ctx.restore();
 			});
 		});
 	}
