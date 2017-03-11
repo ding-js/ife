@@ -3,4 +3,22 @@ extends /layout/main.pug
 block main
   main
     section
+      form
+        #mode-group.form-group
+          label
+            input(type="radio",name="mode",value="common")
+            | 普通模式
+          label
+            input(type="radio",name="mode",value="level")
+            | 过关模式
+          label
+            input(type="radio",name="mode",value="escape")
+            | 躲避模式
+    section
+      span 得分:
+      span#scroe-info
+      span 速度:
+      span#speed-info
+
+    section
       #snake-wrapper

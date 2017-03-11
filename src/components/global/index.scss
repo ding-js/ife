@@ -8,6 +8,11 @@ body {
 	button {
 		margin-bottom: 10px;
 	}
+	input[type=radio],
+	input[type=checkbox] {
+		margin-bottom: 3px;
+		margin-right: 5px;
+	}
 }
 
 input,

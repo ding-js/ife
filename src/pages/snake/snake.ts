@@ -14,6 +14,13 @@ enum Direction {
 	down
 }
 
+enum GameStatus {
+	beforeStart,
+	afterEnd,
+	pause,
+	normal
+}
+
 interface IDirection {
 	x: number;
 	y: number;
@@ -25,6 +32,7 @@ interface ISnakeOptions {
 	width?: number;
 	height?: number;
 	sideLength?: number;
+	scroeCallback?(this: Snake, scroe: number): void;
 }
 
 interface IContent {
@@ -56,17 +64,23 @@ export class Snake {
 	private _ctx: CanvasRenderingContext2D;
 	private _content: IContent;
 	private _boxes: Ibox[][] = [];
-	private _snake: Ibox[];
-	private _snakeDirection: Direction = Direction.right;
+	private _snake: Ibox[] = [];
+	private _snakeDirection: Direction;
 	private _keys: Direction[] = [];
+	private _status: GameStatus = GameStatus.beforeStart;
+	private _speed: number = 1;
+	private _duration: number = 0;
+	private _delay: number = 10;
 
-	private _timer: number;
+	private _animation: number;
 
 	private _boxTypes: {
 		[key: number]: IBoxType;
 	} = {
 		[BoxType.empty]: {},
-		[BoxType.wall]: {},
+		[BoxType.wall]: {
+			background: 'brown'
+		},
 		[BoxType.head]: {
 			background: '#555',
 			render: (ctx, x, y, sideLength) => {
@@ -90,7 +104,6 @@ export class Snake {
 					ctx.beginPath();
 
 					ctx.arc(eye.x, eye.y, 2 * k, 0, Math.PI * 2);
-
 
 					ctx.fill();
 				});
@@ -202,18 +215,34 @@ export class Snake {
 
 		document.addEventListener('keydown', (e) => {
 			const direction = this._direction,
-				code = e.keyCode;
+				code = e.keyCode,
+				status = this._status;
 
 			switch (code) {
 				case 32:
 					e.preventDefault();
-					this._timer ? this.pause() : this.continue();
+					switch (status) {
+						case GameStatus.pause:
+							this.continue();
+							break;
+						case GameStatus.normal:
+							this.pause();
+							break;
+						case GameStatus.beforeStart:
+							this.start();
+							break;
+						case GameStatus.afterEnd:
+							this.reStart();
+							break;
+						default:
+							break;
+					}
 					break;
 				default:
 					break;
 			}
 
-			if (this._timer) {
+			if (status === GameStatus.normal) {
 				for (let i in direction) {
 					if (direction[i].keyCode.indexOf(code) > -1) {
 						e.preventDefault();
@@ -223,7 +252,7 @@ export class Snake {
 			}
 		});
 
-		this.start();
+		this.info('Press space to start!');
 	}
 
 	private getBox(x: number, y: number): Ibox {
@@ -238,42 +267,83 @@ export class Snake {
 
 	}
 
-	public start() {
-		const originSnake = [6, 5, 4, 3].map(x => this.getBox(x, 4));
-		this._snake = originSnake;
-		this.createAFood();
-		this.continue();
+	private info(msgs: string | string[], fontSize: number = 4) {
+		const ctx = this._ctx,
+			op = this._options,
+			content = this._content;
+
+		ctx.save();
+
+		ctx.fillStyle = 'rgba(0,0,0,.15)';
+		ctx.fillRect(content.x, content.y, content.width, content.height);
+
+		ctx.fillStyle = '#fff';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.font = op.sideLength * fontSize + 'px serif';
+
+		if (!Array.isArray(msgs)) {
+			msgs = [msgs];
+		}
+
+		msgs.forEach((msg, index) => {
+			ctx.fillText(msg, op.width / 2, op.height / 3 + op.sideLength * fontSize * 1.1 * index, content.width - op.sideLength * 2);
+		});
+
+		ctx.restore();
 	}
 
-	public pause() {
-		if (this._timer) {
-			const ctx = this._ctx,
-				op = this._options,
-				content = this._content;
-			clearInterval(this._timer);
-			this._timer = null;
-			ctx.save();
-			ctx.fillStyle = 'rgba(0,0,0,.15)';
-			ctx.fillRect(content.x, content.y, content.width, content.height);
+	private start() {
+		const originSnake = [6, 5, 4, 3].map(x => this.getBox(x, 4));
 
-			ctx.fillStyle = '#fff';
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.font = op.sideLength * 4 + 'px serif';
+		this._snakeDirection = Direction.right;
 
-			ctx.fillText('Pause', op.width / 2, op.height / 3);
+		this._snake = originSnake;
+
+		this.createAFood();
+
+		this.updateAnimation();
+
+		this._status = GameStatus.normal;
+	}
+
+	private reStart() {
+		const boxes = this._boxes;
+		boxes.forEach(colum => {
+			colum.forEach(box => {
+				if (box.type !== BoxType.empty && box.type !== BoxType.wall) {
+					box.type = BoxType.empty;
+				}
+			});
+		});
+
+		this.start();
+	}
+
+	private pause() {
+		if (this._status === GameStatus.normal) {
+			cancelAnimationFrame(this._animation);
+			requestAnimationFrame(() => {
+				this.info('Pause');
+				this._status = GameStatus.pause;
+
+			});
 		}
 	}
 
-	public continue() {
-		if (!this._timer) {
-			this.draw();
-			this._timer = setInterval(this.update, 300);
+	private continue() {
+		if (this._status === GameStatus.pause) {
+			this.updateAnimation();
+			this._status = GameStatus.normal;
 		}
 	}
 
 	private eat() {
+		const scroe = this._snake.length - 3;
 		this.createAFood();
+		if (this._options.scroeCallback) {
+			this._options.scroeCallback.call(this, scroe);
+		}
 	}
 
 	private update = () => {
@@ -285,9 +355,10 @@ export class Snake {
 				const type = keys[i];
 				if (type !== this._snakeDirection && type !== this._direction[this._snakeDirection].opposite) {
 					this._snakeDirection = type;
+					this._keys = keys.slice(i + 1);
+					break;
 				}
 			}
-			this._keys = [];
 		}
 
 		const snake = this._snake,
@@ -312,14 +383,15 @@ export class Snake {
 					break;
 				case BoxType.body:
 				case BoxType.footer:
-					this.gameOver('自残');
-					this.draw();
+					this.draw(); // 转向
+					this.endGame('红烧蛇肉!');
 					return;
 				default:
 					return;
 			}
 
 			snake.unshift(box);
+
 			snake.forEach(s => {
 				s.type = BoxType.body;
 			});
@@ -329,15 +401,28 @@ export class Snake {
 			this.draw();
 
 		} else {
-			this.gameOver('撞墙');
+			this.endGame('撞边界啦!');
 		}
-
 	}
 
-	private gameOver(result?: string) {
-		if (this._timer) {
-			clearInterval(this._timer);
-			console.info('Game over!', result);
+	private updateAnimation = () => {
+		const delay = this._delay;
+		this._animation = requestAnimationFrame(this.updateAnimation);	// 先更新
+		if (this._duration > delay || this._speed > delay) {
+			this._duration = 0;
+			this.update();
+		} else {
+			this._duration += this._speed;
+		}
+	}
+
+	public endGame(result: string) {
+		if (this._status === GameStatus.normal) {
+			cancelAnimationFrame(this._animation);
+			requestAnimationFrame(() => {
+				this.info(['Game over!', result]);
+				this._status = GameStatus.afterEnd;
+			});
 		}
 	}
 
@@ -352,8 +437,6 @@ export class Snake {
 		} else {
 			return this.createAFood();
 		}
-
-		return box;
 	}
 
 	private draw() {
@@ -375,18 +458,60 @@ export class Snake {
 		this._boxes.forEach(column => {
 			column.forEach(box => {
 				const type = types[box.type];
-				ctx.save();
 
 				if (type.background) {
+					ctx.save();
 					ctx.fillStyle = type.background;
 					ctx.fillRect(box.x, box.y, side, side);
+					ctx.restore();
 				}
 
 				if (type.render) {
+					ctx.save();
 					type.render(ctx, box.x, box.y, side);
+					ctx.restore();
 				}
-				ctx.restore();
 			});
+		});
+	}
+
+	public nextLevel(msg: string) {
+		if (this._status === GameStatus.normal) {
+			cancelAnimationFrame(this._animation);
+			requestAnimationFrame(() => {
+				this._status = GameStatus.afterEnd;
+				this.info(msg);
+			});
+		}
+	}
+
+	public fillWall(walls: number) {
+		const content = this._content;
+		let i = 0;
+		while (i < walls) {
+			const box = this.getBox(Math.floor(Math.random() * content.colums), Math.floor(Math.random() * content.rows));
+			console.log(i);
+			if (box.type === BoxType.empty) {
+				box.type = BoxType.wall;
+				i++;
+			}
+		}
+	}
+
+	set speed(speed: number) {
+		this._speed = speed;
+	}
+
+	get speed() {
+		return this._speed;
+	}
+
+	set walls(walls: { x: number, y: number }[]) {
+		walls.forEach(wall => {
+			const box = this.getBox(wall.x, wall.y);
+			if (box && box.type === BoxType.empty) {
+				box.type = BoxType.wall;
+			}
 		});
 	}
 }
