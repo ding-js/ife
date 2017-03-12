@@ -1,0 +1,5 @@
+/*!
+ * Copyright 2017 by Ding
+ * @author Ding <ding-js@outlook.com>
+ */
+@-webkit-keyframes rotate{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@keyframes rotate{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}body{background-color:#f3f3f3}header{background-color:#fff;border-bottom:1px solid #eee;position:fixed;top:0;left:0;width:100%}header h2{text-align:center}main{margin-top:180px}.scroll-content{margin:0;padding:0;list-style:none}.scroll-content li{height:50px;line-height:50px;padding:0 16px;background-color:#fff;border-bottom:1px solid #eee;margin-bottom:8px;box-shadow:0 1px 1px rgba(0,0,0,.1)}.loading{text-align:center}.loading-text{display:inline-block;width:100px;height:100px;line-height:100px;-webkit-animation:rotate linear 1.8s infinite;animation:rotate linear 1.8s infinite}.form-group{text-align:center}.form-group input{width:180px}@media screen and (min-width:768px){main{margin-left:auto;margin-right:auto;width:600px}}
