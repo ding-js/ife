@@ -67,7 +67,6 @@ function levelMode() {
 		height: 600,
 		scroeCallback: function (scroe) {
 			const level = levels[index];
-			updateInfo(scroe, this.speed);
 			if (scroe >= level.scroe) {
 				if (index >= levels.length - 1) {
 					this.endGame('没有关卡啦!');
@@ -75,9 +74,11 @@ function levelMode() {
 					this.speed = level.speed;
 					this.nextLevel('按空格进入下一关');
 					index++;
+					updateInfo(1, level.speed);
 				}
 				return false;
 			}
+			updateInfo(scroe, this.speed);
 		}
 	});
 }
@@ -99,7 +100,6 @@ function escapeMode() {
 		width: 600,
 		scroeCallback: function (scroe) {
 			const level = levels[index];
-			updateInfo(scroe, this.speed);
 			if (scroe >= level.scroe) {
 				if (index >= levels.length - 1) {
 					this.endGame('没有关卡啦!');
@@ -108,9 +108,11 @@ function escapeMode() {
 					s.fillWall(20);
 					this.nextLevel('按空格进入下一关');
 					index++;
+					updateInfo(1, level.speed);
 				}
 				return false;
 			}
+			updateInfo(scroe, this.speed);
 
 		}
 	});
