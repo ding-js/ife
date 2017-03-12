@@ -1,3 +1,5 @@
+import * as TWEEN from 'tween.js';
+
 enum BoxType {
 	empty,
 	wall,
@@ -50,11 +52,20 @@ interface Ibox {
 	xIndex: number;
 	yIndex: number;
 	type: BoxType;
+	animateX?: number;
+	animateY?: number;
 }
 
 interface IBoxType {
 	background?: string;
 	render?(ctx: CanvasRenderingContext2D, x: number, y: number, sideLength: number): void;
+}
+
+interface ITween {
+	tween;
+	isCompleted: boolean;
+	startTime: number;
+	spend: number;
 }
 
 export class Snake {
@@ -65,14 +76,18 @@ export class Snake {
 	private _content: IContent;
 	private _boxes: Ibox[][] = [];
 	private _snake: Ibox[] = [];
+	private _food: Ibox[] = [];
+	private _wall: Ibox[] = [];
+	private _drop: Ibox[] = [];
 	private _snakeDirection: Direction;
 	private _keys: Direction[] = [];
 	private _status: GameStatus = GameStatus.beforeStart;
 	private _speed: number = 1;
-	private _duration: number = 0;
-	private _delay: number = 10;
-
-	private _animation: number;
+	private _animation: {
+		id: number;
+		cb(time: number): void;
+		tweens: ITween[];
+	};
 
 	private _boxTypes: {
 		[key: number]: IBoxType;
@@ -293,63 +308,98 @@ export class Snake {
 		ctx.restore();
 	}
 
-	private start() {
-		const originSnake = [6, 5, 4, 3].map(x => this.getBox(x, 4));
+	private draw() {
+		const op = this._options,
+			ctx = this._ctx,
+			content = this._content,
+			types = this._boxTypes,
+			side = op.sideLength;
 
-		this._snakeDirection = Direction.right;
+		ctx.clearRect(0, 0, op.width, op.height);
 
-		this._snake = originSnake;
+		ctx.save();
 
-		this.createAFood();
+		ctx.fillStyle = '#f7f7f7';
+		ctx.fillRect(content.x, content.y, content.width, content.height);
 
-		this.updateAnimation();
+		ctx.restore();
 
-		this._status = GameStatus.normal;
-	}
+		this._drop.concat(this._wall, this._food, this._snake).forEach(box => {
+			const type = types[box.type];
+			const x = box.animateX ? box.animateX : box.x,
+				y = box.animateY ? box.animateY : box.y;
 
-	private reStart() {
-		const boxes = this._boxes;
-		boxes.forEach(colum => {
-			colum.forEach(box => {
-				if (box.type !== BoxType.empty && box.type !== BoxType.wall) {
-					box.type = BoxType.empty;
-				}
-			});
+			if (type.background) {
+				ctx.save();
+				ctx.fillStyle = type.background;
+				ctx.fillRect(x, y, side, side);
+				ctx.restore();
+			}
+
+			if (type.render) {
+				ctx.save();
+				type.render(ctx, x, y, side);
+				ctx.restore();
+			}
 		});
 
-		this.start();
 	}
 
-	private pause() {
-		if (this._status === GameStatus.normal) {
-			cancelAnimationFrame(this._animation);
-			requestAnimationFrame(() => {
-				this.info('Pause');
-				this._status = GameStatus.pause;
+	private updateAnimation(tweens: ITween[], cb: Function) {
+		const animationCb = (time) => {
+			let complete = true;
 
+			tweens.forEach(t => {
+				t.tween.update(time);
+				if (!t.isCompleted) {
+					complete = false;
+				}
 			});
-		}
+
+			this.draw();
+
+			if (!complete) {
+				this.updateAnimation(tweens, cb);
+			} else {
+				cb();
+			}
+		};
+
+		this._animation = {
+			cb: animationCb,
+			id: requestAnimationFrame(animationCb),
+			tweens: tweens
+		};
 	}
 
-	private continue() {
-		if (this._status === GameStatus.pause) {
-			this.updateAnimation();
-			this._status = GameStatus.normal;
-		}
-	}
+	private createTween(now: Ibox, next: Ibox, timeout: number): ITween {
+		const t = {
+			tween: new TWEEN.Tween({ x: now.x, y: now.y })
+				.to({ x: next.x, y: next.y }, timeout)
+				.onUpdate(function () {
+					Object.assign(now, {
+						animateX: this.x,
+						animateY: this.y
+					});
+				})
+				.onComplete(function () {
+					t.isCompleted = true;
+				})
+				.start(),
+			isCompleted: false,
+			startTime: new Date().getTime(),
+			spend: 0
+		};
 
-	private eat() {
-		const scroe = this._snake.length - 3;
-		this.createAFood();
-		if (this._options.scroeCallback) {
-			this._options.scroeCallback.call(this, scroe);
-		}
+		return t;
 	}
 
 	private update = () => {
+		const timeout = this._speed > 30 ? 1 : 300 - this._speed * 10;
 		const keys = this._keys,
 			keysLen = keys.length;
 
+		// 根据键盘输入转向
 		if (keysLen > 0) {
 			for (let i = keysLen - 1; i >= 0; i--) {
 				const type = keys[i];
@@ -372,117 +422,184 @@ export class Snake {
 
 		const box = this.getBox(x, y) as Ibox;
 
-		if (box && x >= 0 && x < content.colums && y >= 0 && y < content.rows) {
+		const animationComplete = () => {
+			snake.forEach(snakeBox => {
+				delete snakeBox.animateX;
+				delete snakeBox.animateY;
+			});
+
 			switch (box.type) {
 				case BoxType.empty:
 					footer.type = BoxType.empty;
-					snake.pop();
+					this._drop = [snake.pop()];
 					break;
 				case BoxType.food:
-					this.eat();
+					const r = this.eat(box);
+					if (r !== undefined && !r) {
+						return;
+					}
 					break;
-				case BoxType.body:
-				case BoxType.footer:
-					this.draw(); // 转向
-					this.endGame('红烧蛇肉!');
-					return;
 				default:
 					return;
 			}
 
 			snake.unshift(box);
 
-			snake.forEach(s => {
-				s.type = BoxType.body;
+			snake.forEach(snakeBox => {
+				snakeBox.type = BoxType.body;
 			});
+
 			snake[0].type = BoxType.head;
+
 			snake[snake.length - 1].type = BoxType.footer;
 
 			this.draw();
+			this.update();
+
+		};
+
+		if (box && x >= 0 && x < content.colums && y >= 0 && y < content.rows) {
+			const tweenList = [
+				this.createTween(head, box, timeout)
+			];
+
+			if (box.type === BoxType.body || box.type === BoxType.footer) {
+				this.draw(); // 转向
+				this.endGame('红烧蛇肉!');
+				return;
+			} else if (box.type === BoxType.wall) {
+				this.draw(); // 转向
+				this.endGame('撞墙!');
+				return;
+			}
+
+			for (let i = 1, l = snake.length; i < l; i++) {
+				const thisBox = snake[i],
+					nextBox = snake[i - 1];
+				tweenList.push(
+					this.createTween(thisBox, nextBox, timeout)
+				);
+			}
+
+			requestAnimationFrame(() => {
+				this.updateAnimation(tweenList, animationComplete);
+			});
 
 		} else {
 			this.endGame('撞边界啦!');
 		}
 	}
 
-	private updateAnimation = () => {
-		const delay = this._delay;
-		this._animation = requestAnimationFrame(this.updateAnimation);	// 先更新
-		if (this._duration > delay || this._speed > delay) {
-			this._duration = 0;
-			this.update();
-		} else {
-			this._duration += this._speed;
-		}
+	private start() {
+		const originSnake = [6, 5, 4, 3].map(x => this.getBox(x, 4));
+
+		this._snakeDirection = Direction.right;
+
+		this._snake = originSnake;
+
+		this.createFood();
+
+		this.draw();
+
+		this.update();
+
+		this._status = GameStatus.normal;
 	}
 
-	public endGame(result: string) {
+	private reStart() {
+		const boxes = this._boxes;
+		boxes.forEach(colum => {
+			colum.forEach(box => {
+				if (box.type !== BoxType.empty && box.type !== BoxType.wall) {
+					box.type = BoxType.empty;
+				}
+			});
+		});
+
+		this.start();
+	}
+
+	private pauseGame(cb) {
 		if (this._status === GameStatus.normal) {
-			cancelAnimationFrame(this._animation);
-			requestAnimationFrame(() => {
-				this.info(['Game over!', result]);
-				this._status = GameStatus.afterEnd;
+			cancelAnimationFrame(this._animation.id);
+
+			this._animation.tweens.forEach(t => {
+				if (!t.isCompleted) {
+					t.spend = new Date().getTime() - t.startTime;
+					t.tween.stop();
+				}
+			});
+
+			cb();
+		}
+
+	}
+
+	private pause() {
+		this.pauseGame(() => {
+			this.info('Pause');
+			this._status = GameStatus.pause;
+		});
+	}
+
+	private continue() {
+		if (this._status === GameStatus.pause) {
+			this._animation.tweens.forEach(t => {
+				if (!t.isCompleted) {
+					t.tween.start(t.spend);
+				}
+			});
+
+			requestAnimationFrame((time) => {
+				this._animation.cb(time);
+				this._status = GameStatus.normal;
 			});
 		}
 	}
 
-	private createAFood() {
+	private eat(box) {
+		const scroe = this._snake.length - 3;
+		const food = this._food;
+
+		this._food = food.splice(food.indexOf(box));
+
+		this.createFood();
+		if (this._options.scroeCallback) {
+			return this._options.scroeCallback.call(this, scroe);
+		}
+	}
+
+	public endGame(info: string) {
+		if (this._status === GameStatus.normal) {
+			this.info([info]);
+			this._status = GameStatus.afterEnd;
+		}
+	}
+
+	private createFood() {
 		const content = this._content,
 			x = Math.floor(Math.random() * content.colums),
 			y = Math.floor(Math.random() * content.rows),
-			box = this.getBox(x, y) as Ibox;
+			box = this.getBox(x, y);
 
 		if (box.type === BoxType.empty) {
 			box.type = BoxType.food;
 		} else {
-			return this.createAFood();
+			return this.createFood();
 		}
+
+		this._food.push(box);
+		return box;
 	}
 
-	private draw() {
-		const op = this._options,
-			ctx = this._ctx,
-			content = this._content,
-			types = this._boxTypes,
-			side = op.sideLength;
-
-		ctx.clearRect(0, 0, op.width, op.height);
-
-		ctx.save();
-
-		ctx.fillStyle = '#f7f7f7';
-		ctx.fillRect(content.x, content.y, content.width, content.height);
-
-		ctx.restore();
-
-		this._boxes.forEach(column => {
-			column.forEach(box => {
-				const type = types[box.type];
-
-				if (type.background) {
-					ctx.save();
-					ctx.fillStyle = type.background;
-					ctx.fillRect(box.x, box.y, side, side);
-					ctx.restore();
-				}
-
-				if (type.render) {
-					ctx.save();
-					type.render(ctx, box.x, box.y, side);
-					ctx.restore();
-				}
-			});
-		});
-	}
 
 	public nextLevel(msg: string) {
-		if (this._status === GameStatus.normal) {
-			cancelAnimationFrame(this._animation);
-			requestAnimationFrame(() => {
-				this._status = GameStatus.afterEnd;
-				this.info(msg);
-			});
-		}
+		// requestAnimationFrame(() => {
+		this.pauseGame(() => {
+			this.info(msg);
+			this._status = GameStatus.afterEnd;
+		});
+		// });
 	}
 
 	public fillWall(walls: number) {
@@ -490,9 +607,9 @@ export class Snake {
 		let i = 0;
 		while (i < walls) {
 			const box = this.getBox(Math.floor(Math.random() * content.colums), Math.floor(Math.random() * content.rows));
-			console.log(i);
 			if (box.type === BoxType.empty) {
 				box.type = BoxType.wall;
+				this._wall.push(box);
 				i++;
 			}
 		}
@@ -506,12 +623,12 @@ export class Snake {
 		return this._speed;
 	}
 
-	set walls(walls: { x: number, y: number }[]) {
-		walls.forEach(wall => {
-			const box = this.getBox(wall.x, wall.y);
-			if (box && box.type === BoxType.empty) {
-				box.type = BoxType.wall;
-			}
-		});
-	}
+	// set walls(walls: { x: number, y: number }[]) {
+	// 	walls.forEach(wall => {
+	// 		const box = this.getBox(wall.x, wall.y);
+	// 		if (box && box.type === BoxType.empty) {
+	// 			box.type = BoxType.wall;
+	// 		}
+	// 	});
+	// }
 }
