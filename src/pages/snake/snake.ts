@@ -170,7 +170,7 @@ export class Snake {
 		const _options: ISnakeOptions = {
 			width: container.offsetWidth,
 			height: container.offsetHeight,
-			sideLength: 14
+			sideLength: 18
 		};
 
 		Object.assign(_options, options);
@@ -267,7 +267,7 @@ export class Snake {
 			}
 		});
 
-		this.info('Press space to start!');
+		this.info('按空格开始!');
 	}
 
 	private getBox(x: number, y: number): Ibox {
@@ -319,8 +319,25 @@ export class Snake {
 
 		ctx.save();
 
-		ctx.fillStyle = '#f7f7f7';
-		ctx.fillRect(content.x, content.y, content.width, content.height);
+		ctx.strokeStyle = '#ddd';
+		ctx.lineWidth = 1;
+
+		for (let x = 0; x <= content.colums; x++) {
+			const xC = content.x + x * side;
+			ctx.moveTo(xC, content.y);
+			ctx.lineTo(xC, content.y + content.height);
+		}
+
+		for (let y = 0; y <= content.rows; y++) {
+			const yC = content.y + y * side;
+			ctx.moveTo(content.x, yC);
+			ctx.lineTo(content.x + content.width, yC);
+		}
+
+		ctx.stroke();
+
+		// ctx.fillStyle = '#f7f7f7';
+		// ctx.fillRect(content.x, content.y, content.width, content.height);
 
 		ctx.restore();
 
