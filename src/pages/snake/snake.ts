@@ -122,15 +122,23 @@ export class Snake {
 
 					ctx.fill();
 				});
-
-
 			}
 		},
 		[BoxType.body]: {
-			background: '#888'
+			render: (ctx, x, y, sideLength) => {
+				ctx.fillStyle = '#888';
+				ctx.beginPath();
+				ctx.arc(x + sideLength / 2, y + sideLength / 2, sideLength / 2, 0, Math.PI * 2);
+				ctx.fill();
+			}
 		},
 		[BoxType.footer]: {
-			background: '#888'
+			render: (ctx, x, y, sideLength) => {
+				ctx.fillStyle = '#888';
+				ctx.beginPath();
+				ctx.arc(x + sideLength / 2, y + sideLength / 2, sideLength * 0.35, 0, Math.PI * 2);
+				ctx.fill();
+			}
 		},
 		[BoxType.food]: {
 			background: 'orange'
@@ -582,7 +590,7 @@ export class Snake {
 
 		this.createFood();
 		if (this._options.scroeCallback) {
-			return this._options.scroeCallback.call(this, scroe);
+			return this._options.scroeCallback.call(this, scroe, this.speed);
 		}
 	}
 

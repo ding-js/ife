@@ -28,18 +28,19 @@ modeGroup.addEventListener('change', (e) => {
 	}
 });
 
-function updateInfo(scroe, speed) {
-	scroeInfo.innerHTML = scroe;
-	speedInfo.innerHTML = speed;
+function updateInfo(scroe: number = 0, speed: number = 1) {
+	scroeInfo.innerHTML = '' + scroe;
+	speedInfo.innerHTML = '' + speed;
 }
 
 function commonMode() {
+	updateInfo();
 	new Snake(wrapper, {
 		width: 600,
 		height: 600,
 		scroeCallback: function (scroe) {
 			const speed = this.speed,
-				targetSpeed = 1 + Math.ceil(scroe / 5) * 5;
+				targetSpeed = 1 + Math.floor(scroe / 5) * 5;
 
 			if (speed !== targetSpeed) {
 				this.speed = targetSpeed;
@@ -51,6 +52,7 @@ function commonMode() {
 }
 
 function levelMode() {
+	updateInfo();
 	const levels = [];
 
 	for (let i = 1; i <= 10; i++) {
@@ -84,6 +86,7 @@ function levelMode() {
 }
 
 function escapeMode() {
+	updateInfo();
 	const levels = [];
 
 	for (let i = 1; i <= 10; i++) {
