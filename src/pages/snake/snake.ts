@@ -34,7 +34,14 @@ interface ISnakeOptions {
 	width?: number;
 	height?: number;
 	sideLength?: number;
+	origin?: {
+		x: number;
+		y: number;
+	}[];
 	scroeCallback?(this: Snake, scroe: number): void;
+	endCallback?(this: Snake, reason: string): void;
+	pauseCallback?(this: Snake): void;
+	continueCallback?(this: Snake): void;
 }
 
 interface IContent {
@@ -75,13 +82,13 @@ export class Snake {
 	private _ctx: CanvasRenderingContext2D;
 	private _content: IContent;
 	private _boxes: Ibox[][] = [];
-	private _snake: Ibox[] = [];
-	private _food: Ibox[] = [];
-	private _wall: Ibox[] = [];
-	private _drop: Ibox[] = [];
+	private _snake: Ibox[];
+	private _food: Ibox[];
+	private _wall: Ibox[];
+	private _drop: Ibox[];
 	private _snakeDirection: Direction;
 	private _keys: Direction[] = [];
-	private _status: GameStatus = GameStatus.beforeStart;
+	private _status: GameStatus;
 	private _speed: number = 1;
 	private _animation: {
 		id: number;
@@ -183,6 +190,16 @@ export class Snake {
 
 		Object.assign(_options, options);
 
+		if (!_options.origin) {
+			_options.origin = [];
+			for (let i = 6; i > 2; i--) {
+				_options.origin.push({
+					x: i,
+					y: 4
+				});
+			}
+		}
+
 		const side = _options.sideLength,
 			pdV = (_options.width % side) / 2,
 			pdH = (_options.height % side) / 2,
@@ -204,7 +221,6 @@ export class Snake {
 		this.init();
 	}
 
-
 	private init() {
 		const op = this._options,
 			canvas = document.createElement('canvas'),
@@ -222,6 +238,7 @@ export class Snake {
 
 		this._container.appendChild(canvas);
 
+		// 初始化地图格
 		for (let x = 0; x < content.colums; x++) {
 			const colum: Ibox[] = [];
 			for (let y = 0; y < content.rows; y++) {
@@ -251,12 +268,6 @@ export class Snake {
 						case GameStatus.normal:
 							this.pause();
 							break;
-						case GameStatus.beforeStart:
-							this.start();
-							break;
-						case GameStatus.afterEnd:
-							this.reStart();
-							break;
 						default:
 							break;
 					}
@@ -265,17 +276,22 @@ export class Snake {
 					break;
 			}
 
-			if (status === GameStatus.normal) {
-				for (let i in direction) {
-					if (direction[i].keyCode.indexOf(code) > -1) {
-						e.preventDefault();
+			for (let i in direction) {
+				if (direction[i].keyCode.indexOf(code) > -1) {
+					e.preventDefault();
+					if (status === GameStatus.normal) {
 						this._keys.push(+i);
+					} else if (status === GameStatus.beforeStart) {
+						this._keys.push(+i);
+						this.start();
 					}
 				}
 			}
 		});
 
-		this.info('按空格开始!');
+		this.reset();
+
+		this.draw();
 	}
 
 	private getBox(x: number, y: number): Ibox {
@@ -327,6 +343,7 @@ export class Snake {
 
 		ctx.save();
 
+		// 绘制地图线
 		ctx.strokeStyle = '#ddd';
 		ctx.lineWidth = 1;
 
@@ -343,9 +360,6 @@ export class Snake {
 		}
 
 		ctx.stroke();
-
-		// ctx.fillStyle = '#f7f7f7';
-		// ctx.fillRect(content.x, content.y, content.width, content.height);
 
 		ctx.restore();
 
@@ -445,7 +459,7 @@ export class Snake {
 			x = head.xIndex + direction.x,
 			y = head.yIndex + direction.y;
 
-		const box = this.getBox(x, y) as Ibox;
+		const box = this.getBox(x, y);
 
 		const animationComplete = () => {
 			snake.forEach(snakeBox => {
@@ -470,13 +484,7 @@ export class Snake {
 
 			snake.unshift(box);
 
-			snake.forEach(snakeBox => {
-				snakeBox.type = BoxType.body;
-			});
-
-			snake[0].type = BoxType.head;
-
-			snake[snake.length - 1].type = BoxType.footer;
+			this.updateSnake();
 
 			this.draw();
 			this.update();
@@ -515,13 +523,37 @@ export class Snake {
 		}
 	}
 
-	private start() {
-		const originSnake = [6, 5, 4, 3].map(x => this.getBox(x, 4));
+	private updateSnake() {
+		const snake = this._snake;
+
+		snake.forEach(snakeBox => {
+			snakeBox.type = BoxType.body;
+		});
+
+		snake[0].type = BoxType.head;
+
+		snake[snake.length - 1].type = BoxType.footer;
+	}
+
+	public reset() {
+		this._status = GameStatus.beforeStart;
+
+		this._food = [];
+
+		this._wall = [];
+
+		this._drop = [];
 
 		this._snakeDirection = Direction.right;
 
-		this._snake = originSnake;
+		this._snake = this._options.origin.map(cords =>
+			this.getBox(cords.x, cords.y)
+		);
 
+		this.updateSnake();
+	}
+
+	public start() {
 		this.createFood();
 
 		this.draw();
@@ -531,15 +563,8 @@ export class Snake {
 		this._status = GameStatus.normal;
 	}
 
-	private reStart() {
-		const boxes = this._boxes;
-		boxes.forEach(colum => {
-			colum.forEach(box => {
-				if (box.type !== BoxType.empty && box.type !== BoxType.wall) {
-					box.type = BoxType.empty;
-				}
-			});
-		});
+	public reStart() {
+		this.reset();
 
 		this.start();
 	}
@@ -583,22 +608,23 @@ export class Snake {
 	}
 
 	private eat(box) {
-		const scroe = this._snake.length - 3;
+		const scroe = this._snake.length - this._options.origin.length + 1;
 		const food = this._food;
 
 		this._food = food.splice(food.indexOf(box));
 
 		this.createFood();
+
 		if (this._options.scroeCallback) {
 			return this._options.scroeCallback.call(this, scroe, this.speed);
 		}
 	}
 
 	public endGame(info: string) {
-		if (this._status === GameStatus.normal) {
-			this.info([info]);
-			this._status = GameStatus.afterEnd;
+		if (this._options.endCallback) {
+			this._options.endCallback.call(this, info);
 		}
+		this._status = GameStatus.afterEnd;
 	}
 
 	private createFood() {
@@ -619,12 +645,10 @@ export class Snake {
 
 
 	public nextLevel(msg: string) {
-		// requestAnimationFrame(() => {
 		this.pauseGame(() => {
 			this.info(msg);
 			this._status = GameStatus.afterEnd;
 		});
-		// });
 	}
 
 	public fillWall(walls: number) {
@@ -647,13 +671,4 @@ export class Snake {
 	get speed() {
 		return this._speed;
 	}
-
-	// set walls(walls: { x: number, y: number }[]) {
-	// 	walls.forEach(wall => {
-	// 		const box = this.getBox(wall.x, wall.y);
-	// 		if (box && box.type === BoxType.empty) {
-	// 			box.type = BoxType.wall;
-	// 		}
-	// 	});
-	// }
 }

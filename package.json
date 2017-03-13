@@ -53,8 +53,10 @@
     "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
+    "@types/jquery": "^2.0.41",
     "@types/lodash": "^4.14.53",
     "core-js": "^2.4.1",
+    "jquery": "^3.1.1",
     "lodash": "^4.17.4",
     "tween.js": "^16.6.0"
   }
