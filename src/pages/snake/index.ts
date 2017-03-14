@@ -9,7 +9,7 @@ const wrapper = $('#snake-wrapper'),
 let mode: string;
 
 modeWrapper.on('click', 'button', (e) => {
-	mode = $(e).data('mode');
+	mode = $(e.currentTarget).data('mode');
 	modeWrapper.removeClass('show');
 });
 
@@ -120,7 +120,7 @@ const snake = new Snake(wrapper.get(0), {
 	},
 	endCallback: function (msg) {
 		info(msg, () => {
-			this.reStart();
+			this.reset();
 		});
 	}
 });
@@ -152,6 +152,7 @@ function info(msg: string, cb) {
 }
 
 function commonMode(score: number) {
+	console.log(score);
 	snake.speed = 1 + Math.floor(score / 10) * 10;
 }
 
@@ -170,18 +171,17 @@ const levelMode = (function () {
 	return (score) => {
 		const level = levels[index];
 		if (score >= level.scroe) {
+			snake.reset();
 			if (index >= levels.length - 1) {
 				info('没有关卡啦!', () => {
-					snake.reset();
 					snake.speed = levels[0].speed;
-					snake.start();
+					snake.draw();
 				});
 				index = 0;
 			} else {
 				info('下一关啦', () => {
-					snake.reset();
 					snake.speed = level.speed;
-					snake.start();
+					snake.draw();
 				});
 				index++;
 			}
@@ -191,8 +191,6 @@ const levelMode = (function () {
 })();
 
 function updateMode(score: number) {
-	snake.reset();
-
 	switch (mode) {
 		case 'common':
 			commonMode(score);

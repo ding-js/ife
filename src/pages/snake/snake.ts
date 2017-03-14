@@ -332,7 +332,7 @@ export class Snake {
 		ctx.restore();
 	}
 
-	private draw() {
+	public draw() {
 		const op = this._options,
 			ctx = this._ctx,
 			content = this._content,
@@ -434,6 +434,9 @@ export class Snake {
 	}
 
 	private update = () => {
+		if (this._status !== GameStatus.normal) {
+			return;
+		}
 		const timeout = this._speed > 30 ? 1 : 300 - this._speed * 10;
 		const keys = this._keys,
 			keysLen = keys.length;
@@ -554,13 +557,13 @@ export class Snake {
 	}
 
 	public start() {
+		this._status = GameStatus.normal;
+
 		this.createFood();
 
 		this.draw();
 
 		this.update();
-
-		this._status = GameStatus.normal;
 	}
 
 	public reStart() {
