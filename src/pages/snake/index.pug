@@ -2,23 +2,6 @@ extends /layout/main.pug
 
 block main
   main
-    //- section
-    //-   form
-    //-     #mode-group.form-group
-    //-       label
-    //-         input(type="radio",name="mode",value="common",checked)
-    //-         | 普通模式
-    //-       label
-    //-         input(type="radio",name="mode",value="level")
-    //-         | 过关模式
-    //-       label
-    //-         input(type="radio",name="mode",value="escape")
-    //-         | 躲避模式
-    //- section
-    //-   span 得分:
-    //-   span#scroe-info
-    //-   span 速度:
-    //-   span#speed-info
     section
       #snake-wrapper.snake-wrapper
         #mode-wrapper.mode-wrapper.show
@@ -26,8 +9,10 @@ block main
             button(type="button",data-mode="common") 普通模式
             button(type="button",data-mode="level") 过关模式
             button(type="button",data-mode="dodge") 躲避模式
-        //- #info-wrapper.info-wrapper.show
-        //-   .info-box
-        //-     .info-content 你挂了
-        //-     .info-footer
-        //-       button(type="button") 确定
+    section
+      .form-group
+        span 分数:
+        span#score
+      .form-group
+        span 速度:
+        span#speed

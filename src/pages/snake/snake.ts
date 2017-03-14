@@ -20,7 +20,8 @@ enum GameStatus {
 	beforeStart,
 	afterEnd,
 	pause,
-	normal
+	normal,
+	disabled
 }
 
 interface IDirection {
@@ -85,9 +86,8 @@ export class Snake {
 	private _snake: Ibox[];
 	private _food: Ibox[];
 	private _wall: Ibox[];
-	private _drop: Ibox[];
 	private _snakeDirection: Direction;
-	private _keys: Direction[] = [];
+	private _keys: Direction[];
 	private _status: GameStatus;
 	private _speed: number = 1;
 	private _animation: {
@@ -332,11 +332,33 @@ export class Snake {
 		ctx.restore();
 	}
 
+	private drawBox(box: Ibox) {
+		const types = this._boxTypes,
+			ctx = this._ctx,
+			side = this._options.sideLength;
+
+		const type = types[box.type],
+			x = box.animateX ? box.animateX : box.x,
+			y = box.animateY ? box.animateY : box.y;
+
+		if (type.background) {
+			ctx.save();
+			ctx.fillStyle = type.background;
+			ctx.fillRect(x, y, side, side);
+			ctx.restore();
+		}
+
+		if (type.render) {
+			ctx.save();
+			type.render(ctx, x, y, side);
+			ctx.restore();
+		}
+	}
+
 	public draw() {
 		const op = this._options,
 			ctx = this._ctx,
 			content = this._content,
-			types = this._boxTypes,
 			side = op.sideLength;
 
 		ctx.clearRect(0, 0, op.width, op.height);
@@ -363,25 +385,18 @@ export class Snake {
 
 		ctx.restore();
 
-		this._drop.concat(this._wall, this._food, this._snake).forEach(box => {
-			const type = types[box.type];
-			const x = box.animateX ? box.animateX : box.x,
-				y = box.animateY ? box.animateY : box.y;
-
-			if (type.background) {
-				ctx.save();
-				ctx.fillStyle = type.background;
-				ctx.fillRect(x, y, side, side);
-				ctx.restore();
-			}
-
-			if (type.render) {
-				ctx.save();
-				type.render(ctx, x, y, side);
-				ctx.restore();
-			}
+		this._food.forEach(box => {
+			this.drawBox(box);
 		});
 
+		this._boxes.forEach(column => {
+			column.forEach(box => {
+				const type = box.type;
+				if (type !== BoxType.food) {
+					this.drawBox(box);
+				}
+			});
+		});
 	}
 
 	private updateAnimation(tweens: ITween[], cb: Function) {
@@ -465,6 +480,8 @@ export class Snake {
 		const box = this.getBox(x, y);
 
 		const animationComplete = () => {
+
+
 			snake.forEach(snakeBox => {
 				delete snakeBox.animateX;
 				delete snakeBox.animateY;
@@ -473,7 +490,7 @@ export class Snake {
 			switch (box.type) {
 				case BoxType.empty:
 					footer.type = BoxType.empty;
-					this._drop = [snake.pop()];
+					snake.pop();
 					break;
 				case BoxType.food:
 					const r = this.eat(box);
@@ -489,9 +506,10 @@ export class Snake {
 
 			this.updateSnake();
 
-			this.draw();
-			this.update();
-
+			if (this._status === GameStatus.normal) {
+				this.draw();
+				this.update();
+			}
 		};
 
 		if (box && x >= 0 && x < content.colums && y >= 0 && y < content.rows) {
@@ -545,7 +563,7 @@ export class Snake {
 
 		this._wall = [];
 
-		this._drop = [];
+		this._keys = [];
 
 		this._snakeDirection = Direction.right;
 
@@ -553,13 +571,20 @@ export class Snake {
 			this.getBox(cords.x, cords.y)
 		);
 
+		this._boxes.forEach(column => {
+			column.forEach(box => {
+				box.type = BoxType.empty;
+			});
+		});
+
+		this.createFood();
+
 		this.updateSnake();
+
 	}
 
 	public start() {
 		this._status = GameStatus.normal;
-
-		this.createFood();
 
 		this.draw();
 
@@ -665,6 +690,15 @@ export class Snake {
 				i++;
 			}
 		}
+	}
+
+	public disable() {
+		const lastStatus = this._status;
+		this._status = GameStatus.disabled;
+
+		return () => {
+			this._status = lastStatus;
+		};
 	}
 
 	set speed(speed: number) {
