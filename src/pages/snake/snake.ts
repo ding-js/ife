@@ -615,8 +615,8 @@ export class Snake {
 
 	private pause() {
 		this.pauseGame(() => {
-			this.info('Pause');
 			this._status = GameStatus.pause;
+			this.info('Pause');
 		});
 	}
 
@@ -629,8 +629,8 @@ export class Snake {
 			});
 
 			requestAnimationFrame((time) => {
-				this._animation.cb(time);
 				this._status = GameStatus.normal;
+				this._animation.cb(time);
 			});
 		}
 	}
