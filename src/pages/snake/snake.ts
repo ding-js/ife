@@ -122,11 +122,8 @@ export class Snake {
 				ctx.fillStyle = '#fff';
 
 				eyes.forEach(eye => {
-
 					ctx.beginPath();
-
 					ctx.arc(eye.x, eye.y, 2 * k, 0, Math.PI * 2);
-
 					ctx.fill();
 				});
 			}
@@ -291,7 +288,9 @@ export class Snake {
 
 		this.reset();
 
-		this.draw();
+		this.drawMap();
+
+		this._status = GameStatus.disabled;
 	}
 
 	private getBox(x: number, y: number): Ibox {
@@ -313,20 +312,20 @@ export class Snake {
 
 		ctx.save();
 
-		ctx.fillStyle = 'rgba(0,0,0,.15)';
+		ctx.fillStyle = 'rgba(0,0,0,.6)';
 		ctx.fillRect(content.x, content.y, content.width, content.height);
 
 		ctx.fillStyle = '#fff';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
-		ctx.font = op.sideLength * fontSize + 'px serif';
+		ctx.font = 'bold ' + op.sideLength * fontSize + 'px serif';
 
 		if (!Array.isArray(msgs)) {
 			msgs = [msgs];
 		}
 
 		msgs.forEach((msg, index) => {
-			ctx.fillText(msg, op.width / 2, op.height / 3 + op.sideLength * fontSize * 1.1 * index, content.width - op.sideLength * 2);
+			ctx.fillText(msg, op.width * 0.5, op.height * 0.4 + op.sideLength * fontSize * 1.1 * index, content.width - op.sideLength * 2);
 		});
 
 		ctx.restore();
@@ -355,17 +354,17 @@ export class Snake {
 		}
 	}
 
-	public draw() {
+	private drawMap() {
 		const op = this._options,
 			ctx = this._ctx,
 			content = this._content,
 			side = op.sideLength;
 
-		ctx.clearRect(0, 0, op.width, op.height);
-
 		ctx.save();
 
 		// 绘制地图线
+		ctx.beginPath();
+
 		ctx.strokeStyle = '#ddd';
 		ctx.lineWidth = 1;
 
@@ -384,7 +383,10 @@ export class Snake {
 		ctx.stroke();
 
 		ctx.restore();
+	}
 
+	private drawContent() {
+		this._ctx.save();
 		this._food.forEach(box => {
 			this.drawBox(box);
 		});
@@ -397,6 +399,19 @@ export class Snake {
 				}
 			});
 		});
+
+		this._ctx.restore();
+	}
+
+	public draw() {
+		const op = this._options,
+			ctx = this._ctx;
+
+		ctx.clearRect(0, 0, op.width, op.height);
+
+		this.drawMap();
+
+		this.drawContent();
 	}
 
 	private updateAnimation(tweens: ITween[], cb: Function) {
@@ -480,8 +495,6 @@ export class Snake {
 		const box = this.getBox(x, y);
 
 		const animationComplete = () => {
-
-
 			snake.forEach(snakeBox => {
 				delete snakeBox.animateX;
 				delete snakeBox.animateY;
@@ -567,19 +580,20 @@ export class Snake {
 
 		this._snakeDirection = Direction.right;
 
-		this._snake = this._options.origin.map(cords =>
-			this.getBox(cords.x, cords.y)
-		);
-
 		this._boxes.forEach(column => {
 			column.forEach(box => {
 				box.type = BoxType.empty;
 			});
 		});
 
-		this.createFood();
+		this._snake = this._options.origin.map(cords =>
+			this.getBox(cords.x, cords.y)
+		);
 
 		this.updateSnake();
+
+		this.createFood();
+
 
 	}
 
@@ -591,14 +605,8 @@ export class Snake {
 		this.update();
 	}
 
-	public reStart() {
-		this.reset();
-
-		this.start();
-	}
-
 	private pauseGame(cb) {
-		if (this._status === GameStatus.normal) {
+		if (this._status === GameStatus.normal && this._animation) {
 			cancelAnimationFrame(this._animation.id);
 
 			this._animation.tweens.forEach(t => {

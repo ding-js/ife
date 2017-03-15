@@ -144,6 +144,7 @@ const dodgeMode = (function () {
 			reset();
 			return;
 		}
+
 		const level = levels[index];
 		if (score >= level.scroe) {
 			snake.reset();
