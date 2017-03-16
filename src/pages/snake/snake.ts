@@ -430,6 +430,7 @@ export class Snake {
 			if (!complete) {
 				this.updateAnimation(tweens, cb);
 			} else {
+				this._animation = null;
 				cb();
 			}
 		};
@@ -606,19 +607,25 @@ export class Snake {
 	}
 
 	private pauseGame(cb) {
-		if (this._status === GameStatus.normal && this._animation) {
-			cancelAnimationFrame(this._animation.id);
+		if (this._status === GameStatus.normal) {
+			if (this._animation) {
 
-			this._animation.tweens.forEach(t => {
-				if (!t.isCompleted) {
-					t.spend = new Date().getTime() - t.startTime;
-					t.tween.stop();
-				}
-			});
+				cancelAnimationFrame(this._animation.id);
 
-			cb();
+				this._animation.tweens.forEach(t => {
+					if (!t.isCompleted) {
+						t.spend = new Date().getTime() - t.startTime;
+						t.tween.stop();
+					}
+				});
+
+				cb();
+			} else {
+				requestAnimationFrame(() => {
+					this.pauseGame(cb);
+				});
+			}
 		}
-
 	}
 
 	private pause() {
@@ -630,16 +637,23 @@ export class Snake {
 
 	private continue() {
 		if (this._status === GameStatus.pause) {
-			this._animation.tweens.forEach(t => {
-				if (!t.isCompleted) {
-					t.tween.start(t.spend);
-				}
-			});
+			if (this._animation) {
 
-			requestAnimationFrame((time) => {
-				this._status = GameStatus.normal;
-				this._animation.cb(time);
-			});
+				this._animation.tweens.forEach(t => {
+					if (!t.isCompleted) {
+						t.tween.start(t.spend);
+					}
+				});
+
+				requestAnimationFrame((time) => {
+					this._status = GameStatus.normal;
+					this._animation.cb(time);
+				});
+			} else {
+				requestAnimationFrame(() => {
+					this.continue();
+				})
+			}
 		}
 	}
 
