@@ -4,11 +4,13 @@ for (let i = 1; i <= 100; i++) {
 }
 
 export function get(index: number, length: number, cb: Function) {
-	const d = data.slice(index, index + length);
+	const nextIndex = index + length,
 
-	const isLast = index + length > data.length - 2;
+		d = data.slice(index, nextIndex),
+
+		isLast = nextIndex > data.length - 2;
 
 	setTimeout(() => {
-		cb(d, isLast);
+		cb(d, nextIndex, isLast);
 	}, 300 + Math.random() * 500);
 }
