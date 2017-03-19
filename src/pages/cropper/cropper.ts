@@ -1,3 +1,4 @@
+import * as utils from 'utils';
 interface ICropperOptions {
 	preview?: {
 		container: HTMLElement;
@@ -18,17 +19,17 @@ interface ITypeInfo {
 	offsetY?: number;
 }
 
+interface IPreview {
+	canvas: HTMLCanvasElement;
+	ctx: CanvasRenderingContext2D;
+	scale: number;
+}
+
 enum Types {
 	cropper,
 	image,
 	pointRD,
 	background
-}
-
-interface IPreview {
-	canvas: HTMLCanvasElement;
-	ctx: CanvasRenderingContext2D;
-	scale: number;
 }
 
 export class Cropper {
@@ -57,20 +58,22 @@ export class Cropper {
 	private _scale: number = 1;
 	private _xOffset: number;
 	private _yOffset: number;
-	private _targetType: Types;
-	private _targetTypes: {
+	private _currentType: Types;
+	private _types: {
 		[key: number]: IType;
 	};
-	private _moving: boolean;
-	private _isPreview: boolean = false;
+	private _moving: boolean;	// 时候正在移动
+	private _hasPreview: boolean = false; // 是否需要预览功能
 	private _previewList: IPreview[] = [];
 	private _previewScaleCanvas: HTMLCanvasElement;
 	private _previewScaleCtx: CanvasRenderingContext2D;
+
 	private _lineWidth: number = 1;
 	private _pointWidth: number = 8;
 	private _pointHeight: number = 8;
 
 	constructor(container: HTMLElement, options?: ICropperOptions) {
+		// 默认宽高为父容器宽高
 		const _options = {
 			width: +container.offsetWidth,
 			height: +container.offsetHeight
@@ -84,7 +87,7 @@ export class Cropper {
 		this._width = _options.width;
 		this._height = _options.height;
 
-		this._targetTypes = {
+		this._types = {
 			[Types.cropper]: {
 				cursor: 'all-scroll',
 				handle: this.handleCropperMove
@@ -106,7 +109,7 @@ export class Cropper {
 			this.init();
 		}
 		catch (e) {
-			alert('不支持canvas');
+			utils.toast('不支持canvas');
 			console.error(e);
 		}
 	}
@@ -128,7 +131,8 @@ export class Cropper {
 
 		container.appendChild(canvas);
 
-		if (op.preview && Array.isArray(op.preview)) {
+		// 初始化预览
+		if (op.preview && Array.isArray(op.preview) && op.preview.length > 0) {
 			op.preview.forEach(p => {
 				const pCanvas = document.createElement('canvas'),
 					pCtx = pCanvas.getContext('2d'),
@@ -148,18 +152,20 @@ export class Cropper {
 			this._previewScaleCanvas = document.createElement('canvas');
 			this._previewScaleCtx = this._previewScaleCanvas.getContext('2d');
 
-			this._isPreview = true;
+			this._hasPreview = true;
 		}
 
+		// 缩放
 		canvas.addEventListener('mousewheel', (e) => {
 			const image = this._image;
 
 			e.preventDefault();
 
 			if (image.element) {
+				// 图片原始宽高,不会改变
 				let width = image.element.width,
 					height = image.element.height,
-					k;
+					k;// 最终的缩放系数
 				const scale = this._scale,
 					offset = e.deltaY / 800;
 
@@ -193,7 +199,7 @@ export class Cropper {
 				if (info.type === Types.background) {
 					this._moving = false;
 				} else {
-					this._targetType = info.type;
+					this._currentType = info.type;
 					this._xOffset = info.offsetX;
 					this._yOffset = info.offsetY;
 					this._moving = true;
@@ -207,11 +213,11 @@ export class Cropper {
 			}
 		});
 
-
+		// 根据点击时的区域来移动对应的画布元素
 		canvas.addEventListener('mousemove', (e) => {
 			const info = this.getTypeInfo(e),
-				moveType = this._targetTypes[info.type],
-				currentType = this._targetTypes[this._targetType];
+				moveType = this._types[info.type],
+				currentType = this._types[this._currentType];
 
 			if (this._moving && currentType.handle) {
 				currentType.handle(e);
@@ -256,10 +262,8 @@ export class Cropper {
 	}
 	private handlePointMove = (e: MouseEvent) => {
 		const [x, y] = [e.offsetX, e.offsetY];
-
 		const w = x - this._cropper.x - this._xOffset + this._pointWidth / 2,
 			h = y - this._cropper.y - this._yOffset + this._pointHeight / 2;
-
 
 		if (w <= 0 || h <= 0) {
 			return;
@@ -321,6 +325,7 @@ export class Cropper {
 
 	}
 
+	// 填充背景
 	private fillBackground() {
 		const ctx = this._ctx,
 			width = this._width,
@@ -429,7 +434,7 @@ export class Cropper {
 	}
 
 	private preview = () => {
-		if (this._image.element && this._isPreview) {
+		if (this._image.element && this._hasPreview) {
 			const data = this.getCropperData();
 
 			if (data) {
@@ -587,7 +592,7 @@ export class Cropper {
 
 	private setPreview(resetCoordinate: boolean = true) {
 		const cropper = this._cropper;
-		if (this._isPreview) {
+		if (this._hasPreview) {
 			const [w, h] = [this._width, this._height];
 
 			if (resetCoordinate) {

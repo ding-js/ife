@@ -29,9 +29,11 @@ const cropper = new Cropper(container, {
 	height: h
 });
 
+// 设置max属性,不能大于画布的宽高
 widthInput.setAttribute('max', '' + w);
 heightInput.setAttribute('max', '' + h);
 
+// 监听用户选择图片文件
 fileInput.addEventListener('change', (e) => {
 	const el = e.target as HTMLInputElement;
 
@@ -41,6 +43,7 @@ fileInput.addEventListener('change', (e) => {
 
 	const file = el.files[0];
 
+	// 判断文件类型
 	if (file.type.match(/^image\/.+/)) {
 		cropper.setImage(file);
 		pick.innerHTML = file.name;
@@ -49,6 +52,7 @@ fileInput.addEventListener('change', (e) => {
 	}
 });
 
+// 纠正用户输入
 setCropper.addEventListener('change', (e) => {
 	const el = e.target as HTMLInputElement;
 	if (el.tagName.toLowerCase() === 'input') {
@@ -68,6 +72,7 @@ setCropper.addEventListener('change', (e) => {
 	}
 });
 
+// 点击设置按钮
 setBtn.addEventListener('click', () => {
 	const width = +widthInput.value,
 		height = +heightInput.value;
@@ -79,6 +84,7 @@ setBtn.addEventListener('click', () => {
 
 });
 
+// 点击裁剪按钮
 cropBtn.addEventListener('click', () => {
 	try {
 		const canvas = cropper.crop();

@@ -1,8 +1,31 @@
 import * as throttle from 'lodash/throttle.js';
 
 interface IInfiniteScrollOptions {
+	/**
+	 * 具体可视区域高度
+	 *
+	 * @type {number}
+	 * @memberOf IInfiniteScrollOptions
+	 */
 	threshold?: number;
+	/**
+	 * 渲染元素函数
+	 *
+	 * @param {InfiniteScroll} this
+	 * @param {HTMLElement} li li元素
+	 * @param {any} data 对应的数据
+	 *
+	 * @memberOf IInfiniteScrollOptions
+	 */
 	render?(this: InfiniteScroll, li: HTMLElement, data): void;
+	/**
+	 * 触发后的回调(会默认在触发后禁用监听)
+	 *
+	 * @param {InfiniteScroll} this
+	 * @param {Function} able 重新监听滚动
+	 *
+	 * @memberOf IInfiniteScrollOptions
+	 */
 	trigger?(this: InfiniteScroll, able: Function): void;
 }
 
@@ -12,6 +35,7 @@ export class InfiniteScroll {
 	private _data: any[];
 	private _liList: HTMLElement[];
 	private _scrolled: boolean;
+
 	constructor(container: HTMLElement, options?: IInfiniteScrollOptions) {
 		const _options: IInfiniteScrollOptions = {
 			threshold: 200,
