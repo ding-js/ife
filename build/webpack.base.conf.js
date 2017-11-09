@@ -3,6 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -10,7 +11,7 @@ function resolve (dir) {
 
 module.exports = {
   entry: {
-    app: './src/main.ts'
+    app: ['./src/vendor/index.ts', './src/main.ts']
   },
   output: {
     path: config.build.assetsRoot,
@@ -29,6 +30,12 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          use: ['css-loader']
+        })
+      },
       {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',

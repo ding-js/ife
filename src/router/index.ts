@@ -24,7 +24,7 @@ export default new Router({
       component: Clock
     },
     {
-      path: '/colorpicker',
+      path: '/color-picker',
       name: 'ColorPicker',
       component: ColorPicker
     },
