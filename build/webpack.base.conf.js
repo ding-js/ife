@@ -5,7 +5,7 @@ const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
 
@@ -22,7 +22,7 @@ module.exports = {
         : config.dev.assetsPublicPath
   },
   resolve: {
-    extensions: ['.js', '.vue', '.ts', '.json'],
+    extensions: ['.js', '.vue', '.ts', '.tsx', '.json'],
     alias: {
       vue$: 'vue/dist/vue.esm.js',
       '@': resolve('src')
@@ -56,8 +56,16 @@ module.exports = {
         include: [resolve('src'), resolve('test')]
       },
       {
-        test: /\.ts$/,
-        loader: 'babel-loader!ts-loader',
+        test: /\.tsx?$/,
+        use: [
+          'babel-loader',
+          {
+            loader: 'ts-loader',
+            options: {
+              appendTsSuffixTo: [/\.vue$/]
+            }
+          }
+        ],
         include: [resolve('src')]
       },
       {

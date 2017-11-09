@@ -33,7 +33,7 @@
 
 <script>
 export default {
-  name: 'app',
+  name: 'App',
   mounted() {
     this.updateContentHeight();
     window.addEventListener('resize', this.updateContentHeight.bind(this));
