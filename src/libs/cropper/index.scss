@@ -1,0 +1,33 @@
+.pick-file {
+	cursor: pointer;
+	color: #217AC0;
+}
+
+input[type=file] {
+	width: 0;
+	height: 0;
+	opacity: 0;
+	visibility: hidden;
+}
+
+main {
+	text-align: center;
+}
+
+section {
+	margin-bottom: 10px;
+}
+
+.cropper,
+.preview {
+	display: inline-block;
+	border: 1px solid #eee;
+}
+
+canvas {
+	display: block;
+}
+
+.preview {
+	margin: 0 8px;
+}

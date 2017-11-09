@@ -1,0 +1,20 @@
+extends /layout/main.pug
+
+block main
+  main
+    section
+      #snake-wrapper.snake-wrapper
+        #mode-wrapper.mode-wrapper.show
+          .mode-box
+            button(type="button",data-mode="common") 普通模式
+            button(type="button",data-mode="level") 过关模式
+            button(type="button",data-mode="dodge") 躲避模式
+    section
+      .form-group
+        span 分数:
+        span#score
+      .form-group
+        span 速度:
+        span#speed
+      .form-group
+        span TODO: 速度大于动画延迟最小值时取消缓动动画

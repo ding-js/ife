@@ -1,0 +1,22 @@
+extends /layout/main.pug
+
+block main
+  .colorpicker-wrapper
+    section
+      #container.colorpicker-item
+      //- canvas#color-block.colorpicker-item(width="420",height="420")
+      //- canvas#color-bar.colorpicker-item(width="50",height="420")
+      form.colorpicker-item.color-form
+        #rgb-info.color-form-group
+          each item in ['r','g','b']
+            .color-info
+              label= item.toUpperCase()
+              input(type="number",max="255",min="0",name=item,step="1")
+        #hsl-info.color-form-group
+          each item in ['h','s','l']
+            .color-info
+              label= item.toUpperCase()
+              input(type="number",max="1",min="0",name=item,step="0.1")
+    section
+      #color-preview
+      #color-text

@@ -1,0 +1,45 @@
+.colorpicker-wrapper {
+	text-align: center;
+	canvas {
+		cursor: default;
+	}
+	.colorpicker-item {
+		display: inline-block;
+	}
+	.colorpicker-item+.colorpicker-item {
+		margin-left: 10px;
+	}
+	.color-form {
+		vertical-align: top;
+		padding: 10px 0;
+		user-select: none;
+	}
+	.color-form-group:first-child {
+		padding-bottom: 4px;
+		border-bottom: 1px solid #eee;
+	}
+	.color-form-group:last-child {
+		padding-top: 5px;
+	}
+	.color-info {
+		height: 65px;
+		label,
+		input {
+			display: inline-block;
+			height: 35px;
+			box-sizing: border-box;
+			margin: 0 8px;
+			font-size: 14px;
+			vertical-align: top;
+		}
+		label {
+			line-height: 35px;
+		}
+	}
+}
+
+#color-preview {
+	width: 100px;
+	height: 30px;
+	display: inline-block;
+}
