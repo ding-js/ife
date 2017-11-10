@@ -30,6 +30,7 @@
         <button type="button" @click="setTime">设置时间</button>
         <button type="button" @click="addAlarm">设置闹钟</button>
         <button type="button" @click="clearAlarms">清除闹钟</button>
+        <button type="button" @click="resetClock">还原时钟</button>
       </div>
     </section>
 
@@ -46,17 +47,21 @@ import Clock from '@/libs/clock';
 import { toast } from '@/libs/utils';
 import timeZones from './timezones.json';
 
-const initTime = new Date(); // 用于设置初始值
+const getOriginTime = () => {
+  const now = new Date();
+
+  return {
+    hours: now.getHours(),
+    minutes: now.getMinutes(),
+    seconds: now.getSeconds(),
+    offset: -new Date().getTimezoneOffset() / 60
+  };
+};
 
 export default {
   name: 'Clock',
   data: () => ({
-    time: {
-      hours: initTime.getHours(),
-      minutes: initTime.getMinutes(),
-      seconds: initTime.getSeconds(),
-      offset: -new Date().getTimezoneOffset() / 60
-    },
+    time: getOriginTime(),
     alarms: []
   }),
   watch: {
@@ -153,6 +158,14 @@ export default {
       this.alarms = clock.alarms.map(alarm => alarm.time);
 
       toast('闹钟响啦...');
+    },
+    resetClock() {
+      const clock = this.$_clock;
+      if (!clock) {
+        return;
+      }
+      Object.assign(this.time, getOriginTime());
+      clock.offset = 0;
     }
   },
   mounted() {

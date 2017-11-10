@@ -1,5 +1,11 @@
 <template>
-  <p>
-    Color Picker
-  </p>
+  <div>
+
+  </div>
 </template>
+
+<script>
+export default {
+  name: 'ColorPicker'
+};
+</script>
