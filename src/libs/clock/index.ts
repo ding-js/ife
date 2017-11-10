@@ -13,6 +13,7 @@ interface ICoordinate {
 interface IAlarm {
   time: Date;
   cb: Function;
+  repeat: boolean;
 }
 
 export default class Clock {
@@ -23,7 +24,7 @@ export default class Clock {
   private _radius: number;
   private _options: IClockOptions;
   private _timeOffset: number;
-  private _alarm: IAlarm[];
+  private _alarms: IAlarm[] = [];
 
   constructor(canvas: HTMLCanvasElement, options?: IClockOptions) {
     this._canvas = canvas;
@@ -137,9 +138,12 @@ export default class Clock {
     // 绘制表盘文字
 
     ctx.font = `${font * 0.6}px sans-serif`;
-    ctx.fillText(`${time.h > 12 ? 'P.M' : 'A.M'}`, center.x, height * 0.3);
+
+    // 0|24~11 am 12~23 pm
+    ctx.fillText(`${time.h < 12 ? 'A.M' : 'P.M'}`, center.x, height * 0.3);
 
     ctx.restore();
+
     ctx.save();
     // 绘制指针
 
@@ -216,7 +220,7 @@ export default class Clock {
 
     ctx.restore();
 
-    this.triggerAlarm(time.date);
+    this.checkAlarms(time.date);
 
     window.requestAnimationFrame(this.draw);
   }
@@ -259,8 +263,8 @@ export default class Clock {
   }
 
   // 检验触发闹钟
-  private triggerAlarm(date: Date) {
-    const alarms = this._alarm;
+  private checkAlarms(date: Date) {
+    const alarms = this._alarms;
     if (!alarms || alarms.length <= 0) {
       return;
     }
@@ -271,7 +275,8 @@ export default class Clock {
     }[] = [];
 
     alarms.forEach((alarm, index) => {
-      if (Math.abs(date.getTime() - alarm.time.getTime()) < 100) {
+      // 触发阈值，避免客户端性能过差
+      if (Math.abs(date.getTime() - alarm.time.getTime()) < 500) {
         // 不在这里出发回调是因为回调发生时_alarm还没有改变
         deleteAlarms.push({
           index: index,
@@ -283,32 +288,37 @@ export default class Clock {
     deleteAlarms.forEach((deleteAlarm, index) => {
       // 每次移除之后数组的长度就会变化,所以是升序,所以直接减去这个循环的index就正确的索引
       const currentIndex = deleteAlarm.index - index;
-      this._alarm.splice(currentIndex, currentIndex + 1);
+      this._alarms.splice(currentIndex, currentIndex + 1);
       deleteAlarm.alarm.cb();
     });
   }
 
   // 设置闹钟
-  public setAlarm(time: Date, cb: Function) {
-    if (!this._alarm) {
-      this._alarm = [];
+  public addAlarm(time: Date, cb: () => void, repeat = true) {
+    if (!this._alarms) {
+      this._alarms = [];
     }
 
-    this._alarm.push({
+    this._alarms.push({
       time,
-      cb
+      cb,
+      repeat
     });
   }
 
-  public clearAlarm() {
-    this._alarm = [];
+  public clearAlarms() {
+    this._alarms = [];
   }
 
   set offset(time: number) {
     this._timeOffset = time;
   }
 
-  get alarm() {
-    return this._alarm;
+  get offset() {
+    return this._timeOffset;
+  }
+
+  get alarms() {
+    return this._alarms;
   }
 }

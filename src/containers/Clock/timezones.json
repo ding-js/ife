@@ -1,0 +1,76 @@
+[{
+  "name": "UTC",
+  "offset": 0
+}, {
+  "name": "UTC+1",
+  "offset": 1
+}, {
+  "name": "UTC+2",
+  "offset": 2
+}, {
+  "name": "UTC+3",
+  "offset": 3
+}, {
+  "name": "UTC+4",
+  "offset": 4
+}, {
+  "name": "UTC+5",
+  "offset": 5
+}, {
+  "name": "UTC+6",
+  "offset": 6
+}, {
+  "name": "UTC+7",
+  "offset": 7
+}, {
+  "name": "UTC+8",
+  "offset": 8
+}, {
+  "name": "UTC+9",
+  "offset": 9
+}, {
+  "name": "UTC+10",
+  "offset": 10
+}, {
+  "name": "UTC+11",
+  "offset": 11
+}, {
+  "name": "UTC+12",
+  "offset": 12
+}, {
+  "name": "UTC-12",
+  "offset": -12
+}, {
+  "name": "UTC-11",
+  "offset": -11
+}, {
+  "name": "UTC-10",
+  "offset": -10
+}, {
+  "name": "UTC-9",
+  "offset": -9
+}, {
+  "name": "UTC-8",
+  "offset": -8
+}, {
+  "name": "UTC-7",
+  "offset": -7
+}, {
+  "name": "UTC-6",
+  "offset": -6
+}, {
+  "name": "UTC-5",
+  "offset": -5
+}, {
+  "name": "UTC-4",
+  "offset": -4
+}, {
+  "name": "UTC-3",
+  "offset": -3
+}, {
+  "name": "UTC-2",
+  "offset": -2
+}, {
+  "name": "UTC-1",
+  "offset": -1
+}]

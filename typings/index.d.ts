@@ -10,4 +10,9 @@ declare module '*.jpg' {
   export default uri;
 }
 
+declare module '*.json' {
+  const data;
+  export default data;
+}
+
 declare const process: any;

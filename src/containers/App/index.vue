@@ -32,6 +32,8 @@
 </template>
 
 <script>
+// 缓存在本地sting类型的menusVisible
+const cachedMenusVisible = localStorage.getItem('menusVisible');
 export default {
   name: 'App',
   mounted() {
@@ -77,9 +79,15 @@ export default {
         path: 'snake'
       }
     ],
-    menusVisible: true,
+    menusVisible: window.innerWidth > 767 ? true : (cachedMenusVisible ? JSON.parse(cachedMenusVisible) : false),
     style: {}
-  })
+  }),
+  watch: {
+    menusVisible() {
+      this.$nextTick(this.updateContentHeight);
+      localStorage.setItem('menusVisible', this.menusVisible);
+    }
+  }
 };
 </script>
 

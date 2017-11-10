@@ -1,15 +1,44 @@
+$primary-color:#108ee9;
 * {
   box-sizing: border-box;
 }
+
 body {
   margin: 0;
   background-color: #f7f7f7;
-  font-family: Helvetica Neue For Number, -apple-system, BlinkMacSystemFont,
-    Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei,
-    Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-family: Helvetica Neue For Number, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif;
 }
 
 a {
-  color: #108ee9;
+  color: $primary-color;
   text-decoration: none;
+}
+
+button {
+  color: #fff;
+  background-color: $primary-color;
+  border: 1px solid $primary-color;
+  outline: none;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.15;
+  padding: 0 15px;
+  height: 28px;
+  border-radius: 4px;
+  transition: background-color, border-color 0.3s;
+  cursor: pointer;
+  &+button {
+    margin-left: 8px;
+  }
+  &:hover,
+  &:focus {
+    $hover-color: #49a9ee;
+    background-color: $hover-color;
+    border-color: $hover-color;
+  }
+  &:active {
+    $active-color: #0e77ca;
+    background-color: $active-color;
+    border-color: $active-color;
+  }
 }
