@@ -32,13 +32,24 @@
 </template>
 
 <script>
+import { debounce } from '@/libs/utils';
 // 缓存在本地sting类型的menusVisible
 const cachedMenusVisible = localStorage.getItem('menusVisible');
 export default {
   name: 'App',
   mounted() {
+    this.$_resizedUpdateContentHeight = debounce(() => {
+      this.updateContentHeight();
+      // 避免小屏切换到大屏时菜单不显示
+      if (window.innerWidth > 767) {
+        this.menusVisible = true;
+      }
+    }, 100);
     this.updateContentHeight();
-    window.addEventListener('resize', this.updateContentHeight.bind(this));
+    window.addEventListener('resize', this.$_resizedUpdateContentHeight);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.$_resizedUpdateContentHeight);
   },
   methods: {
     updateContentHeight() {

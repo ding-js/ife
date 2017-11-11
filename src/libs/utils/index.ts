@@ -7,3 +7,5 @@ const t = toast({
 export {
   t as toast
 };
+
+export { default as debounce } from './debounce';

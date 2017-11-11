@@ -139,12 +139,13 @@ export default class Clock {
 
     ctx.font = `${font * 0.6}px sans-serif`;
 
-    // 0|24~11 am 12~23 pm
+    // 0|24~11 am , 12~23 pm
     ctx.fillText(`${time.h < 12 ? 'A.M' : 'P.M'}`, center.x, height * 0.3);
 
     ctx.restore();
 
     ctx.save();
+
     // 绘制指针
 
     const pointerList = [
