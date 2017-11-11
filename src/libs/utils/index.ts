@@ -1,4 +1,4 @@
-import toast from '../toast';
+import toast from './toast';
 
 const t = toast({
   delay: 5000

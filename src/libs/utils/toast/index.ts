@@ -14,23 +14,26 @@ export default function toast(options: IToastOptions) {
     marginBottom = width * 0.01,
     marginRight = width * 0.01;
 
-  const setToast = (t: Toast, last: Toast) => {
-    const tEl = t.el,
-      el = last.el;
-    if (el.offsetHeight + el.offsetTop + tEl.offsetHeight + marginBottom + defaultTop > height) {
-      t.setTopRight(defaultTop, last.right + el.offsetWidth + marginRight);
+  const computePosition = (current: Toast, prev: Toast) => {
+    const currentEl = current.el,
+      prevEl = prev.el,
+      prevBottomHeight = prev.top + prevEl.offsetHeight + marginBottom;
+
+    // 当前栏高度无法容下元素时切换到另一栏
+    if (prevBottomHeight + currentEl.offsetHeight > height) {
+      current.setPosition(defaultTop, prev.right + prevEl.offsetWidth + marginRight);
     } else {
-      t.setTopRight(last.top + el.offsetHeight + marginBottom, last.right);
+      current.setPosition(prevBottomHeight, prev.right);
     }
   };
 
-  return (msg: string, delay: number = options.delay) => {
-    const t = new Toast(msg);
+  return (message: string, delay: number = options.delay) => {
+    const t = new Toast(message);
 
     if (list.length > 0) {
-      setToast(t, list[list.length - 1]);
+      computePosition(t, list[list.length - 1]);
     } else {
-      t.setTopRight(defaultTop, defaultRight);
+      t.setPosition(defaultTop, defaultRight);
     }
 
     list.push(t);
@@ -41,10 +44,10 @@ export default function toast(options: IToastOptions) {
       t.hide();
       list.splice(0, 1);
       if (list.length > 0) {
-        list[0].setTopRight(defaultTop, defaultRight);
+        list[0].setPosition(defaultTop, defaultRight);
         if (list.length > 1) {
           for (let i = 1, l = list.length; i < l; i++) {
-            setToast(list[i], list[i - 1]);
+            computePosition(list[i], list[i - 1]);
           }
         }
       }
@@ -54,15 +57,12 @@ export default function toast(options: IToastOptions) {
 
 class Toast {
   private _el: HTMLElement;
-  private _msg: string;
+  private _message: string;
   public top: number;
   public right: number;
 
-  constructor(msg: string) {
-    Object.assign(this, {
-      _msg: msg
-    });
-
+  constructor(message: string) {
+    this._message = message;
     this.init();
   }
 
@@ -71,13 +71,12 @@ class Toast {
 
     el.classList.add('toast');
 
-    el.innerHTML = this._msg;
+    el.innerHTML = this._message;
 
     document.body.appendChild(el);
 
     this._el = el;
 
-    // setTimeout(this.hide, this._delay);
   }
 
   public show = () => {
@@ -88,12 +87,15 @@ class Toast {
     this._el.classList.remove('show');
     this._el.classList.add('hide');
 
+    // this._el.style.animationDuration = duration + 'ms';
+
+    // 简单地用计时器做动画结束判断
     setTimeout(() => {
       document.body.removeChild(this._el);
     }, 300);
   }
 
-  public setTopRight(top: number, right: number) {
+  public setPosition(top: number, right: number) {
     const el = this.el;
     this.top = top;
     this.right = right;
