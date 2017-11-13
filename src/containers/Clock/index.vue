@@ -110,9 +110,6 @@ export default {
   methods: {
     setTime() {
       const clock = this.$_clock;
-      if (!clock) {
-        return;
-      }
       const now = new Date();
       const settedTime = this.getFormTime();
       const offset = settedTime.getTime() - now.getTime() + (this.time.offset * 60 + now.getTimezoneOffset()) * 60 * 1000;
@@ -123,9 +120,6 @@ export default {
     },
     addAlarm() {
       const clock = this.$_clock;
-      if (!clock) {
-        return;
-      }
       const settedTime = this.getFormTime();
 
       clock.addAlarm(settedTime, this.triggerAlarm);
@@ -134,9 +128,6 @@ export default {
     },
     clearAlarms() {
       const clock = this.$_clock;
-      if (!clock) {
-        return;
-      }
 
       clock.clearAlarms();
 
@@ -152,9 +143,6 @@ export default {
     },
     triggerAlarm() {
       const clock = this.$_clock;
-      if (!clock) {
-        return;
-      }
 
       this.alarms = clock.alarms.map(alarm => alarm.time);
 
@@ -162,10 +150,9 @@ export default {
     },
     resetClock() {
       const clock = this.$_clock;
-      if (!clock) {
-        return;
-      }
+
       Object.assign(this.time, getOriginTime());
+
       clock.offset = 0;
     }
   },
@@ -187,6 +174,7 @@ section {
     margin-top: 20px;
   }
 }
+
 .time-wrapper {
   font-size: 14px;
   color: #777;
@@ -198,20 +186,6 @@ section {
   }
   label {
     display: inline-block;
-  }
-  input,
-  select {
-    display: inline-block;
-    border: none;
-    border-bottom: 2px solid #eee;
-    outline: none;
-    padding: 4px;
-    color: inherit;
-    transition: border-bottom-color 0.3s;
-    text-align: center;
-    &:focus{
-      border-bottom-color: #aaa;
-    }
   }
   input {
     width: 58px;

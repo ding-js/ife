@@ -42,3 +42,19 @@ button {
     border-color: $active-color;
   }
 }
+
+
+input,
+select {
+  display: inline-block;
+  border: none;
+  border-bottom: 2px solid #eee;
+  outline: none;
+  padding: 4px;
+  color: inherit;
+  transition: border-bottom-color 0.3s;
+  text-align: center;
+  &:focus{
+    border-bottom-color: #aaa;
+  }
+}

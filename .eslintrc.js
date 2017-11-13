@@ -25,6 +25,7 @@ module.exports = {
     semi: [2, 'always'],
     'no-unused-vars': 1,
     'no-useless-return': 'off',
-    'padded-blocks': 'off'
+    'padded-blocks': 'off',
+    'one-var': 'off'
   }
 };
