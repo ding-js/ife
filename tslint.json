@@ -5,6 +5,12 @@
     "space-before-function-paren": false,
     "member-ordering": false,
     "one-variable-per-declaration": false,
-    "radix": false
+    "radix": false,
+    "no-unused-variable": {
+      "severity": "warning"
+    },
+    "no-unused-expression": {
+      "severity": "warning"
+    }
   }
 }

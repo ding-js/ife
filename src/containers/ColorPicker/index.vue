@@ -43,9 +43,8 @@
         </div>
       </form>
     </section>
-    <section class="preview-wrapper">
-      <div class="color-preview"></div>
-      <div class="preview-info"></div>
+    <section>
+      <div class="color-preview" :style="{backgroundColor:'#'+color.hex}"></div>
     </section>
   </div>
 </template>
@@ -78,9 +77,6 @@ export default {
   },
   mounted() {
     this.$_picker = new ColorPicker(this.$refs.picker, {
-      onBarColorChange: (pixel) => {
-        console.log(pixel);
-      },
       onBlockColorChange: (pixel) => {
         const rgb = utils.ImageData2Rgb(pixel),
           hsl = utils.Rgb2Hsl(rgb),
@@ -104,7 +100,16 @@ section {
   text-align: center;
 }
 
+section + section {
+  margin-top: 20px;
+}
+
 .form-group {
+  display: inline-block;
+}
+.color-preview {
+  width: 130px;
+  height: 36px;
   display: inline-block;
 }
 label {
@@ -113,5 +118,8 @@ label {
 }
 input[type="number"] {
   width: 58px;
+}
+input[type="text"] {
+  width: 94px;
 }
 </style>

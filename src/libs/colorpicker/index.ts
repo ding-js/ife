@@ -25,7 +25,9 @@ export default class ColorPicker {
     Object.assign(_options, options);
 
     this._options = _options;
+
     this._container = container;
+
     this.init();
   }
 

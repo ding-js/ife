@@ -17,7 +17,15 @@ export class ColorBar {
   private _moveEvt: boolean = false;
 
   // 拾色条的颜色渐变顺序
-  private _colors: string[] = ['f00', 'ffA500', 'ff0', '008000', '00f', '4b0082', '800080'];
+  static COLORS: string[] = [
+    'rgb(255, 0, 0)',
+    'rgb(255, 255, 0)',
+    'rgb(0, 255, 0)',
+    'rgb(0, 255, 255)',
+    'rgb(0, 0, 255)',
+    'rgb(255, 0, 255)',
+    'rgb(255, 0, 0)'
+  ];
 
   private _options: IColorBarOptions;
 
@@ -50,7 +58,7 @@ export class ColorBar {
 
     const gradient = ctx.createLinearGradient(padding, padding, padding, height - padding * 2);
 
-    const colors = this._colors,
+    const colors = ColorBar.COLORS,
       length = colors.length;
 
     canvas.setAttribute('width', width.toString());
@@ -59,7 +67,7 @@ export class ColorBar {
 
     // 填充背景色
     colors.forEach((color, index) => {
-      gradient.addColorStop(index / (length - 1), '#' + color);
+      gradient.addColorStop(index / (length - 1), color);
     });
 
     this._gradient = gradient;

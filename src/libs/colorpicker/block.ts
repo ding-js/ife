@@ -14,9 +14,11 @@ export class ColorBlock {
   private _height: number;
   private _contentWidth: number;
   private _contentHeight: number;
-  private _middleColor: string;
+  private _activeColor: string;
   private _x: number;
   private _y: number;
+  private _white: CanvasGradient;
+  private _black: CanvasGradient;
   private _moveEvt: boolean = false;
 
   private _options: IColorBlockOptions;
@@ -78,30 +80,57 @@ export class ColorBlock {
       }
     });
 
+    this.initBackground();
+
+    // 设置光标时会重绘
     this.setCoordinate(width / 2, height / 2);
   }
 
-  // 填充背景色（拾色器）,同一个CanvasGradient复用会出现Bug,所以每次都新建一个CanvasGradient
-  private fill() {
-    const { _ctx, _padding, _width, _height, _contentWidth, _contentHeight } = this;
+  private initBackground() {
+    const { _ctx, _padding, _width, _height, _contentWidth, _contentHeight, _activeColor } = this;
 
-    const gradient = _ctx.createLinearGradient(_width - _padding, _height - _padding, _padding, _padding);
+    const black = _ctx.createLinearGradient(_width / 2, _height - _padding, _width / 2, _padding);
 
-    _ctx.save();
+    const white = _ctx.createLinearGradient(_padding, _height / 2, _width - _padding, _height / 2);
 
-    gradient.addColorStop(0, '#000');
+    white.addColorStop(0, '#fff');
 
-    if (this._middleColor !== undefined) {
-      gradient.addColorStop(0.5, this._middleColor);
+    white.addColorStop(1, 'rgba(0,0,0,0)');
+
+    black.addColorStop(0, '#000');
+
+    black.addColorStop(1, 'rgba(0,0,0,0)');
+
+    this._white = white;
+
+    this._black = black;
+  }
+
+  // 填充背景色（拾色器）
+  private fillColor() {
+    const { _ctx, _padding, _contentWidth, _contentHeight, _activeColor } = this;
+
+    if (!_activeColor) {
+      return;
     }
 
-    gradient.addColorStop(1, '#fff');
+    // 填充底色
+    _ctx.save();
 
-    _ctx.fillStyle = gradient;
+    _ctx.fillStyle = _activeColor;
 
     _ctx.fillRect(_padding, _padding, _contentWidth, _contentHeight);
 
     _ctx.restore();
+
+    // 填充黑白背景
+    [this._white, this._black].forEach(gradient => {
+      _ctx.fillStyle = gradient;
+
+      _ctx.fillRect(_padding, _padding, _contentWidth, _contentHeight);
+
+      _ctx.restore();
+    });
   }
 
   private setCoordinateByEvent = (e: MouseEvent) => {
@@ -172,12 +201,12 @@ export class ColorBlock {
   public draw() {
     const ctx = this._ctx;
     ctx.clearRect(0, 0, this._width, this._height);
-    this.fill();
+    this.fillColor();
     this.renderCurrentColor();
   }
 
   set color(color: string) {
-    this._middleColor = color;
+    this._activeColor = color;
     this.draw();
   }
 
@@ -186,7 +215,7 @@ export class ColorBlock {
       y = Math.round(this._height / 2) - 1;
 
     const ctx = this._ctx;
-    this._middleColor = color;
+    this._activeColor = color;
     this.draw();
 
     // 正中间不一定是设置的颜色,遍历附近的像素点找到颜色相同的像素点
