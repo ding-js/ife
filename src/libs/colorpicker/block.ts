@@ -19,7 +19,7 @@ export class ColorBlock {
   private _y: number;
   private _white: CanvasGradient;
   private _black: CanvasGradient;
-  private _moveEvt: boolean = false;
+  private _mouseDown: boolean = false;
 
   private _options: IColorBlockOptions;
 
@@ -64,30 +64,32 @@ export class ColorBlock {
     this._height = height;
     this._contentWidth = contentWidth;
     this._contentHeight = contentHeight;
+    this._x = width / 2;
+    this._y = height / 2;
 
     canvas.addEventListener('mousedown', (e) => {
       if (e.which === 1) {
-        this._moveEvt = true;
+        this._mouseDown = true;
         this.setCoordinateByEvent(e);
         canvas.addEventListener('mousemove', this.handleMouseMove);
       }
     });
 
+    // 全局监听mouseup，避免拖出元素后事件仍然存在
     document.addEventListener('mouseup', (e) => {
-      if (this._moveEvt && e.which === 1) {
-        this._moveEvt = false;
+      if (this._mouseDown && e.which === 1) {
+        this._mouseDown = false;
         canvas.removeEventListener('mousemove', this.handleMouseMove);
       }
     });
 
     this.initBackground();
 
-    // 设置光标时会重绘
-    this.setCoordinate(width / 2, height / 2);
+    this.draw();
   }
 
   private initBackground() {
-    const { _ctx, _padding, _width, _height, _contentWidth, _contentHeight, _activeColor } = this;
+    const { _ctx, _padding, _width, _height, _activeColor } = this;
 
     const black = _ctx.createLinearGradient(_width / 2, _height - _padding, _width / 2, _padding);
 
@@ -147,7 +149,7 @@ export class ColorBlock {
   private setCoordinate(x: number, y: number) {
     const padding = this._padding;
     let currentX, currentY;
-    // 检查是否出界
+    // 检查边界
     if (x < padding) {
       currentX = padding + 1;
     } else if (x > this._contentWidth + padding) {
@@ -171,9 +173,10 @@ export class ColorBlock {
   }
 
   // 渲染光标
-  private renderCurrentColor() {
+  private renderPointer() {
     const x = this._x,
       y = this._y;
+
     if (x !== undefined && y !== undefined) {
       const ctx = this._ctx;
 
@@ -184,25 +187,31 @@ export class ColorBlock {
       ctx.arc(x, y, this._padding / 2, 0, 2 * Math.PI);
       ctx.stroke();
 
+      ctx.restore();
+
       ctx.strokeStyle = '#fff';
       ctx.beginPath();
       ctx.arc(x, y, this._padding / 2 - this._options.lineWidth, 0, 2 * Math.PI);
       ctx.stroke();
 
       ctx.restore();
-      // 颜色变化后的回调
-      if (this._options.onColorChange) {
-        const pixel = ctx.getImageData(x, y, 1, 1);
-        this._options.onColorChange(pixel);
-      }
     }
   }
 
   public draw() {
-    const ctx = this._ctx;
-    ctx.clearRect(0, 0, this._width, this._height);
+    const { _ctx, _width, _height, _x, _y } = this;
+
+    _ctx.clearRect(0, 0, _width, _height);
+
     this.fillColor();
-    this.renderCurrentColor();
+
+    this.renderPointer();
+
+    // 颜色变化后的回调
+    if (this._options.onColorChange) {
+      const pixel = _ctx.getImageData(_x, _y, 1, 1);
+      this._options.onColorChange(pixel);
+    }
   }
 
   set color(color: string) {
@@ -210,7 +219,7 @@ export class ColorBlock {
     this.draw();
   }
 
-  set currentColor(color: string) {
+  /* set currentColor(color: string) {
     const x = Math.round(this._width / 2) - 1,
       y = Math.round(this._height / 2) - 1;
 
@@ -239,5 +248,5 @@ export class ColorBlock {
     this._x = x + 1;
     this._y = y + 1;
     this.draw();
-  }
+  } */
 }

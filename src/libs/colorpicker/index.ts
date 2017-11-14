@@ -46,7 +46,9 @@ export default class ColorPicker {
       height: op.height,
       onColorChange: (pixel) => {
         const data = utils.ImageData2Rgb(pixel);
+
         this._block.color = '#' + utils.Rgb2Hex(data);
+
         if (op.onBarColorChange) {
           op.onBarColorChange(pixel);
         }
@@ -58,6 +60,7 @@ export default class ColorPicker {
     }
 
     this._container.appendChild(block);
+
     this._container.appendChild(bar);
 
     this._block = new ColorBlock(block, blockOptions);
