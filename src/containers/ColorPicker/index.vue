@@ -1,36 +1,61 @@
 <template>
   <div>
     <section class="picker-wrapper">
-      <div id="picker" ref="picker"></div>
+      <div id="picker"
+           ref="picker"></div>
     </section>
     <section>
       <form @submit.prevent="validateForm">
         <div class="form-row">
           <div class="form-group">
             <label for="r">R:</label>
-            <input type="number" v-model.number="color.r" max="255" min="0" step="1">
+            <input type="number"
+                   v-model.number="color.r"
+                   max="255"
+                   min="0"
+                   step="1">
           </div>
           <div class="form-group">
             <label for="g">G:</label>
-            <input type="number" v-model.number="color.g" max="255" min="0" step="1">
+            <input type="number"
+                   v-model.number="color.g"
+                   max="255"
+                   min="0"
+                   step="1">
           </div>
           <div class="form-group">
             <label for="b">B:</label>
-            <input type="number" v-model.number="color.b" max="255" min="0" step="1">
+            <input type="number"
+                   v-model.number="color.b"
+                   max="255"
+                   min="0"
+                   step="1">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label for="h">H:</label>
-            <input type="number" v-model.number="color.h" step="0.05" max="1" min="0">
+            <input type="number"
+                   v-model.number="color.h"
+                   step="0.05"
+                   max="1"
+                   min="0">
           </div>
           <div class="form-group">
             <label for="l">L:</label>
-            <input type="number" v-model.number="color.l" step="0.05" max="1" min="0">
+            <input type="number"
+                   v-model.number="color.l"
+                   step="0.05"
+                   max="1"
+                   min="0">
           </div>
           <div class="form-group">
             <label for="s">S:</label>
-            <input type="number" v-model.number="color.s" step="0.05" max="1" min="0">
+            <input type="number"
+                   v-model.number="color.s"
+                   step="0.05"
+                   max="1"
+                   min="0">
           </div>
         </div>
         <!-- <div class="form-row">
@@ -43,7 +68,8 @@
     </section>
     <section>
       <p>#{{color.hex.toUpperCase()}}</p>
-      <div class="color-preview" :style="{backgroundColor:'#'+color.hex}"></div>
+      <div class="color-preview"
+           :style="{backgroundColor:'#'+color.hex}"></div>
     </section>
   </div>
 </template>
@@ -122,7 +148,7 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 section {
   text-align: center;
 }
@@ -148,10 +174,10 @@ label {
   display: inline-block;
   width: 36px;
 }
-input[type="number"] {
+input[type='number'] {
   width: 58px;
 }
-input[type="text"] {
+input[type='text'] {
   width: 94px;
 }
 </style>

@@ -4,7 +4,7 @@ import Router from 'vue-router';
 import NotFound from '@/containers/NotFound/index.vue';
 import Clock from '@/containers/Clock/index.vue';
 import ColorPicker from '@/containers/ColorPicker/index.vue';
-import Cropper from '@/containers/Cropper/index.vue';
+import Cropper from '@/containers/Cropper';
 import InfiniteScroll from '@/containers/InfiniteScroll/index.vue';
 import Snake from '@/containers/Snake/index.vue';
 
