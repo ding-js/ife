@@ -1,5 +1,15 @@
+@mixin center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .snake {
   text-align: center;
+  .message {
+    @include center;
+  }
   &__container {
     position: relative;
     margin: 0 auto;
@@ -7,10 +17,8 @@
     height: 600px;
   }
   &__mode-wrapper {
+    @include center;
     background-color: rgba(0, 0, 0, 0.6);
-    position: absolute;
-    left: 0;
-    top: 0;
     width: 100%;
     height: 100%;
   }

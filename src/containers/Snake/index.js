@@ -1,5 +1,6 @@
 import './index.scss';
 import { Snake } from '@/libs/snake';
+import message from '@/libs/utils/message';
 
 export default {
   name: 'Snake',
@@ -21,7 +22,7 @@ export default {
             </transition>
           </div>
         </section>
-        <section>
+        <section v-show={this.showInfo}>
           <div class="form-group">
             <span>分数:</span>
             <span>{this.score}</span>
@@ -50,19 +51,131 @@ export default {
           label: '躲避模式'
         }
       ],
+      mode: null,
       modeVisible: true,
-      score: '',
-      speed: ''
+      score: null,
+      speed: null
     };
   },
+  computed: {
+    showInfo() {
+      return ![this.speed, this.score].some((v) => !v && v !== 0);
+    }
+  },
   methods: {
+    message(msg, cb) {
+      return message(
+        {
+          title: 'Hello',
+          message: msg,
+          cb
+        },
+        this.$refs.container
+      );
+    },
     start(mode) {
       this.modeVisible = false;
 
-      this.$_snake.prepareStart();
-    }
+      this.mode = mode;
+
+      this.initMode(0, 5);
+    },
+    initMode(score, speed) {
+      this.score = score;
+      this.speed = speed;
+
+      switch (this.mode) {
+        case 'common':
+          this.initCommonMode(score, speed);
+          break;
+        case 'level':
+          this.initLevelMode(score, speed);
+          break;
+        case 'dodge':
+          this.initDodgeMode(score, speed);
+          break;
+        default:
+          return;
+      }
+    },
+    initCommonMode(score, speed) {
+      const currentSpeed = 1 + Math.floor(score / 10) * 10;
+      const snake = this.$_snake;
+
+      if (!score) {
+        snake.prepareStart();
+        this.speed = speed;
+      }
+
+      if (speed !== currentSpeed) {
+        this.speed = currentSpeed;
+      }
+    },
+    initLevelMode: (() => {
+      const snake = this.$_snake;
+
+      const levels = [];
+
+      let levelIndex = 0;
+
+      for (let i = 1; i <= 10; i++) {
+        levels.push({
+          scroe: i * 8,
+          speed: 1 + i * 5
+        });
+      }
+
+      const init = () => {
+        snake.prepareStart();
+        snake.speed = levels[0].speed;
+      };
+
+      return (score, speed) => {
+        const level = levels[levelIndex];
+
+        if (score === 0) {
+          init();
+          return;
+        }
+
+        if (score >= level.scroe) {
+          snake.disable();
+
+          // snake.prepareStart();
+
+          // if (levelIndex >= levels.length - 1) {
+          //   info('没有关卡啦!', () => {
+          //     init();
+          //     enable();
+          //   });
+          //   levelIndex = 0;
+          // } else {
+          //   info('下一关啦', () => {
+          //     this.speed = level.speed;
+          //     snake.draw();
+          //     enable();
+          //     updateInfo(0);
+          //   });
+          //   levelIndex++;
+          // }
+        }
+      };
+    })(),
+    initDodgeMode() {}
   },
   mounted() {
-    this.$_snake = new Snake(this.$refs.container);
+    this.$_snake = new Snake(this.$refs.container, {
+      scoreCallback: this.initMode
+    });
+
+    this.message('test');
+  },
+  watch: {
+    speed(v) {
+      const snake = this.$_snake;
+      if (snake && snake.speed !== v) {
+        snake.speed = v;
+      }
+    }
   }
 };

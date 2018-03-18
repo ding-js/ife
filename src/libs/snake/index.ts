@@ -1,7 +1,7 @@
 import Tween from '@/libs/utils/tween';
 import { generateCanvas } from '@/libs/utils';
 
-enum BoxState {
+enum BoxTypes {
   empty,
   wall,
   body,
@@ -24,6 +24,8 @@ enum GameStatus {
   runing,
   disabled
 }
+
+type StringMap = { [key: string]: string };
 
 interface IDirection {
   x: number;
@@ -51,7 +53,13 @@ interface ISnakeOptions {
    * @memberof ISnakeOptions
    */
   scoreCallback?(scroe: number, speed: number, ref: Snake): Boolean;
-  endCallback?(reason: string, ref: Snake): void;
+  endCallback?(
+    reason: {
+      code: number;
+      message: string;
+    },
+    ref: Snake
+  ): void;
   pauseCallback?(ref: Snake): void;
   continueCallback?(ref: Snake): void;
 }
@@ -70,7 +78,7 @@ interface Ibox {
   y: number;
   xIndex: number;
   yIndex: number;
-  type: BoxState;
+  type: BoxTypes;
   animateX?: number;
   animateY?: number;
 }
@@ -81,6 +89,11 @@ interface IBoxType {
 }
 
 export class Snake {
+  static EndReasons: StringMap = {
+    '1001': '红烧蛇肉',
+    '1002': '撞墙啦',
+    '1003': '撞边界啦'
+  };
   private _options: ISnakeOptions;
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
@@ -102,11 +115,11 @@ export class Snake {
   private _boxTypes: {
     [key: number]: IBoxType;
   } = {
-    [BoxState.empty]: {},
-    [BoxState.wall]: {
+    [BoxTypes.empty]: {},
+    [BoxTypes.wall]: {
       background: 'brown'
     },
-    [BoxState.head]: {
+    [BoxTypes.head]: {
       background: '#555',
       render: (ctx, x, y, sideLength) => {
         const k = sideLength / 14, // 基数
@@ -131,7 +144,7 @@ export class Snake {
         });
       }
     },
-    [BoxState.body]: {
+    [BoxTypes.body]: {
       render: (ctx, x, y, sideLength) => {
         ctx.fillStyle = '#888';
         ctx.beginPath();
@@ -139,7 +152,7 @@ export class Snake {
         ctx.fill();
       }
     },
-    [BoxState.footer]: {
+    [BoxTypes.footer]: {
       render: (ctx, x, y, sideLength) => {
         ctx.fillStyle = '#888';
         ctx.beginPath();
@@ -147,7 +160,7 @@ export class Snake {
         ctx.fill();
       }
     },
-    [BoxState.food]: {
+    [BoxTypes.food]: {
       background: 'orange'
     }
   };
@@ -240,7 +253,7 @@ export class Snake {
           y: content.y + y * side,
           xIndex: x,
           yIndex: y,
-          type: BoxState.empty
+          type: BoxTypes.empty
         });
       }
       this._boxes.push(colum);
@@ -396,7 +409,7 @@ export class Snake {
     this._boxes.forEach((column) => {
       column.forEach((box) => {
         const type = box.type;
-        if (type !== BoxState.food) {
+        if (type !== BoxTypes.food) {
           this.drawBox(box);
         }
       });
@@ -496,11 +509,11 @@ export class Snake {
         });
 
         switch (box.type) {
-          case BoxState.empty:
-            footer.type = BoxState.empty;
+          case BoxTypes.empty:
+            footer.type = BoxTypes.empty;
             snake.pop();
             break;
-          case BoxState.food:
+          case BoxTypes.food:
             const c = this.eat(box);
             // 不继续执行
             if (c !== undefined && !c) {
@@ -542,13 +555,13 @@ export class Snake {
         }
       };
 
-      if (box.type === BoxState.body || box.type === BoxState.footer) {
+      if (box.type === BoxTypes.body || box.type === BoxTypes.footer) {
         this.draw(); // 转向
-        this.endGame('红烧蛇肉!');
+        this.endGame('1001');
         return;
-      } else if (box.type === BoxState.wall) {
+      } else if (box.type === BoxTypes.wall) {
         this.draw(); // 转向
-        this.endGame('撞墙!');
+        this.endGame('1002');
         return;
       }
 
@@ -560,7 +573,7 @@ export class Snake {
 
       this.updateAnimation(tweenList, animationCb);
     } else {
-      this.endGame('撞边界啦!');
+      this.endGame('1003');
     }
   };
 
@@ -568,12 +581,12 @@ export class Snake {
     const snake = this._snake;
 
     snake.forEach((snakeBox) => {
-      snakeBox.type = BoxState.body;
+      snakeBox.type = BoxTypes.body;
     });
 
-    snake[0].type = BoxState.head;
+    snake[0].type = BoxTypes.head;
 
-    snake[snake.length - 1].type = BoxState.footer;
+    snake[snake.length - 1].type = BoxTypes.footer;
   }
 
   public reset() {
@@ -589,7 +602,7 @@ export class Snake {
 
     this._boxes.forEach((column) => {
       column.forEach((box) => {
-        box.type = BoxState.empty;
+        box.type = BoxTypes.empty;
       });
     });
 
@@ -655,7 +668,7 @@ export class Snake {
   }
 
   private eat(box) {
-    const scroe = this._snake.length - this._options.origin.length + 1;
+    const scroe = this.score;
     const food = this._food;
 
     this._food = food.splice(food.indexOf(box));
@@ -667,9 +680,15 @@ export class Snake {
     }
   }
 
-  public endGame(reason: string) {
+  public endGame(reasonCode: string) {
     if (this._options.endCallback) {
-      this._options.endCallback(reason, this);
+      this._options.endCallback(
+        {
+          code: Number(reasonCode),
+          message: Snake.EndReasons[reasonCode]
+        },
+        this
+      );
     }
     this._status = GameStatus.end;
   }
@@ -680,8 +699,8 @@ export class Snake {
       y = Math.floor(Math.random() * content.rows),
       box = this.getBox(x, y);
 
-    if (box.type === BoxState.empty) {
-      box.type = BoxState.food;
+    if (box.type === BoxTypes.empty) {
+      box.type = BoxTypes.food;
     } else {
       return this.createFood();
     }
@@ -705,8 +724,8 @@ export class Snake {
         Math.floor(Math.random() * content.colums),
         Math.floor(Math.random() * content.rows)
       );
-      if (box.type === BoxState.empty) {
-        box.type = BoxState.wall;
+      if (box.type === BoxTypes.empty) {
+        box.type = BoxTypes.wall;
         this._wall.push(box);
         i++;
       }
@@ -733,5 +752,11 @@ export class Snake {
 
   get speed() {
     return this._speed;
+  }
+
+  get score() {
+    return this._snake && this._snake.length
+      ? this._snake.length - this._options.origin.length + 1
+      : 0;
   }
 }
