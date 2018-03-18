@@ -4,27 +4,47 @@
       <h1 class="logo">
         <router-link to="/">ding-js | ife</router-link>
       </h1>
-      <ul class="menu-list" v-show="menusVisible">
-        <router-link v-for="menu in menus" :key="menu.path" :to="'/'+menu.path" tag="li">
+      <ul class="menu-list"
+          v-show="menusVisible">
+        <router-link v-for="menu in menus"
+                     :key="menu.path"
+                     :to="{name:menu.name}"
+                     tag="li">
           <a>
             {{menu.label}}
           </a>
         </router-link>
       </ul>
       <div class="menu-btn-wrapper">
-        <svg @click="expandLess" v-if="menusVisible" fill="#666" height="36" viewBox="0 0 24 24" width="36" xmlns="http://www.w3.org/2000/svg">
+        <svg @click="expandLess"
+             v-if="menusVisible"
+             fill="#666"
+             height="36"
+             viewBox="0 0 24 24"
+             width="36"
+             xmlns="http://www.w3.org/2000/svg">
           <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
-          <path d="M0 0h24v24H0z" fill="none" />
+          <path d="M0 0h24v24H0z"
+                fill="none" />
         </svg>
-        <svg @click="expandMore" v-else fill="#666" height="36" viewBox="0 0 24 24" width="36" xmlns="http://www.w3.org/2000/svg">
+        <svg @click="expandMore"
+             v-else
+             fill="#666"
+             height="36"
+             viewBox="0 0 24 24"
+             width="36"
+             xmlns="http://www.w3.org/2000/svg">
           <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
-          <path d="M0 0h24v24H0z" fill="none" />
+          <path d="M0 0h24v24H0z"
+                fill="none" />
         </svg>
       </div>
     </header>
 
     <div class="page-body">
-      <div class="content" :style="style" ref="content">
+      <div class="content"
+           :style="style"
+           ref="content">
         <router-view/>
       </div>
     </div>
@@ -71,23 +91,23 @@ export default {
     menus: [
       {
         label: '动画时钟',
-        path: 'clock'
+        name: 'Clock'
       },
       {
         label: '颜色选择器',
-        path: 'color-picker'
+        name: 'ColorPicker'
       },
       {
         label: '图片裁剪器',
-        path: 'cropper'
+        name: 'Cropper'
       },
       {
         label: '无限滚动列表',
-        path: 'infinite-scroll'
+        name: 'InfiniteScroll'
       },
       {
         label: '贪食蛇',
-        path: 'snake'
+        name: 'Snake'
       }
     ],
     menusVisible: window.innerWidth > 767 ? true : (cachedMenusVisible ? JSON.parse(cachedMenusVisible) : false),
