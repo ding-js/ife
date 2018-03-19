@@ -1,9 +1,7 @@
 import Vue from 'vue';
 import './index.scss';
 
-const emptyCb = () => {};
-
-const Message = {
+const Message = Vue.extend({
   data() {
     return {
       message: '',
@@ -14,26 +12,37 @@ const Message = {
   },
 
   render() {
-    const cb = this.cb || emptyCb;
+    const cb = this.cb;
+    const listeners = cb ? { click: cb } : {};
 
     return (
-      <div class="message" v-show={this.visible}>
-        <header class="message__header">{this.title}</header>
-        <div class="message__content">{this.message}</div>
-        <footer class="message__footer">
-          <button type="button" onClick={cb}>
-            确定
-          </button>
-        </footer>
-      </div>
+      <transition name="fade" onAfter-leave={this.doDestroy}>
+        <div class="message__wrapper" v-show={this.visible}>
+          <div class="message__mask" />
+          <div class="message">
+            <header class="message__header">{this.title}</header>
+            <div class="message__content">{this.message}</div>
+            <footer class="message__footer">
+              <button type="button" {...{ on: listeners }}>
+                确定
+              </button>
+            </footer>
+          </div>
+        </div>
+      </transition>
     );
-  }
-};
+  },
+  methods: {
+    doDestroy() {
+      this.$destroy();
 
-const MessageConstructor = Vue.extend(Message);
+      this.$el.parentNode.removeChild(this.$el);
+    }
+  }
+});
 
 export default (options, container = document.body) => {
-  const vm = new MessageConstructor({
+  const vm = new Message({
     data() {
       return {
         ...options,

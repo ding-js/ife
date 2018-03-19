@@ -6,9 +6,12 @@
 }
 
 .snake {
-  text-align: center;
-  .message {
-    @include center;
+  .message__wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
   }
   &__container {
     position: relative;
@@ -24,10 +27,7 @@
   }
 
   &__mode {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    @include center;
     button {
       display: block;
       width: 100px;
@@ -44,5 +44,9 @@
         opacity: 1;
       }
     }
+  }
+  &__info {
+    text-align: center;
+    margin-top: 20px;
   }
 }

@@ -9,7 +9,7 @@ export default {
       <main class="snake">
         <section>
           <div class="snake__container" ref="container">
-            <transition name="fade-out">
+            <transition name="fade">
               <div class="snake__mode-wrapper" v-show={this.modeVisible}>
                 <div class="snake__mode">
                   {this.modes.map((mode) => (
@@ -22,7 +22,7 @@ export default {
             </transition>
           </div>
         </section>
-        <section v-show={this.showInfo}>
+        <section v-show={this.showInfo} class="snake__info">
           <div class="form-group">
             <span>分数:</span>
             <span>{this.score}</span>
@@ -63,10 +63,13 @@ export default {
     }
   },
   methods: {
+    showModes() {
+      this.modeVisible = true;
+    },
     message(msg, cb) {
       return message(
         {
-          title: 'Hello',
+          title: '消息提醒',
           message: msg,
           cb
         },
@@ -74,101 +77,161 @@ export default {
       );
     },
     start(mode) {
+      // 避免在动效期间连续点击
+      if (!this.modeVisible) {
+        return;
+      }
+
       this.modeVisible = false;
 
       this.mode = mode;
 
-      this.initMode(0, 5);
+      this.updateMode();
     },
-    initMode(score, speed) {
-      this.score = score;
-      this.speed = speed;
+    updateMode(score, speed) {
+      this.score = score || 0;
 
       switch (this.mode) {
         case 'common':
-          this.initCommonMode(score, speed);
+          this.updateCommonMode(score, speed);
           break;
         case 'level':
-          this.initLevelMode(score, speed);
+          this.updateLevelMode(score, speed);
           break;
         case 'dodge':
-          this.initDodgeMode(score, speed);
+          this.updateDodgeMode(score, speed);
           break;
         default:
           return;
       }
     },
-    initCommonMode(score, speed) {
-      const currentSpeed = 1 + Math.floor(score / 10) * 10;
+    updateCommonMode(score, speed) {
       const snake = this.$_snake;
 
       if (!score) {
         snake.prepareStart();
-        this.speed = speed;
-      }
+        this.speed = 1;
+      } else {
+        const currentSpeed = 1 + Math.floor(score / 10) * 10;
 
-      if (speed !== currentSpeed) {
         this.speed = currentSpeed;
       }
     },
-    initLevelMode: (() => {
-      const snake = this.$_snake;
-
+    updateLevelMode: (function() {
       const levels = [];
-
       let levelIndex = 0;
 
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 0; i < 5; i++) {
         levels.push({
-          scroe: i * 8,
+          scroe: (i + 1) * 5,
           speed: 1 + i * 5
         });
       }
 
-      const init = () => {
-        snake.prepareStart();
-        snake.speed = levels[0].speed;
-      };
-
-      return (score, speed) => {
+      return function(score, speed) {
         const level = levels[levelIndex];
 
-        if (score === 0) {
+        const snake = this.$_snake;
+        const init = () => {
+          snake.prepareStart();
+          this.speed = levels[0].speed;
+        };
+
+        if (!score) {
           init();
+
           return;
         }
 
         if (score >= level.scroe) {
           snake.disable();
 
-          // snake.prepareStart();
+          if (levelIndex >= levels.length - 1) {
+            this.message('厉害啊大兄弟，通关啦！', () => {
+              this.showModes();
+              levelIndex = 0;
+            });
+          } else {
+            this.message('下一关啦！', () => {
+              const nextLevel = levels[levelIndex + 1];
 
-          // if (levelIndex >= levels.length - 1) {
-          //   info('没有关卡啦!', () => {
-          //     init();
-          //     enable();
-          //   });
-          //   levelIndex = 0;
-          // } else {
-          //   info('下一关啦', () => {
-          //     this.speed = level.speed;
-          //     snake.draw();
-          //     enable();
-          //     updateInfo(0);
-          //   });
-          //   levelIndex++;
-          // }
+              snake.prepareStart();
+
+              this.speed = nextLevel.speed;
+
+              levelIndex++;
+            });
+          }
         }
       };
     })(),
-    initDodgeMode() {}
+    updateDodgeMode: (function() {
+      let levelIndex = 0;
+
+      const levels = [];
+
+      for (let i = 0; i < 5; i++) {
+        levels.push({
+          scroe: (i + 1) * 5,
+          speed: 1 + i * 5,
+          walls: (i + 1) * 10
+        });
+      }
+
+      return function(score) {
+        const snake = this.$_snake;
+
+        const init = () => {
+          snake.prepareStart();
+          this.speed = levels[0].speed;
+          snake.fillWall(levels[0].walls);
+          snake.draw();
+        };
+
+        if (!score) {
+          init();
+          return;
+        }
+
+        const level = levels[levelIndex];
+
+        if (score >= level.scroe) {
+          snake.disable();
+
+          if (levelIndex >= levels.length - 1) {
+            this.message('牛逼啊大兄弟，通关啦！', () => {
+              this.showModes();
+              levelIndex = 0;
+            });
+          } else {
+            this.message('下一关啦！', () => {
+              const nextLevel = levels[levelIndex + 1];
+
+              snake.prepareStart();
+
+              this.speed = nextLevel.speed;
+
+              snake.fillWall(nextLevel.walls);
+
+              snake.draw();
+
+              levelIndex++;
+            });
+          }
+        }
+      };
+    })(),
+    snedEndMessage({ message }) {
+      this.message(message, () => {
+        this.showModes();
+      });
+    }
   },
   mounted() {
     this.$_snake = new Snake(this.$refs.container, {
-      scoreCallback: this.initMode
+      scoreCallback: this.updateMode,
+      endCallback: this.snedEndMessage
     });
-
-    this.message('test');
   },
   watch: {
     speed(v) {
