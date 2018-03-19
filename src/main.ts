@@ -1,3 +1,5 @@
+import './vendor';
+
 import Vue from 'vue';
 import App from '@/containers/App/index.vue';
 import router from './router';

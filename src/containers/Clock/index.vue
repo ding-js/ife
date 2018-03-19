@@ -4,46 +4,67 @@
       <canvas ref="canvas"></canvas>
     </section>
     <section>
-      <form class="time-wrapper" @submit.prevent="setTime">
+      <form class="time-wrapper"
+            @submit.prevent="setTime">
         <div class="form-group">
           <label for="hours">小时：</label>
-          <input type="number" v-model.number.trim="time.hours" max="23" min="0" step="1">
+          <input type="number"
+                 v-model.number.trim="time.hours"
+                 max="23"
+                 min="0"
+                 step="1">
         </div>
         <div class="form-group">
           <label for="minutes">分钟：</label>
-          <input type="number" v-model.number.trim="time.minutes" max="59" min="0" step="1">
+          <input type="number"
+                 v-model.number.trim="time.minutes"
+                 max="59"
+                 min="0"
+                 step="1">
         </div>
         <div class="form-group">
           <label for="seconds">秒：</label>
-          <input type="number" v-model.number.trim="time.seconds" max="59" min="0" step="1">
+          <input type="number"
+                 v-model.number.trim="time.seconds"
+                 max="59"
+                 min="0"
+                 step="1">
         </div>
         <div class="form-group">
           <label for="offset">时区：</label>
           <select v-model.number="time.offset">
-            <option v-for="timeZone in $_timeZones" :key="timeZone.name" :value="timeZone.offset">{{timeZone.name}}</option>
+            <option v-for="timeZone in $_timeZones"
+                    :key="timeZone.name"
+                    :value="timeZone.offset">{{timeZone.name}}</option>
           </select>
         </div>
       </form>
     </section>
     <section>
       <div class="btn-wrapper">
-        <button type="button" @click="setTime">设置时间</button>
-        <button type="button" @click="addAlarm">设置闹钟</button>
-        <button type="button" @click="clearAlarms">清除闹钟</button>
-        <button type="button" @click="resetClock">还原时钟</button>
+        <button type="button"
+                @click="setTime">设置时间</button>
+        <button type="button"
+                @click="addAlarm">设置闹钟</button>
+        <button type="button"
+                @click="clearAlarms">清除闹钟</button>
+        <button type="button"
+                @click="resetClock">还原时钟</button>
       </div>
     </section>
 
     <section>
       <div class="alarms-wrapper">
         <p v-if="!alarms||alarms.length<1">暂无闹钟</p>
-        <p v-else v-for="alarm in alarms" :key="alarm.getTime()">{{alarm.toLocaleString()}}</p>
+        <p v-else
+           v-for="alarm in alarms"
+           :key="alarm.getTime()">{{alarm.toLocaleString()}}</p>
       </div>
     </section>
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import Clock from '@/libs/clock';
 import { toast } from '@/libs/utils';
 import timeZones from './timezones.json';
@@ -167,10 +188,9 @@ export default {
 
 
 <style scoped lang="scss">
-
 section {
   text-align: center;
-  &+section {
+  & + section {
     margin-top: 20px;
   }
 }
@@ -192,7 +212,7 @@ section {
   }
 }
 
-.alarms-wrapper{
+.alarms-wrapper {
   color: #777;
 }
 </style>

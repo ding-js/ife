@@ -44,7 +44,6 @@ export const components = [
 
 export default new Router({
   // mode: 'history',
-  base: process.env.NODE_ENV === 'production' ? '/ife' : '/',
   routes: [
     {
       path: '/',

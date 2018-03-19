@@ -57,6 +57,16 @@ import { debounce } from '@/libs/utils';
 const cachedMenusVisible = localStorage.getItem('menusVisible');
 export default {
   name: 'App',
+  created() {
+    const path = location.pathname;
+
+    if (/\.html$/.test(path)) {
+      const args = path.split('/');
+      const view = args[args.length - 1].replace('.html', '');
+
+      this.$router.replace(`/${view}`);
+    }
+  },
   mounted() {
     this.$_resizedUpdateContentHeight = debounce(() => {
       this.updateContentHeight();

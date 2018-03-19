@@ -1,17 +1,17 @@
-'use strict'
-const path = require('path')
-const utils = require('./utils')
-const config = require('../config')
-const vueLoaderConfig = require('./vue-loader.conf')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+'use strict';
+const path = require('path');
+const utils = require('./utils');
+const config = require('../config');
+const vueLoaderConfig = require('./vue-loader.conf');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 function resolve(dir) {
-  return path.join(__dirname, '..', dir)
+  return path.join(__dirname, '..', dir);
 }
 
 module.exports = {
   entry: {
-    app: ['./src/vendor/index.ts', './src/main.ts']
+    app: './src/main.ts'
   },
   output: {
     path: config.build.assetsRoot,
@@ -57,15 +57,7 @@ module.exports = {
       },
       {
         test: /\.tsx?$/,
-        use: [
-          'babel-loader',
-          {
-            loader: 'ts-loader',
-            options: {
-              appendTsSuffixTo: [/\.vue$/]
-            }
-          }
-        ],
+        use: ['babel-loader', 'ts-loader'],
         include: [resolve('src')]
       },
       {
@@ -94,4 +86,4 @@ module.exports = {
       }
     ]
   }
-}
+};
