@@ -57,8 +57,8 @@
       <div class="alarms-wrapper">
         <p v-if="!alarms||alarms.length<1">暂无闹钟</p>
         <p v-else
-           v-for="alarm in alarms"
-           :key="alarm.getTime()">{{alarm.toLocaleString()}}</p>
+           v-for="(alarm,index) in alarms"
+           :key="index">{{alarm.toLocaleString()}}</p>
       </div>
     </section>
   </div>
