@@ -12,7 +12,7 @@ const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 
 const env = config.build.env;
 
-const htmls = ['clock', 'color-picker', 'cropper', 'infinite-scroll', 'snake'].map(
+const htmls = ['clock', 'colorpicker', 'cropper', 'infinite-scroll', 'snake'].map(
   (view) =>
     new HtmlWebpackPlugin({
       filename: `${view}.html`,

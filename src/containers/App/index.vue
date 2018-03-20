@@ -58,13 +58,26 @@ const cachedMenusVisible = localStorage.getItem('menusVisible');
 export default {
   name: 'App',
   created() {
+    // 兼容来自 http://ife.baidu.com
     const path = location.pathname;
+    const routeMap = {
+      colorpicker: 'ColorPicker',
+      clock: 'Clock',
+      cropper: 'Cropper',
+      'infinite-scroll': 'InfiniteScroll',
+      snake: 'Snake'
+    };
 
     if (/\.html$/.test(path)) {
-      const args = path.split('/');
-      const view = args[args.length - 1].replace('.html', '');
+      const htmlMatch = path.match(/([^/]+)\.html$/);
+      const htmlName = htmlMatch && htmlMatch[1];
 
-      this.$router.replace(`/${view}`);
+      if (htmlName && routeMap[htmlName]) {
+        this.$router.replace({
+          name: routeMap[htmlName]
+        });
+      }
+
     }
   },
   mounted() {
