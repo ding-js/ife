@@ -7,13 +7,17 @@
       <ul class="menu-list"
           v-show="menusVisible">
         <router-link v-for="menu in menus"
-                     :key="menu.path"
+                     :key="menu.name"
                      :to="{name:menu.name}"
                      tag="li">
           <a>
             {{menu.label}}
           </a>
         </router-link>
+        <li>
+          <a :href="`https://github.com/ding-js/ife/tree/master/src/containers/${$route.name}`"
+             target="_blank">查看源码</a>
+        </li>
       </ul>
       <div class="menu-btn-wrapper">
         <svg @click="expandLess"
@@ -60,17 +64,18 @@ export default {
   created() {
     // 兼容来自 http://ife.baidu.com
     const path = location.pathname;
-    const routeMap = {
-      colorpicker: 'ColorPicker',
-      clock: 'Clock',
-      cropper: 'Cropper',
-      'infinite-scroll': 'InfiniteScroll',
-      snake: 'Snake'
-    };
 
     if (/\.html$/.test(path)) {
       const htmlMatch = path.match(/([^/]+)\.html$/);
       const htmlName = htmlMatch && htmlMatch[1];
+
+      const routeMap = {
+        colorpicker: 'ColorPicker',
+        clock: 'Clock',
+        cropper: 'Cropper',
+        'infinite-scroll': 'InfiniteScroll',
+        snake: 'Snake'
+      };
 
       if (htmlName && routeMap[htmlName]) {
         this.$router.replace({
