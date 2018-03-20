@@ -16,7 +16,7 @@
 
 每个课程都由一个页面和一个库组成。课程的核心都封装为模块，在页面中调用。
 
-页面：[Container](https://github.com/ding-js/ife/tree/master/src/containers)
+页面：[Containers](https://github.com/ding-js/ife/tree/master/src/containers)
 
 模块：[Libs](https://github.com/ding-js/ife/tree/master/src/libs)
 
@@ -28,6 +28,6 @@
 
 由于工作原因变更技术栈，正好给项目做了一次升级，将原来的业务代码 `pug` , `jquery` 升级成 `vue`。原先核心功能模块仍由 `JavaScript`/`TypeScript` 实现
 
-### 单页引用为何有多个 html
+### 单页引用为何有多个 html ？
 
 在 ife 上上传的链接还是 1.0 版本的，后续也无法修改，为了保证链接不会 404，做了一些兼容
