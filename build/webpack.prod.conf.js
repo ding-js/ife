@@ -16,7 +16,7 @@ const htmls = ['clock', 'colorpicker', 'cropper', 'infinite-scroll', 'snake'].ma
   (view) =>
     new HtmlWebpackPlugin({
       filename: `${view}.html`,
-      template: 'index.html',
+      template: 'template/index.html',
       inject: true,
       minify: {
         removeComments: true,
