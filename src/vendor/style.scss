@@ -57,6 +57,7 @@ select {
   color: inherit;
   transition: border-bottom-color 0.3s;
   text-align: center;
+  background-color: transparent;
   &:focus {
     border-bottom-color: #aaa;
   }

@@ -1,89 +1,105 @@
-interface IClockOptions {
+import { generateCanvas } from '@/libs/utils';
+
+interface Options {
   radius?: number;
   color?: string;
   width?: number;
   height?: number;
 }
 
-interface ICoordinate {
+interface Coordinate {
   x?: number;
   y?: number;
 }
 
-interface IAlarm {
+interface Alarm {
   time: Date;
   cb: Function;
   repeat: boolean;
 }
 
-export default class Clock {
-  private _canvas: HTMLCanvasElement;
-  private _ctx: CanvasRenderingContext2D;
-  private _width: number;
-  private _height: number;
-  private _radius: number;
-  private _options: IClockOptions;
-  private _timeOffset: number;
-  private _alarms: IAlarm[] = [];
+interface Pointer {
+  topY: number;
+  bottomY: number;
+  degree: number;
+  bottomWidth: number;
+  topWidth: number;
+}
 
-  constructor(canvas: HTMLCanvasElement, options?: IClockOptions) {
-    this._canvas = canvas;
-    this._ctx = canvas.getContext('2d');
-    const _option: IClockOptions = {
-      color: '#9b9b9b',
-      width: 300,
-      height: 300
+interface Time {
+  date: Date;
+  hourDegree: number;
+  minuteDegree: number;
+  secondDegree: number;
+  hour: number;
+  minute: number;
+  second: number;
+}
+
+export default class Clock {
+  private _ctx: CanvasRenderingContext2D;
+  private _options: Options;
+  private _offset: number = 0;
+  private _alarms: Alarm[] = [];
+
+  constructor(container: HTMLElement | HTMLCanvasElement, options?: Options) {
+    const _options: Options = {
+      color: '#9b9b9b'
     };
 
-    Object.assign(_option, options);
+    const r = generateCanvas(container, options, {
+      width: 300,
+      height: 300
+    });
 
-    const defaultRadius = Math.min(_option.width, _option.height) / 2;
+    const canvas = r.canvas;
+
+    this._ctx = canvas.getContext('2d');
+
+    Object.assign(_options, options, {
+      width: r.width,
+      height: r.height
+    });
+
+    const defaultRadius = Math.min(_options.width, _options.height) / 2;
 
     if (
-      !_option.radius ||
-      _option.radius > defaultRadius ||
-      _option.radius <= 1
+      !_options.radius ||
+      _options.radius > defaultRadius ||
+      _options.radius <= 1
     ) {
-      _option.radius = defaultRadius;
+      _options.radius = defaultRadius;
     }
 
-    canvas.setAttribute('width', _option.width.toString());
-
-    canvas.setAttribute('height', _option.height.toString());
-
-    this._width = _option.width;
-
-    this._height = _option.height;
-
-    this._radius = _option.radius;
-
-    this._options = _option;
+    this._options = _options;
 
     window.requestAnimationFrame(this.draw);
   }
 
   private draw = () => {
     const time = this.getCurrentTime();
-    const ctx = this._ctx,
-      width = this._width,
-      height = this._height,
-      center: ICoordinate = {
-        x: width / 2,
-        y: height / 2
-      },
-      op = this._options,
-      color = op.color,
-      radius = op.radius,
-      borderWidth = radius * 0.08;
+
+    const ctx = this._ctx;
+
+    const { width, height, color, radius } = this._options;
+
+    const center: Coordinate = {
+      x: width / 2,
+      y: height / 2
+    };
+
+    const borderWidth = radius * 0.08;
+    const borderRadius = radius - borderWidth / 2;
+
+    ctx.clearRect(0, 0, width, height);
 
     ctx.save();
-    ctx.clearRect(0, 0, width, height);
 
     // 绘制边框
     ctx.strokeStyle = color;
     ctx.lineWidth = borderWidth;
     ctx.beginPath();
-    ctx.arc(center.x, center.y, radius - borderWidth / 2, 0, 2 * Math.PI);
+    ctx.arc(center.x, center.y, borderRadius, 0, 2 * Math.PI);
     ctx.stroke();
 
     ctx.restore();
@@ -91,56 +107,53 @@ export default class Clock {
     ctx.save();
 
     // 绘制刻度
-    const distance2Top = borderWidth + radius * 0.02;
+    const distanceToTop = borderWidth + radius * 0.02; // 离边框的距离
+    const scaleCount = 5 * 12;
 
     ctx.fillStyle = color;
 
     ctx.translate(radius, radius);
 
-    // 提前量
-    ctx.rotate(-Math.PI / 30);
-
-    for (let i = 0; i < 60; i++) {
-      const scaleWidth = i % 5 === 0 ? radius / 35 : radius / 70,
-        scaleHeight = radius / 10;
+    for (let i = 0; i < scaleCount; i++) {
+      const scaleWidth = i % 5 === 0 ? radius / 35 : radius / 70;
+      const scaleHeight = radius * 0.1;
 
       const x = -scaleWidth / 2,
-        y = distance2Top - radius;
+        y = distanceToTop - radius;
 
-      ctx.rotate(Math.PI / 30);
       ctx.beginPath();
       ctx.rect(x, y, scaleWidth, scaleHeight);
       ctx.fill();
+      // 循环结束转完一圈
+      ctx.rotate(2 * Math.PI / scaleCount);
     }
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     ctx.restore();
     ctx.save();
 
     // 绘制数字
-    const numberRadius = radius - (borderWidth + distance2Top + radius * 0.13);
+    const numberRadius = radius - radius * 0.31;
 
-    const font = radius * 0.18;
+    const fontsize = radius * 0.18;
+
     ctx.fillStyle = color;
-    ctx.font = `${font}px sans-serif`;
+    ctx.font = `${fontsize}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     for (let i = 1; i <= 12; i++) {
-      const radian = i / 12 * 2 * Math.PI;
-      const coordinate = this.getCoordinate(numberRadius, radian),
-        x = coordinate.x,
-        y = coordinate.y;
-      ctx.fillText('' + i, x, y);
+      const radian = 2 * Math.PI * i / 12;
+      // 数字始终是正常阅读的方向，所以不能使用旋转
+      const { x, y } = this.getCoordinate(numberRadius, radian);
+
+      ctx.fillText(i.toString(), x, y);
     }
 
-    // 绘制表盘文字
-
-    ctx.font = `${font * 0.6}px sans-serif`;
+    // 绘制表盘文本
+    ctx.font = `${fontsize * 0.6}px sans-serif`;
 
     // 0|24~11 am , 12~23 pm
-    ctx.fillText(`${time.h < 12 ? 'A.M' : 'P.M'}`, center.x, height * 0.3);
+    ctx.fillText(`${time.hour < 12 ? 'A.M' : 'P.M'}`, center.x, height * 0.3);
 
     ctx.restore();
 
@@ -148,64 +161,67 @@ export default class Clock {
 
     // 绘制指针
 
-    const pointerList = [
+    // 三个指针的配置
+    const pointers: Pointer[] = [
       {
-        top: 0.72,
-        bottom: 0.24,
-        r: time.sR,
+        topY: -0.72,
+        bottomY: 0.24,
+        degree: time.secondDegree,
         bottomWidth: 0.02,
         topWidth: 0.01
       },
       {
-        top: 0.6,
-        bottom: 0.18,
-        r: time.mR,
+        topY: -0.6,
+        bottomY: 0.18,
+        degree: time.minuteDegree,
         bottomWidth: 0.06,
         topWidth: 0.03
       },
       {
-        top: 0.4,
-        bottom: 0.13,
-        r: time.hR,
+        topY: -0.4,
+        bottomY: 0.13,
+        degree: time.hourDegree,
         bottomWidth: 0.045,
         topWidth: 0.02
       }
     ];
 
-    const tanBottom = Math.tan(Math.PI * 60 / 180),
-      tanTop = Math.tan(Math.PI * 30 / 180);
+    const tanBottom = Math.tan(Math.PI * 2 * 60 / 360),
+      tanTop = Math.tan(Math.PI * 2 * 30 / 360);
 
     ctx.fillStyle = color;
 
-    pointerList.forEach(p => {
-      const bottom = radius * p.bottom,
-        bottomWidth = radius * p.bottomWidth / 2,
-        bottomHeight = bottomWidth / tanBottom;
+    pointers.forEach(p => {
+      const bottomY = radius * p.bottomY,
+        bottomHalf = radius * p.bottomWidth / 2,
+        bottomHeight = bottomHalf / tanBottom;
 
-      const top = radius * p.top,
-        topWidth = radius * p.topWidth / 2,
-        topHeight = topWidth / tanTop;
+      const topY = radius * p.topY,
+        topHalf = radius * p.topWidth / 2,
+        topHeight = topHalf / tanTop;
+
       ctx.translate(radius, radius);
-      ctx.rotate(p.r);
+      ctx.rotate(p.degree);
+
       ctx.beginPath();
-      ctx.moveTo(0, bottom);
+      ctx.moveTo(0, bottomY);
       // buttomLeft
-      ctx.lineTo(-bottomWidth, bottom - bottomHeight);
+      ctx.lineTo(-bottomHalf, bottomY - bottomHeight);
 
       // topLeft
-      ctx.lineTo(-topWidth, -top + topHeight);
+      ctx.lineTo(-topHalf, topY + topHeight);
 
       // top
-      ctx.lineTo(0, -top);
+      ctx.lineTo(0, topY);
 
       // topRight
-      ctx.lineTo(topWidth, -top + topHeight);
+      ctx.lineTo(topHalf, topY + topHeight);
 
       // bottomRight
-      ctx.lineTo(bottomWidth, bottom - bottomHeight);
+      ctx.lineTo(bottomHalf, bottomY - bottomHeight);
 
       // bottom
-      ctx.lineTo(0, bottom);
+      ctx.lineTo(0, bottomY);
 
       ctx.fill();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -214,7 +230,8 @@ export default class Clock {
     ctx.restore();
     ctx.save();
 
-    ctx.fillStyle = '#fff';
+    // 绘制中点
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(center.x, center.y, radius * 0.02, 0, 2 * Math.PI);
     ctx.fill();
@@ -224,10 +241,18 @@ export default class Clock {
     this.checkAlarms(time.date);
 
     window.requestAnimationFrame(this.draw);
-  }
-
-  private getCoordinate(radius: number, radian: number): ICoordinate {
-    const r = this._radius;
+  };
+  /**
+   * 根据半径和角度获取改点的坐标
+   *
+   * @private
+   * @param {number} radius
+   * @param {number} radian
+   * @returns {Coordinate}
+   * @memberof Clock
+   */
+  private getCoordinate(radius: number, radian: number): Coordinate {
+    const r = this._options.radius;
 
     return {
       x: r + radius * Math.sin(radian),
@@ -235,66 +260,77 @@ export default class Clock {
     };
   }
 
-  // 获取正确的时间
-  private getCurrentTime() {
+  // 获取计算过偏移的时间
+  private getCurrentTime(): Time {
     const now = new Date();
-    let date;
 
-    if (this._timeOffset) {
-      date = new Date(now.getTime() + this._timeOffset);
-    } else {
-      date = now;
-    }
+    const date =
+      typeof this._offset === 'number'
+        ? new Date(now.getTime() + this._offset)
+        : now;
 
-    const [h, m, s, ms] = [
+    const [hour, minute, second, milliSecond] = [
       date.getHours(),
       date.getMinutes(),
       date.getSeconds(),
       date.getMilliseconds()
     ];
 
-    const cS = s + ms / 1000,
-      cM = m + cS / 60,
-      cH = h + cM / 60;
+    // 时针、分针、秒针可以百分比移动
+    const exactS = second + milliSecond / 1000,
+      exactM = minute + exactS / 60,
+      exactH = hour + exactM / 60;
 
-    const [hR, mR, sR] = [cH / 12, cM / 60, cS / 60].map(v => v * 2 * Math.PI);
+    const [hourDegree, minuteDegree, secondDegree] = [
+      exactH / 12,
+      exactM / 60,
+      exactS / 60
+    ].map(v => v * 2 * Math.PI);
+
     return {
-      hR, mR, sR, date, h, s, m
+      date,
+      hourDegree,
+      minuteDegree,
+      secondDegree,
+      hour,
+      minute,
+      second
     };
   }
 
   // 检验触发闹钟
   private checkAlarms(date: Date) {
     const alarms = this._alarms;
-    if (!alarms || alarms.length <= 0) {
+    if (!alarms || !alarms.length) {
       return;
     }
+    let deletedCount = 0;
 
     const deleteAlarms: {
       index: number;
-      alarm: IAlarm;
+      alarm: Alarm;
     }[] = [];
 
-    alarms.forEach((alarm, index) => {
-      // 触发阈值，避免客户端性能过差
+    for (let i = 0; i < alarms.length; i++) {
+      const alarm = alarms[i];
+
       if (Math.abs(date.getTime() - alarm.time.getTime()) < 500) {
-        // 不在这里出发回调是因为回调发生时_alarm还没有改变
-        deleteAlarms.push({
-          index: index,
-          alarm: alarm
-        });
+        if (!alarm.repeat) {
+          this._alarms.splice(i, i + 1);
+          i--;
+        }
+        alarm.cb();
       }
-    });
-
-    deleteAlarms.forEach((deleteAlarm, index) => {
-      // 每次移除之后数组的长度就会变化,所以是升序,所以直接减去这个循环的index就正确的索引
-      const currentIndex = deleteAlarm.index - index;
-      this._alarms.splice(currentIndex, currentIndex + 1);
-      deleteAlarm.alarm.cb();
-    });
+    }
   }
-
-  // 设置闹钟
+  /**
+   * 增加闹钟
+   *
+   * @param {Date} time
+   * @param {() => void} cb
+   * @param {boolean} [repeat=true] 是否每天重复
+   * @memberof Clock
+   */
   public addAlarm(time: Date, cb: () => void, repeat = true) {
     if (!this._alarms) {
       this._alarms = [];
@@ -306,17 +342,21 @@ export default class Clock {
       repeat
     });
   }
-
+  /**
+   * 清除所有闹钟
+   *
+   * @memberof Clock
+   */
   public clearAlarms() {
     this._alarms = [];
   }
 
   set offset(time: number) {
-    this._timeOffset = time;
+    this._offset = time;
   }
 
   get offset() {
-    return this._timeOffset;
+    return this._offset;
   }
 
   get alarms() {

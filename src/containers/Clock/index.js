@@ -15,12 +15,32 @@ const getOriginTime = () => {
   };
 };
 
+const parts = [
+  {
+    name: 'hours',
+    label: '小时',
+    max: 23
+  },
+  {
+    name: 'minutes',
+    label: '分钟',
+    max: 59
+  },
+  {
+    name: 'seconds',
+    label: '秒',
+    max: 59
+  }
+];
+
 export default {
   name: 'Clock',
-  data: () => ({
-    time: getOriginTime(),
-    alarms: []
-  }),
+  data() {
+    return {
+      time: getOriginTime(),
+      alarms: []
+    };
+  },
   render() {
     return (
       <div class="clock">
@@ -35,36 +55,21 @@ export default {
               this.setTime();
             }}
           >
-            <div class="form-group">
-              <label for="hours">小时：</label>
-              <input
-                type="number"
-                value={this.time.hours}
-                max="23"
-                min="0"
-                step="1"
-              />
-            </div>
-            <div class="form-group">
-              <label for="minutes">分钟：</label>
-              <input
-                type="number"
-                value={this.time.minutes}
-                max="59"
-                min="0"
-                step="1"
-              />
-            </div>
-            <div class="form-group">
-              <label for="seconds">秒：</label>
-              <input
-                type="number"
-                value={this.time.seconds}
-                max="59"
-                min="0"
-                step="1"
-              />
-            </div>
+            {parts.map(p => (
+              <div class="form-group">
+                <label for={p.name}>{p.label}：</label>
+                <input
+                  type="number"
+                  value={this.time[p.name]}
+                  onInput={e => {
+                    this.updateInput(e, p);
+                  }}
+                  max={p.max}
+                  min="0"
+                  step="1"
+                />
+              </div>
+            ))}
             <div class="form-group">
               <label for="offset">时区：</label>
               <select value={this.time.offset}>
@@ -108,49 +113,21 @@ export default {
       </div>
     );
   },
-  watch: {
-    time: {
-      deep: true,
-      handler(time) {
-        const next = Object.assign({}, time);
-        const { hours, minutes, seconds } = time;
-
-        if (hours > 23) {
-          next.hours = 23;
-        }
-
-        if (hours < 0) {
-          next.hours = 0;
-        }
-
-        if (minutes > 59) {
-          next.minutes = 59;
-        }
-
-        if (minutes < 0) {
-          next.minutes = 0;
-        }
-
-        if (seconds > 59) {
-          next.seconds = 59;
-        }
-
-        if (seconds < 0) {
-          next.seconds = 0;
-        }
-
-        const props = ['hours', 'minutes', 'seconds'];
-
-        for (const prop of props) {
-          if (next[prop] !== time[prop]) {
-            Object.assign(this.time, next);
-            break;
-          }
-        }
-      }
-    }
-  },
   methods: {
+    updateInput(e, time) {
+      const value = Number(e.target.value);
+      let result = value;
+
+      if (Number.isNaN(value) || value < 0) {
+        result = 0;
+      }
+
+      if (result > time.max) {
+        result = time.max;
+      }
+
+      this.time[time.name] = result;
+    },
     setTime() {
       const clock = this.$_clock;
       const now = new Date();
@@ -168,7 +145,7 @@ export default {
       const clock = this.$_clock;
       const settedTime = this.getFormTime();
 
-      clock.addAlarm(settedTime, this.triggerAlarm);
+      clock.addAlarm(settedTime, this.triggerAlarm, false);
 
       this.alarms.push(settedTime);
     },
