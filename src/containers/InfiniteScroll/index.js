@@ -28,7 +28,7 @@ export default {
         return `<li>${v} list item</li>`;
       },
       getDataset(index) {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           setTimeout(() => {
             resolve({
               dataset: dataset.slice(index, index + 20),

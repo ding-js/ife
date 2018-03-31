@@ -1,0 +1,29 @@
+.color-picker {
+  text-align: center;
+
+  label {
+    display: inline-block;
+    width: 36px;
+  }
+  input[type='number'] {
+    width: 58px;
+  }
+  input[type='text'] {
+    width: 94px;
+  }
+
+  &__preview {
+    width: 130px;
+    height: 36px;
+    display: inline-block;
+    transition: background-color 0.1s linear;
+  }
+
+  .row {
+    margin-top: 20px;
+  }
+
+  .form-group {
+    display: inline-block;
+  }
+}
