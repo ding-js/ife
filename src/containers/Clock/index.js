@@ -1,6 +1,5 @@
 import Clock from '@/libs/clock';
 import { toast } from '@/libs/utils';
-import timeZones from './timezones.json';
 
 import './index.scss';
 
@@ -11,7 +10,7 @@ const getOriginTime = () => {
     hours: now.getHours(),
     minutes: now.getMinutes(),
     seconds: now.getSeconds(),
-    offset: -new Date().getTimezoneOffset() / 60
+    offset: -new Date().getTimezoneOffset() * 60 * 1000
   };
 };
 
@@ -32,6 +31,27 @@ const parts = [
     max: 59
   }
 ];
+
+const timeZones = [];
+
+for (let i = -12; i <= 12; i++) {
+  let name = 'UTC';
+
+  if (i > 0) {
+    name += `+${i}`;
+  } else if (i < 0) {
+    name += i;
+  }
+
+  timeZones.push({
+    name: name,
+    offset: i * 60 * 60 * 1000
+  });
+}
+
+timeZones.sort((x, y) => {
+  return y.offset - x.offset;
+});
 
 export default {
   name: 'Clock',
@@ -72,7 +92,7 @@ export default {
             ))}
             <div class="form-group">
               <label for="offset">时区：</label>
-              <select value={this.time.offset}>
+              <select value={this.time.offset} onChange={this.updateZone}>
                 {timeZones.map(t => (
                   <option key={t.name} value={t.offset}>
                     {t.name}
@@ -105,7 +125,7 @@ export default {
               <p>暂无闹钟</p>
             ) : (
               this.alarms.map((alarm, index) => (
-                <p key={index}>{alarm.toLocaleString()}</p>
+                <p key={index}>闹铃时间：{alarm.time.toLocaleString()}</p>
               ))
             )}
           </div>
@@ -128,6 +148,16 @@ export default {
 
       this.time[time.name] = result;
     },
+    updateZone(e) {
+      const value = Number(e.target.value);
+      const offset = this.getTimezoneOffsetMilliSeconds(value);
+
+      this.time.offset = value;
+      this.$_clock.offset = offset;
+    },
+    getTimezoneOffsetMilliSeconds(value) {
+      return value + new Date().getTimezoneOffset() * 60 * 1000;
+    },
     setTime() {
       const clock = this.$_clock;
       const now = new Date();
@@ -135,11 +165,9 @@ export default {
       const offset =
         settedTime.getTime() -
         now.getTime() +
-        (this.time.offset * 60 + now.getTimezoneOffset()) * 60 * 1000;
+        this.getTimezoneOffsetMilliSeconds(this.time.offset);
 
-      if (clock.offset !== offset) {
-        clock.offset = offset;
-      }
+      clock.offset = offset;
     },
     addAlarm() {
       const clock = this.$_clock;
@@ -147,7 +175,7 @@ export default {
 
       clock.addAlarm(settedTime, this.triggerAlarm, false);
 
-      this.alarms.push(settedTime);
+      this.alarms = clock.alarms;
     },
     clearAlarms() {
       const clock = this.$_clock;
@@ -158,20 +186,23 @@ export default {
     },
     getFormTime() {
       const now = new Date();
+
       const [year, month, date] = [
         now.getFullYear(),
         now.getMonth(),
         now.getDate()
       ];
+
       const { hours, minutes, seconds } = this.time;
-      const settedTime = new Date(year, month, date, hours, minutes, seconds); // 丢弃了毫秒
+
+      const settedTime = new Date(year, month, date, hours, minutes, seconds); // 丢弃毫秒
 
       return settedTime;
     },
     triggerAlarm() {
       const clock = this.$_clock;
 
-      this.alarms = clock.alarms.map(alarm => alarm.time);
+      this.alarms = clock.alarms;
 
       toast('闹钟响啦...');
     },

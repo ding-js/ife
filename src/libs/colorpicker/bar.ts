@@ -1,4 +1,4 @@
-export interface IColorBarOptions {
+export interface ColorBarOptions {
   width: number;
   height: number;
   lineWidth?: number;
@@ -27,10 +27,10 @@ export class ColorBar {
     'rgb(255, 0, 0)'
   ];
 
-  private _options: IColorBarOptions;
+  private _options: ColorBarOptions;
 
-  constructor(element: HTMLCanvasElement, options?: IColorBarOptions) {
-    const _options: IColorBarOptions = {
+  constructor(element: HTMLCanvasElement, options?: ColorBarOptions) {
+    const _options: ColorBarOptions = {
       width: null,
       height: null,
       lineWidth: 1,

@@ -1,8 +1,8 @@
-import { ColorBlock, IColorBlockOptions } from './block';
-import { ColorBar, IColorBarOptions } from './bar';
+import { ColorBlock, ColorBlockOptions } from './block';
+import { ColorBar, ColorBarOptions } from './bar';
 import * as utils from './utils';
 
-interface IColorPickerOptions {
+interface ColorPickerOptions {
   height?: number;
   barWidth?: number;
   blockWidth?: number;
@@ -12,11 +12,12 @@ interface IColorPickerOptions {
 
 export default class ColorPicker {
   private _container: HTMLElement;
-  private _options: IColorPickerOptions;
+  private _options: ColorPickerOptions;
   private _block: ColorBlock;
   private _bar: ColorBar;
-  constructor(container: HTMLElement, options?: IColorPickerOptions) {
-    const _options: IColorPickerOptions = {
+
+  constructor(container: HTMLElement, options?: ColorPickerOptions) {
+    const _options: ColorPickerOptions = {
       height: 300,
       blockWidth: 300,
       barWidth: 40
@@ -32,32 +33,40 @@ export default class ColorPicker {
   }
 
   init() {
-    const op = this._options;
+    const {
+      height,
+      blockWidth,
+      barWidth,
+      onBarColorChange,
+      onBlockColorChange
+    } = this._options;
+
     const block = document.createElement('canvas'),
       bar = document.createElement('canvas');
 
-    const blockOptions: IColorBlockOptions = {
-      width: op.blockWidth,
-      height: op.height
-    };
-
-    const barOptions: IColorBarOptions = {
-      width: op.barWidth,
-      height: op.height,
-      onColorChange: (pixel) => {
-        const data = utils.ImageData2Rgb(pixel);
-
-        this._block.color = '#' + utils.Rgb2Hex(data);
-
-        if (op.onBarColorChange) {
-          op.onBarColorChange(pixel);
+    const blockOptions: ColorBlockOptions = {
+      width: blockWidth,
+      height: height,
+      onColorChange: pixel => {
+        if (onBlockColorChange) {
+          onBlockColorChange(pixel);
         }
       }
     };
 
-    if (op.onBlockColorChange) {
-      blockOptions.onColorChange = op.onBlockColorChange;
-    }
+    const barOptions: ColorBarOptions = {
+      width: barWidth,
+      height: height,
+      onColorChange: pixel => {
+        const data = utils.ImageData2Rgb(pixel);
+
+        this._block.color = '#' + utils.Rgb2Hex(data);
+
+        if (onBarColorChange) {
+          onBarColorChange(pixel);
+        }
+      }
+    };
 
     this._container.appendChild(block);
 
@@ -66,7 +75,6 @@ export default class ColorPicker {
     this._block = new ColorBlock(block, blockOptions);
 
     this._bar = new ColorBar(bar, barOptions);
-
   }
 
   get block() {
@@ -76,10 +84,4 @@ export default class ColorPicker {
   get bar() {
     return this._bar;
   }
-
 }
-
-export {
-  utils,
-  ColorPicker
-};

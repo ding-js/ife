@@ -1,7 +1,19 @@
 import { generateCanvas } from '@/libs/utils';
 
 interface Options {
+  /**
+   * 时钟半径
+   *
+   * @type {number}
+   * @memberof Options
+   */
   radius?: number;
+  /**
+   * 时钟颜色
+   *
+   * @type {string}
+   * @memberof Options
+   */
   color?: string;
   width?: number;
   height?: number;
@@ -19,10 +31,40 @@ interface Alarm {
 }
 
 interface Pointer {
+  /**
+   * 顶点y坐标
+   *
+   * @type {number}
+   * @memberof Pointer
+   */
   topY: number;
+  /**
+   * 底点y坐标
+   *
+   * @type {number}
+   * @memberof Pointer
+   */
   bottomY: number;
+  /**
+   * 角度
+   *
+   * @type {number}
+   * @memberof Pointer
+   */
   degree: number;
+  /**
+   * 底部宽度
+   *
+   * @type {number}
+   * @memberof Pointer
+   */
   bottomWidth: number;
+  /**
+   * 顶部宽度
+   *
+   * @type {number}
+   * @memberof Pointer
+   */
   topWidth: number;
 }
 
@@ -39,6 +81,13 @@ interface Time {
 export default class Clock {
   private _ctx: CanvasRenderingContext2D;
   private _options: Options;
+  /**
+   * 与当前时间偏移的毫秒数
+   *
+   * @private
+   * @type {number}
+   * @memberof Clock
+   */
   private _offset: number = 0;
   private _alarms: Alarm[] = [];
 

@@ -1,5 +1,5 @@
 import * as utils from './utils';
-export interface IColorBlockOptions {
+export interface ColorBlockOptions {
   width: number;
   height: number;
   lineWidth?: number;
@@ -21,10 +21,10 @@ export class ColorBlock {
   private _black: CanvasGradient;
   private _mouseDown: boolean = false;
 
-  private _options: IColorBlockOptions;
+  private _options: ColorBlockOptions;
 
-  constructor(element: HTMLCanvasElement, options?: IColorBlockOptions) {
-    const _options: IColorBlockOptions = {
+  constructor(element: HTMLCanvasElement, options?: ColorBlockOptions) {
+    const _options: ColorBlockOptions = {
       width: null,
       height: null,
       lineWidth: 1,

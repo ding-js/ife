@@ -1,4 +1,6 @@
-import { utils, ColorPicker } from '@/libs/colorpicker';
+import ColorPicker from '@/libs/colorpicker';
+import * as utils from '@/libs/colorpicker/utils';
+
 import './index.scss';
 
 export default {
@@ -23,68 +25,34 @@ export default {
         <section>
           <form onSubmit={this.validateForm}>
             <div class="row">
-              <div class="form-group">
-                <label for="r">R:</label>
-                <input
-                  type="number"
-                  value={this.color.r}
-                  max="255"
-                  min="0"
-                  step="1"
-                />
-              </div>
-              <div class="form-group">
-                <label for="g">G:</label>
-                <input
-                  type="number"
-                  value={this.color.g}
-                  max="255"
-                  min="0"
-                  step="1"
-                />
-              </div>
-              <div class="form-group">
-                <label for="b">B:</label>
-                <input
-                  type="number"
-                  value={this.color.b}
-                  max="255"
-                  min="0"
-                  step="1"
-                />
-              </div>
+              {['r', 'g', 'b'].map(v => (
+                <div class="form-group">
+                  <label for={v}>{v.toUpperCase()}:</label>
+                  <input
+                    type="number"
+                    value={this.color[v]}
+                    max="255"
+                    min="0"
+                    step="1"
+                    onInput={e => this.updateInput(e, v)}
+                  />
+                </div>
+              ))}
             </div>
             <div class="row">
-              <div class="form-group">
-                <label for="h">H:</label>
-                <input
-                  type="number"
-                  value={this.color.h}
-                  step="0.05"
-                  max="1"
-                  min="0"
-                />
-              </div>
-              <div class="form-group">
-                <label for="l">L:</label>
-                <input
-                  type="number"
-                  value={this.color.l}
-                  step="0.05"
-                  max="1"
-                  min="0"
-                />
-              </div>
-              <div class="form-group">
-                <label for="s">S:</label>
-                <input
-                  type="number"
-                  value={this.color.s}
-                  step="0.05"
-                  max="1"
-                  min="0"
-                />
-              </div>
+              {['h', 's', 'l'].map(v => (
+                <div class="form-group">
+                  <label for={v}>{v.toUpperCase()}:</label>
+                  <input
+                    type="number"
+                    value={this.color[v]}
+                    max="1"
+                    min="0"
+                    step="0.05"
+                    onInput={e => this.updateInput(e, v)}
+                  />
+                </div>
+              ))}
             </div>
           </form>
         </section>
@@ -92,13 +60,34 @@ export default {
           <p>#{this.color.hex.toUpperCase()}</p>
           <div
             class="color-picker__preview"
-            style="{backgroundColor:'#'+color.hex}"
+            style={{ backgroundColor: '#' + this.color.hex }}
           />
         </section>
       </div>
     );
   },
   methods: {
+    updateInput(e, name) {
+      const target = e.target;
+      const value = Number(target.value);
+      const max = Number(target.getAttribute('max'));
+      const min = Number(target.getAttribute('min'));
+      let result = value;
+
+      if (Number.isNaN(value)) {
+        result = min;
+      }
+
+      if (result > max) {
+        result = max;
+      }
+
+      if (result < min) {
+        result = min;
+      }
+
+      this.color[name] = result;
+    },
     validateForm(e) {
       e.preventDefault();
 
