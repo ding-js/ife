@@ -98,7 +98,7 @@ export default {
   },
   created() {
     // 兼容来自 http://ife.baidu.com
-    const path = location.pathname;
+    const path = location.href;
 
     if (/\.html$/.test(path)) {
       const htmlMatch = path.match(/([^/]+)\.html$/);
