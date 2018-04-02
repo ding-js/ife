@@ -23,7 +23,11 @@ export default {
           <div id="picker" ref="picker" />
         </section>
         <section>
-          <form onSubmit={this.validateForm}>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+            }}
+          >
             <div class="row">
               {['r', 'g', 'b'].map(v => (
                 <div class="form-group">
@@ -86,38 +90,38 @@ export default {
         result = min;
       }
 
-      this.color[name] = result;
+      const color = Object.assign({}, this.color);
+
+      color[name] = result;
+      // this.color = color;
+
+      switch (name) {
+        case 'r':
+        case 'g':
+        case 'b':
+          this.updateColorByRGB(color);
+          break;
+        case 'h':
+        case 's':
+        case 'l':
+          this.updateColorByHSL(color);
+          break;
+        default:
+          break;
+      }
     },
-    validateForm(e) {
-      e.preventDefault();
+    updateColorByRGB(color) {
+      const { r, g, b } = color;
 
-      const color = this.color;
+      console.log(r, g, b);
 
-      let error = false;
+      if ([r, g, b].some(v => !v)) {
+        return;
+      }
 
-      ['r', 'g', 'b', 'h', 'l', 's'].forEach(key => {
-        if (color[key] < 0) {
-          color[key] = 0;
-          error = true;
-        }
-      });
-
-      ['r', 'g', 'b'].forEach(key => {
-        if (color[key] > 255) {
-          color[key] = 255;
-          error = true;
-        }
-      });
-
-      ['h', 's', '1'].forEach(key => {
-        if (color[key] > 1) {
-          color[key] = 1;
-          error = true;
-        }
-      });
-
-      return error;
-    }
+      this.$_picker.block.color = `#${utils.Rgb2Hex([r, g, b])}`;
+    },
+    updateColorByHSL(color) {}
   },
   mounted() {
     this.$_picker = new ColorPicker(this.$refs.picker, {

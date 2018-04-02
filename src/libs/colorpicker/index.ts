@@ -3,11 +3,17 @@ import { ColorBar, ColorBarOptions } from './bar';
 import * as utils from './utils';
 
 interface ColorPickerOptions {
+  padding?: number;
   height?: number;
   barWidth?: number;
   blockWidth?: number;
-  onBarColorChange?(pixel: ImageData): void;
-  onBlockColorChange?(pixel: ImageData): void;
+  onColorChange?(color: Color): void;
+}
+
+interface Color {
+  h: number;
+  s: number;
+  v: number;
 }
 
 export default class ColorPicker {
@@ -15,12 +21,18 @@ export default class ColorPicker {
   private _options: ColorPickerOptions;
   private _block: ColorBlock;
   private _bar: ColorBar;
+  private _color: Color = {
+    h: null,
+    s: null,
+    v: null
+  };
 
   constructor(container: HTMLElement, options?: ColorPickerOptions) {
     const _options: ColorPickerOptions = {
       height: 300,
       blockWidth: 300,
-      barWidth: 40
+      barWidth: 40,
+      padding: 10
     };
 
     Object.assign(_options, options);
@@ -32,13 +44,13 @@ export default class ColorPicker {
     this.init();
   }
 
-  init() {
+  private init() {
     const {
+      padding,
       height,
       blockWidth,
       barWidth,
-      onBarColorChange,
-      onBlockColorChange
+      onColorChange
     } = this._options;
 
     const block = document.createElement('canvas'),
@@ -46,25 +58,24 @@ export default class ColorPicker {
 
     const blockOptions: ColorBlockOptions = {
       width: blockWidth,
-      height: height,
-      onColorChange: pixel => {
-        if (onBlockColorChange) {
-          onBlockColorChange(pixel);
-        }
+      height,
+      onColorChange: ({ s, v }) => {
+        this.color = {
+          ...this._color,
+          s,
+          v
+        };
       }
     };
 
     const barOptions: ColorBarOptions = {
       width: barWidth,
-      height: height,
-      onColorChange: pixel => {
-        const data = utils.ImageData2Rgb(pixel);
-
-        this._block.color = '#' + utils.Rgb2Hex(data);
-
-        if (onBarColorChange) {
-          onBarColorChange(pixel);
-        }
+      height,
+      onColorChange: ({ h }) => {
+        this.color = {
+          ...this._color,
+          h
+        };
       }
     };
 
@@ -75,6 +86,17 @@ export default class ColorPicker {
     this._block = new ColorBlock(block, blockOptions);
 
     this._bar = new ColorBar(bar, barOptions);
+  }
+
+  private handleColorChange(color: Color) {
+    if (this._options.onColorChange) {
+      this._options.onColorChange(color);
+    }
+  }
+
+  set color(color: Color) {
+    this._color = color;
+    this.handleColorChange(color);
   }
 
   get block() {

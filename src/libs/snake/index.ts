@@ -1,5 +1,5 @@
-import Tween from '@/libs/utils/tween';
-import { generateCanvas } from '@/libs/utils';
+import Tween from '../utils/tween';
+import { generateCanvas } from '../utils';
 
 enum BoxTypes {
   empty,
