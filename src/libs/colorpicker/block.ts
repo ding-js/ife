@@ -253,7 +253,14 @@ export class ColorBlock {
     this._hue = `rgb(${r},${g},${b})`;
   }
 
-  public draw() {
+  private updateCoordinate() {
+    const { _contentWidth, _contentHeight, _options } = this;
+
+    this._x = this._color.s * _contentWidth + _options.padding;
+    this._y = (1 - this.color.v) * _contentHeight + _options.padding;
+  }
+
+  private draw() {
     const { _ctx, _x, _y } = this;
     const { width, height } = this._options;
 
@@ -280,6 +287,8 @@ export class ColorBlock {
     this._color = c;
 
     this.updateHue();
+
+    this.updateCoordinate();
 
     this.draw();
   }

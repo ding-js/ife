@@ -1,5 +1,5 @@
 import ColorPicker from '@/libs/colorpicker';
-// import * as utils from '@/libs/colorpicker/utils';
+import * as utils from '@/libs/colorpicker/utils';
 
 import './index.scss';
 
@@ -93,7 +93,6 @@ export default {
       const color = Object.assign({}, this.color);
 
       color[name] = result;
-      // this.color = color;
 
       switch (name) {
         case 'r':
@@ -113,15 +112,25 @@ export default {
     updateColorByRGB(color) {
       const { r, g, b } = color;
 
-      console.log(r, g, b);
-
-      if ([r, g, b].some(v => !v)) {
+      if ([r, g, b].some(v => typeof v !== 'number')) {
         return;
       }
 
-      this.$_picker.block.color = `rgb(${r},${g},${b})`;
+      this.$_picker.color = utils.RGBtoHSV(color);
     },
-    updateColorByHSL(color) {}
+    updateColorByHSL(color) {
+      const { h, s, l } = color;
+
+      if ([h, s, l].some(v => typeof v !== 'number')) {
+        return;
+      }
+
+      this.$_picker.color = {
+        h,
+        s,
+        l
+      };
+    }
   },
   mounted() {
     this.$_picker = new ColorPicker(this.$refs.picker, {

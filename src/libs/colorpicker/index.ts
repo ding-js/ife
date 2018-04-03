@@ -123,9 +123,9 @@ export default class ColorPicker {
   }
 
   set color(color: Color) {
-    const props = ['h', 's', 'v'];
+    const hsv = ['h', 's', 'v'];
 
-    if (props.every(p => color[p] === this._color[p])) {
+    if (hsv.every(p => color[p] === this._color[p])) {
       return;
     }
 

@@ -10,6 +10,12 @@ export interface HSL {
   l: number;
 }
 
+export interface HSV {
+  h: number;
+  s: number;
+  v: number;
+}
+
 export const HSV = [
   'rgb(255, 0, 0)',
   'rgb(255, 255, 0)',
@@ -145,4 +151,39 @@ export function HSVtoRGB({ h, s, v }): RGB {
     g: Math.round(g * 255),
     b: Math.round(b * 255)
   };
+}
+
+export function RGBtoHSV(color: RGB): HSV {
+  let { r, g, b } = color;
+
+  [r, g, b] = [r, g, b].map(n => n / 255);
+
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
+
+  let h, s;
+  const v = max;
+  const d = max - min;
+
+  s = max === 0 ? 0 : d / max;
+
+  if (max === min) {
+    h = 0;
+  } else {
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+
+    h = h / 6 * 360;
+  }
+
+  return { h, s, v };
 }
