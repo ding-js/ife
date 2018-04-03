@@ -1,16 +1,41 @@
-export function Rgb2Hsl(rgb: number[]): number[] {
-  const [r, g, b] = rgb.map(num => num / 255);
+export interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
+
+export interface HSL {
+  h: number;
+  s: number;
+  l: number;
+}
+
+export const HSV = [
+  'rgb(255, 0, 0)',
+  'rgb(255, 255, 0)',
+  'rgb(0, 255, 0)',
+  'rgb(0, 255, 255)',
+  'rgb(0, 0, 255)',
+  'rgb(255, 0, 255)',
+  'rgb(255, 0, 0)'
+];
+
+export function RGBtoHSL(color: RGB): HSL {
+  let { r, g, b } = color;
+
+  [r, g, b] = [r, g, b].map(num => num / 255);
+
   const max = Math.max(r, g, b),
     min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
+  let h,
+    s,
+    l = (max + min) / 2;
 
   if (max === min) {
     h = s = 0;
   } else {
     const diff = max - min;
-    s = l < 0.5 ?
-      diff / (max + min) :
-      diff / (2 - max - min);
+    s = l < 0.5 ? diff / (max + min) : diff / (2 - max - min);
     switch (max) {
       case r:
         h = (g - b) / diff + (g < b ? 6 : 0);
@@ -22,60 +47,102 @@ export function Rgb2Hsl(rgb: number[]): number[] {
         h = (r - g) / diff + 4;
         break;
       default:
-        return [];
+        break;
     }
 
     h /= 6;
   }
 
-  return [h, s, l].map(num => Math.round(num * 100) / 100);
+  [h, s, l] = [h, s, l].map(num => Math.round(num * 100) / 100);
+
+  return {
+    h,
+    s,
+    l
+  };
 }
 
-export function Rgb2Hex(rgb: number[]) {
-  return rgb.map(num => {
-    const str = num.toString(16);
-    return str.length < 2 ? '0' + str : str;
-  }).join('');
+export function RGBtoHEX(color: RGB) {
+  const { r, g, b } = color;
+
+  return [r, g, b]
+    .map(num => {
+      const str = num.toString(16);
+      return str.length < 2 ? '0' + str : str;
+    })
+    .join('');
 }
 
-export function ImageData2Rgb(pixel: ImageData): number[] {
-  return Array.prototype.slice.call(pixel.data, 0, 3);
-}
-
-export function Hsl2Rgb(hsl: number[]) {
-  const [h, s, l] = hsl;
+export function HSVtoRGB({ h, s, v }): RGB {
   let r, g, b;
+  let i;
+  let f, p, q, t;
+
+  // Make sure our arguments stay in-range
+  h = Math.max(0, Math.min(360, h));
+  s = Math.max(0, Math.min(1, s));
+  v = Math.max(0, Math.min(1, v));
 
   if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) {
-        t += 1;
-      } else if (t > 1) {
-        t -= 1;
-      }
-
-      if (t < 1 / 6) {
-        return p + (q - p) * 6 * t;
-      }
-
-      if (t < 1 / 2) {
-        return q;
-      }
-      if (t < 2 / 3) {
-        return p + (q - p) * (2 / 3 - t) * 6;
-      }
-
-      return p;
+    // Achromatic (grey)
+    r = g = b = v;
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255)
     };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
   }
 
-  return [r, g, b].map(num => Math.round(num * 255));
+  h /= 60; // sector 0 to 5
+  i = Math.floor(h);
+  f = h - i; // factorial part of h
+  p = v * (1 - s);
+  q = v * (1 - s * f);
+  t = v * (1 - s * (1 - f));
+
+  switch (i) {
+    case 0:
+      r = v;
+      g = t;
+      b = p;
+      break;
+
+    case 1:
+      r = q;
+      g = v;
+      b = p;
+      break;
+
+    case 2:
+      r = p;
+      g = v;
+      b = t;
+      break;
+
+    case 3:
+      r = p;
+      g = q;
+      b = v;
+      break;
+
+    case 4:
+      r = t;
+      g = p;
+      b = v;
+      break;
+
+    case 5:
+      // case 5:
+      r = v;
+      g = p;
+      b = q;
+    default:
+      break;
+  }
+
+  return {
+    r: Math.round(r * 255),
+    g: Math.round(g * 255),
+    b: Math.round(b * 255)
+  };
 }

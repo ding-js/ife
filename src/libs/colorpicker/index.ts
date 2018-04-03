@@ -7,7 +7,7 @@ interface ColorPickerOptions {
   height?: number;
   barWidth?: number;
   blockWidth?: number;
-  onColorChange?(color: Color): void;
+  onColorChange?(color: CallbackColor): void;
 }
 
 interface Color {
@@ -16,6 +16,15 @@ interface Color {
   v: number;
 }
 
+interface CallbackColor {
+  h: number;
+  s: number;
+  l: number;
+  r: number;
+  g: number;
+  b: number;
+  hex: string;
+}
 export default class ColorPicker {
   private _container: HTMLElement;
   private _options: ColorPickerOptions;
@@ -89,13 +98,39 @@ export default class ColorPicker {
   }
 
   private handleColorChange(color: Color) {
+    if (typeof color.h === 'number') {
+      this._bar.color = color;
+    }
+
+    if (typeof color.s === 'number' && typeof color.v === 'number') {
+      this._block.color = color;
+    }
+
     if (this._options.onColorChange) {
-      this._options.onColorChange(color);
+      const rgb = utils.HSVtoRGB(color);
+      const hsl = utils.RGBtoHSL(rgb);
+
+      this._options.onColorChange(
+        Object.assign(
+          {
+            hex: utils.RGBtoHEX(rgb)
+          },
+          rgb,
+          hsl
+        )
+      );
     }
   }
 
   set color(color: Color) {
+    const props = ['h', 's', 'v'];
+
+    if (props.every(p => color[p] === this._color[p])) {
+      return;
+    }
+
     this._color = color;
+
     this.handleColorChange(color);
   }
 

@@ -1,5 +1,5 @@
 import ColorPicker from '@/libs/colorpicker';
-import * as utils from '@/libs/colorpicker/utils';
+// import * as utils from '@/libs/colorpicker/utils';
 
 import './index.scss';
 
@@ -119,29 +119,14 @@ export default {
         return;
       }
 
-      this.$_picker.block.color = `#${utils.Rgb2Hex([r, g, b])}`;
+      this.$_picker.block.color = `rgb(${r},${g},${b})`;
     },
     updateColorByHSL(color) {}
   },
   mounted() {
     this.$_picker = new ColorPicker(this.$refs.picker, {
-      onBlockColorChange: pixel => {
-        const rgb = utils.ImageData2Rgb(pixel);
-        const hsl = utils.Rgb2Hsl(rgb);
-        const hex = utils.Rgb2Hex(rgb);
-
-        const [r, g, b] = rgb;
-        const [h, s, l] = hsl;
-
-        this.color = {
-          r,
-          g,
-          b,
-          h,
-          s,
-          l,
-          hex
-        };
+      onColorChange: color => {
+        Object.assign(this.color, color);
       }
     });
   }

@@ -1,6 +1,5 @@
 import { bind, unbind } from '../utils/drag';
 import { generateCanvas } from '../utils';
-import * as utils from './utils';
 
 interface Color {
   h: number;
@@ -22,6 +21,7 @@ export class ColorBlock {
   private _contentWidth: number;
   private _contentHeight: number;
   private _color: Color;
+  private _hue: string;
   private _x: number;
   private _y: number;
   private _whiteGradient: CanvasGradient;
@@ -70,7 +70,9 @@ export class ColorBlock {
       this.setCoordinate(x, y);
     });
 
-    this.setCoordinate(width / 2, height / 2);
+    Promise.resolve().then(() => {
+      this.setCoordinate(width / 2, height / 2);
+    });
   }
 
   private initBackground() {
@@ -106,18 +108,18 @@ export class ColorBlock {
 
   // 填充背景色（拾色器）
   private fillColor() {
-    const { _ctx, _contentWidth, _contentHeight, _color } = this;
+    const { _ctx, _contentWidth, _contentHeight, _hue } = this;
 
     const { padding } = this._options;
 
-    if (!_color) {
+    if (!_hue) {
       return;
     }
 
     // 填充底色
     _ctx.save();
 
-    _ctx.fillStyle = _color;
+    _ctx.fillStyle = _hue;
 
     _ctx.fillRect(padding, padding, _contentWidth, _contentHeight);
 
@@ -136,27 +138,40 @@ export class ColorBlock {
   // 设置坐标
   private setCoordinate(x: number, y: number) {
     const { padding } = this._options;
+    const { _contentHeight, _contentWidth } = this;
     let currentX, currentY;
 
     // 检查边界
     if (x < padding) {
       currentX = padding + 1;
-    } else if (x > this._contentWidth + padding) {
-      currentX = this._contentWidth + padding - 1;
+    } else if (x > _contentWidth + padding) {
+      currentX = _contentWidth + padding - 1;
     } else {
       currentX = x;
     }
 
     if (y < padding) {
       currentY = padding + 1;
-    } else if (y > this._contentHeight + padding) {
-      currentY = this._contentHeight + padding - 1;
+    } else if (y > _contentHeight + padding) {
+      currentY = _contentHeight + padding - 1;
     } else {
       currentY = y;
     }
 
     this._x = currentX;
     this._y = currentY;
+
+    if (this._options.onColorChange) {
+      const color = {
+        v: 1 - (currentY - padding) / _contentHeight,
+        s: (currentX - padding) / _contentWidth,
+        h: (this._color && this.color.h) || null
+      };
+
+      this._color = color;
+
+      this._options.onColorChange(color);
+    }
 
     this.draw();
   }
@@ -189,6 +204,55 @@ export class ColorBlock {
     }
   }
 
+  private updateHue() {
+    const h = this._color && this._color.h;
+
+    if (typeof h !== 'number') {
+      return;
+    }
+
+    const index = Math.floor(h / 60);
+    const c = Math.round((h % 60) / 60 * 255);
+
+    let r, g, b;
+
+    switch (index) {
+      case 0:
+        r = 255;
+        g = c;
+        b = 0;
+        break;
+      case 1:
+        r = 255 - c;
+        g = 255;
+        b = 0;
+        break;
+      case 2:
+        r = 0;
+        g = 255;
+        b = c;
+        break;
+      case 3:
+        r = 0;
+        g = 255 - c;
+        b = 255;
+        break;
+      case 4:
+        r = c;
+        g = 0;
+        b = 255;
+        break;
+      case 5:
+        r = 255;
+        g = 0;
+        b = 255 - c;
+        break;
+      default:
+        return;
+    }
+    this._hue = `rgb(${r},${g},${b})`;
+  }
+
   public draw() {
     const { _ctx, _x, _y } = this;
     const { width, height } = this._options;
@@ -200,7 +264,25 @@ export class ColorBlock {
     this.renderPointer();
   }
 
-  set color(color: Color) {}
+  set color(color: Color) {
+    const props = ['h', 's', 'v'];
+    const mergedColor = Object.assign({}, this._color, color);
+    const c = {
+      h: mergedColor.h,
+      s: mergedColor.s,
+      v: mergedColor.v
+    };
+
+    if (this._color && props.every(p => c[p] === this._color[p])) {
+      return;
+    }
+
+    this._color = c;
+
+    this.updateHue();
+
+    this.draw();
+  }
 
   get color() {
     return this._color;

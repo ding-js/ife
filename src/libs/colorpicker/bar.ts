@@ -1,5 +1,6 @@
 import { bind, unbind } from '../utils/drag';
 import { generateCanvas } from '../utils';
+import { HSV } from './utils';
 
 interface Color {
   h: number;
@@ -21,17 +22,6 @@ export class ColorBar {
   private _contentHeight: number;
   private _id: number;
   private _color: Color;
-
-  // 拾色条的颜色渐变顺序
-  private static COLORS: string[] = [
-    'rgb(255, 0, 0)',
-    'rgb(255, 255, 0)',
-    'rgb(0, 255, 0)',
-    'rgb(0, 255, 255)',
-    'rgb(0, 0, 255)',
-    'rgb(255, 0, 255)',
-    'rgb(255, 0, 0)'
-  ];
 
   private _options: ColorBarOptions;
 
@@ -67,11 +57,10 @@ export class ColorBar {
       height - padding * 2
     );
 
-    const colors = ColorBar.COLORS,
-      length = colors.length;
+    const length = HSV.length;
 
     // 填充背景色
-    colors.forEach((color, index) => {
+    HSV.forEach((color, index) => {
       gradient.addColorStop(index / (length - 1), color);
     });
 
@@ -88,7 +77,9 @@ export class ColorBar {
       this.setCoordinate(e.y);
     });
 
-    this.setCoordinate(0);
+    Promise.resolve().then(() => {
+      this.setCoordinate(0);
+    });
   }
 
   // 这里背景色不会改变,可以复用CanvasGradient
@@ -182,6 +173,10 @@ export class ColorBar {
   }
 
   set color(color: Color) {
+    if (color.h === this._color.h) {
+      return;
+    }
+
     const { padding } = this._options;
 
     const k = color.h / 360;
@@ -189,5 +184,9 @@ export class ColorBar {
     const y = this._contentHeight * k + padding;
 
     this.setCoordinate(y);
+  }
+
+  get color() {
+    return this._color;
   }
 }
