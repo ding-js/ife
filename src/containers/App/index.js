@@ -96,29 +96,6 @@ export default {
       </div>
     );
   },
-  created() {
-    // 兼容来自 http://ife.baidu.com
-    const path = location.href;
-
-    if (/\.html$/.test(path)) {
-      const htmlMatch = path.match(/([^/]+)\.html$/);
-      const htmlName = htmlMatch && htmlMatch[1];
-
-      const routeMap = {
-        colorpicker: 'ColorPicker',
-        clock: 'Clock',
-        cropper: 'Cropper',
-        'infinite-scroll': 'InfiniteScroll',
-        snake: 'Snake'
-      };
-
-      if (htmlName && routeMap[htmlName]) {
-        this.$router.replace({
-          name: routeMap[htmlName]
-        });
-      }
-    }
-  },
   mounted() {
     this.$_resizedUpdateContentHeight = debounce(() => {
       this.updateContentHeight();
