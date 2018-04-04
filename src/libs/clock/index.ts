@@ -26,7 +26,7 @@ interface Coordinate {
 
 interface Alarm {
   time: Date;
-  cb: Function;
+  cb(): void;
   repeat: boolean;
 }
 
@@ -353,12 +353,6 @@ export default class Clock {
     if (!alarms || !alarms.length) {
       return;
     }
-    let deletedCount = 0;
-
-    const deleteAlarms: {
-      index: number;
-      alarm: Alarm;
-    }[] = [];
 
     for (let i = 0; i < alarms.length; i++) {
       const alarm = alarms[i];

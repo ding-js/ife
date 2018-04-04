@@ -2,7 +2,7 @@
   "root": true,
   "parser": "babel-eslint",
   "parserOptions": { "sourceType": "module" },
-  "env": { "browser": true },
+  "env": { "browser": true, "jest": true },
   "extends": ["standard", "prettier"],
   "plugins": ["prettier"],
   "rules": {
