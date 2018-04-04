@@ -5,5 +5,8 @@
   "env": { "browser": true },
   "extends": ["standard", "prettier"],
   "plugins": ["prettier"],
-  "rules": { "prettier/prettier": "error" }
+  "rules": {
+    "prettier/prettier": "error",
+    "no-unused-vars": "warn"
+  }
 }

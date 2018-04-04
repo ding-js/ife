@@ -1,5 +1,4 @@
 import ColorPicker from '@/libs/colorpicker';
-import * as utils from '@/libs/colorpicker/utils';
 
 import './index.scss';
 
@@ -58,10 +57,20 @@ export default {
                 </div>
               ))}
             </div>
+
+            <div class="row">
+              <div class="form-group">
+                <label for="hex">#</label>
+                <input
+                  value={this.color.hex.toUpperCase()}
+                  type="text"
+                  onInput={this.updateColorByHEX}
+                />
+              </div>
+            </div>
           </form>
         </section>
         <section>
-          <p>#{this.color.hex.toUpperCase()}</p>
           <div
             class="color-picker__preview"
             style={{ backgroundColor: '#' + this.color.hex }}
@@ -116,7 +125,11 @@ export default {
         return;
       }
 
-      this.$_picker.color = utils.RGBtoHSV(color);
+      this.$_picker.color = {
+        r,
+        g,
+        b
+      };
     },
     updateColorByHSL(color) {
       const { h, s, l } = color;
@@ -129,6 +142,24 @@ export default {
         h,
         s,
         l
+      };
+    },
+    updateColorByHEX(e) {
+      const value = e.target.value;
+
+      if (value.length !== 6) {
+        return;
+      }
+
+      for (const v of value) {
+        const n = parseInt(v, 16);
+        if (Number.isNaN(n) || n > 15) {
+          return;
+        }
+      }
+
+      this.$_picker.color = {
+        hex: value
       };
     }
   },

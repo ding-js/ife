@@ -1,6 +1,6 @@
 import { ColorBlock, ColorBlockOptions } from './block';
 import { ColorBar, ColorBarOptions } from './bar';
-import * as utils from './utils';
+import * as covert from 'color-convert';
 
 interface ColorPickerOptions {
   padding?: number;
@@ -30,11 +30,7 @@ export default class ColorPicker {
   private _options: ColorPickerOptions;
   private _block: ColorBlock;
   private _bar: ColorBar;
-  private _color: Color = {
-    h: null,
-    s: null,
-    v: null
-  };
+  private _color: Color;
 
   constructor(container: HTMLElement, options?: ColorPickerOptions) {
     const _options: ColorPickerOptions = {
@@ -69,11 +65,10 @@ export default class ColorPicker {
       width: blockWidth,
       height,
       onColorChange: ({ s, v }) => {
-        this.color = {
-          ...this._color,
+        this.setHSV({
           s,
           v
-        };
+        } as Color);
       }
     };
 
@@ -81,10 +76,9 @@ export default class ColorPicker {
       width: barWidth,
       height,
       onColorChange: ({ h }) => {
-        this.color = {
-          ...this._color,
+        this.setHSV({
           h
-        };
+        } as Color);
       }
     };
 
@@ -95,6 +89,12 @@ export default class ColorPicker {
     this._block = new ColorBlock(block, blockOptions);
 
     this._bar = new ColorBar(bar, barOptions);
+
+    this.setHSV({
+      h: 0,
+      s: 0.5,
+      v: 0.5
+    });
   }
 
   private handleColorChange(color: Color) {
@@ -107,31 +107,63 @@ export default class ColorPicker {
     }
 
     if (this._options.onColorChange) {
-      const rgb = utils.HSVtoRGB(color);
-      const hsl = utils.RGBtoHSL(rgb);
+      const { h } = color;
+      const s = color.s * 100;
+      const v = color.v * 100;
+      const rgb = covert.hsv.rgb(h, s, v);
+      const hsl = covert.rgb.hsl(rgb).map(n => n / 100);
+      const hex = covert.rgb.hex(rgb);
 
-      this._options.onColorChange(
-        Object.assign(
-          {
-            hex: utils.RGBtoHEX(rgb)
-          },
-          rgb,
-          hsl
-        )
-      );
+      this._options.onColorChange({
+        hex,
+        h: hsl[0],
+        s: hsl[1],
+        l: hsl[2],
+        r: rgb[0],
+        g: rgb[1],
+        b: rgb[2]
+      });
     }
   }
 
-  set color(color: Color) {
+  private setHSV(color: Color) {
+    if (!this._bar || !this._block) {
+      return;
+    }
+
+    color = Object.assign({}, this._color, color);
+
     const hsv = ['h', 's', 'v'];
 
-    if (hsv.every(p => color[p] === this._color[p])) {
+    if (this._color && hsv.every(p => color[p] === this._color[p])) {
       return;
     }
 
     this._color = color;
 
     this.handleColorChange(color);
+  }
+
+  set color(color: CallbackColor) {
+    const rgb = ['r', 'g', 'b'];
+    const hsl = ['h', 's', 'l'];
+    let hsv;
+
+    if (rgb.every(p => typeof color[p] === 'number')) {
+      hsv = covert.rgb.hsv(color.r, color.g, color.b);
+    } else if (hsl.every(p => typeof color[p] === 'number')) {
+      hsv = covert.hsl.hsv(color.h * 100, color.s * 100, color.l * 100);
+    } else if (color.hex) {
+      hsv = covert.rgb.hsv(covert.hex.rgb(color.hex));
+    } else {
+      return;
+    }
+
+    this.setHSV({
+      h: hsv[0],
+      s: hsv[1] / 100,
+      v: hsv[2] / 100
+    });
   }
 
   get block() {

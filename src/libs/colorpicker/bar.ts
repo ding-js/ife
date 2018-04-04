@@ -1,6 +1,6 @@
 import { bind, unbind } from '../utils/drag';
 import { generateCanvas } from '../utils';
-import { HSV } from './utils';
+import * as covert from 'color-convert';
 
 interface Color {
   h: number;
@@ -57,12 +57,14 @@ export class ColorBar {
       height - padding * 2
     );
 
-    const length = HSV.length;
-
     // 填充背景色
-    HSV.forEach((color, index) => {
-      gradient.addColorStop(index / (length - 1), color);
-    });
+    for (let i = 0; i <= 6; i++) {
+      const k = i / 6;
+
+      const [r, g, b] = covert.hsv.rgb(k * 360, 100, 100);
+
+      gradient.addColorStop(i / 6, `rgb(${r},${g},${b})`);
+    }
 
     this._contentWidth = width - padding * 2;
     this._contentHeight = height - padding * 2;
@@ -75,10 +77,6 @@ export class ColorBar {
 
     this._id = bind(canvas, e => {
       this.setCoordinate(e.y);
-    });
-
-    Promise.resolve().then(() => {
-      this.setCoordinate(0);
     });
   }
 
@@ -173,7 +171,7 @@ export class ColorBar {
   }
 
   set color(color: Color) {
-    if (color.h === this._color.h) {
+    if (this._color && color.h === this._color.h) {
       return;
     }
 

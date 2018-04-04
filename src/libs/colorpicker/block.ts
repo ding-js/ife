@@ -1,5 +1,6 @@
 import { bind, unbind } from '../utils/drag';
 import { generateCanvas } from '../utils';
+import * as covert from 'color-convert';
 
 interface Color {
   h: number;
@@ -20,12 +21,12 @@ export class ColorBlock {
   private _ctx: CanvasRenderingContext2D;
   private _contentWidth: number;
   private _contentHeight: number;
-  private _color: Color;
   private _hue: string;
   private _x: number;
   private _y: number;
   private _whiteGradient: CanvasGradient;
   private _blackGradient: CanvasGradient;
+  private _color: Color;
 
   private _options: ColorBlockOptions;
 
@@ -68,10 +69,6 @@ export class ColorBlock {
 
     bind(canvas, ({ x, y }) => {
       this.setCoordinate(x, y);
-    });
-
-    Promise.resolve().then(() => {
-      this.setCoordinate(width / 2, height / 2);
     });
   }
 
@@ -143,17 +140,17 @@ export class ColorBlock {
 
     // 检查边界
     if (x < padding) {
-      currentX = padding + 1;
+      currentX = padding;
     } else if (x > _contentWidth + padding) {
-      currentX = _contentWidth + padding - 1;
+      currentX = _contentWidth + padding;
     } else {
       currentX = x;
     }
 
     if (y < padding) {
-      currentY = padding + 1;
+      currentY = padding;
     } else if (y > _contentHeight + padding) {
-      currentY = _contentHeight + padding - 1;
+      currentY = _contentHeight + padding;
     } else {
       currentY = y;
     }
@@ -163,9 +160,9 @@ export class ColorBlock {
 
     if (this._options.onColorChange) {
       const color = {
-        v: 1 - (currentY - padding) / _contentHeight,
+        h: this.color.h,
         s: (currentX - padding) / _contentWidth,
-        h: (this._color && this.color.h) || null
+        v: 1 - (currentY - padding) / _contentHeight
       };
 
       this._color = color;
@@ -211,45 +208,8 @@ export class ColorBlock {
       return;
     }
 
-    const index = Math.floor(h / 60);
-    const c = Math.round((h % 60) / 60 * 255);
+    const [r, g, b] = covert.hsv.rgb(h, 100, 100);
 
-    let r, g, b;
-
-    switch (index) {
-      case 0:
-        r = 255;
-        g = c;
-        b = 0;
-        break;
-      case 1:
-        r = 255 - c;
-        g = 255;
-        b = 0;
-        break;
-      case 2:
-        r = 0;
-        g = 255;
-        b = c;
-        break;
-      case 3:
-        r = 0;
-        g = 255 - c;
-        b = 255;
-        break;
-      case 4:
-        r = c;
-        g = 0;
-        b = 255;
-        break;
-      case 5:
-        r = 255;
-        g = 0;
-        b = 255 - c;
-        break;
-      default:
-        return;
-    }
     this._hue = `rgb(${r},${g},${b})`;
   }
 
