@@ -1,5 +1,5 @@
-import { bind, unbind } from '../utils/drag';
-import { generateCanvas } from '../utils';
+import { bind, unbind } from '../utils/move';
+import { generateCanvas } from '../utils/canvas';
 import * as covert from 'color-convert';
 
 interface Color {

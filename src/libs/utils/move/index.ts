@@ -22,9 +22,10 @@ export const bind = (element: HTMLElement, cb: EventCb) => {
         if ((e as TouchEvent).touches) {
           const rect = element.getBoundingClientRect();
           const touch = (e as TouchEvent).touches[0];
+
           Object.assign(result, {
-            x: touch.pageX - rect.left,
-            y: touch.pageY - rect.top
+            x: touch.clientX - rect.left,
+            y: touch.clientY - rect.top
           });
         } else {
           Object.assign(result, {
