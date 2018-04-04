@@ -1,7 +1,8 @@
-import './index.scss';
 import { Cropper } from '@/libs/cropper';
 import { toast } from '@/libs/utils';
 import * as defaultImage from './assets/default.jpg';
+
+import './index.scss';
 
 const downloader = document.createElement('a');
 
@@ -22,7 +23,7 @@ export default {
                 max={this.containerSize.width}
                 name="width"
                 value={this.cropperSize.width}
-                onInput={(e) => {
+                onInput={e => {
                   this.updateSize(e, 'width');
                 }}
               />
@@ -33,7 +34,7 @@ export default {
                 max={this.containerSize.height}
                 name="height"
                 value={this.cropperSize.height}
-                onInput={(e) => {
+                onInput={e => {
                   this.updateSize(e, 'height');
                 }}
               />
@@ -123,8 +124,8 @@ export default {
 
       const { width, height } = this.cropperSize;
 
-      const invaid = [width, height].some((v) => {
-        return [(v) => !!v, (v) => v > 0].some((f) => !f(v));
+      const invaid = [width, height].some(v => {
+        return [v => !!v, v => v > 0].some(f => !f(v));
       });
 
       if (invaid) {

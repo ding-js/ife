@@ -1,5 +1,5 @@
-import Tween from '@/libs/utils/tween';
-import { generateCanvas } from '@/libs/utils';
+import Tween from '../utils/tween';
+import { generateCanvas } from '../utils';
 
 enum BoxTypes {
   empty,
@@ -85,7 +85,12 @@ interface Ibox {
 
 interface IBoxType {
   background?: string;
-  render?(ctx: CanvasRenderingContext2D, x: number, y: number, sideLength: number): void;
+  render?(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    sideLength: number
+  ): void;
 }
 
 export class Snake {
@@ -137,7 +142,7 @@ export class Snake {
           ];
         ctx.fillStyle = '#fff';
 
-        eyes.forEach((eye) => {
+        eyes.forEach(eye => {
           ctx.beginPath();
           ctx.arc(eye.x, eye.y, 2 * k, 0, Math.PI * 2);
           ctx.fill();
@@ -148,7 +153,13 @@ export class Snake {
       render: (ctx, x, y, sideLength) => {
         ctx.fillStyle = '#888';
         ctx.beginPath();
-        ctx.arc(x + sideLength / 2, y + sideLength / 2, sideLength / 2, 0, Math.PI * 2);
+        ctx.arc(
+          x + sideLength / 2,
+          y + sideLength / 2,
+          sideLength / 2,
+          0,
+          Math.PI * 2
+        );
         ctx.fill();
       }
     },
@@ -156,7 +167,13 @@ export class Snake {
       render: (ctx, x, y, sideLength) => {
         ctx.fillStyle = '#888';
         ctx.beginPath();
-        ctx.arc(x + sideLength / 2, y + sideLength / 2, sideLength * 0.35, 0, Math.PI * 2);
+        ctx.arc(
+          x + sideLength / 2,
+          y + sideLength / 2,
+          sideLength * 0.35,
+          0,
+          Math.PI * 2
+        );
         ctx.fill();
       }
     },
@@ -194,12 +211,18 @@ export class Snake {
     }
   };
 
-  constructor(container: HTMLElement | HTMLCanvasElement, options?: ISnakeOptions) {
+  constructor(
+    container: HTMLElement | HTMLCanvasElement,
+    options?: ISnakeOptions
+  ) {
     const _options: ISnakeOptions = {
       sideLength: 18
     };
 
-    const r = generateCanvas(container, options);
+    const r = generateCanvas(container, options, {
+      width: 600,
+      height: 600
+    });
 
     Object.assign(_options, options, { width: r.width, height: r.height });
 
@@ -268,7 +291,7 @@ export class Snake {
     document.addEventListener('keydown', this.handleKeyboard);
   }
 
-  private handleKeyboard = (e) => {
+  private handleKeyboard = e => {
     const direction = this._direction,
       code = e.keyCode,
       status = this._status;
@@ -402,12 +425,12 @@ export class Snake {
 
   private drawContent() {
     this._ctx.save();
-    this._food.forEach((box) => {
+    this._food.forEach(box => {
       this.drawBox(box);
     });
 
-    this._boxes.forEach((column) => {
-      column.forEach((box) => {
+    this._boxes.forEach(column => {
+      column.forEach(box => {
         const type = box.type;
         if (type !== BoxTypes.food) {
           this.drawBox(box);
@@ -503,7 +526,7 @@ export class Snake {
 
       const animationComplete = () => {
         let shouldNext = true;
-        snake.forEach((snakeBox) => {
+        snake.forEach(snakeBox => {
           delete snakeBox.animateX;
           delete snakeBox.animateY;
         });
@@ -535,10 +558,10 @@ export class Snake {
         this.draw();
       };
 
-      const animationCb = (time) => {
+      const animationCb = time => {
         let complete = true;
 
-        tweenList.forEach((t) => {
+        tweenList.forEach(t => {
           t.update();
           if (complete && !t.complete) {
             complete = false;
@@ -580,7 +603,7 @@ export class Snake {
   private updateSnake() {
     const snake = this._snake;
 
-    snake.forEach((snakeBox) => {
+    snake.forEach(snakeBox => {
       snakeBox.type = BoxTypes.body;
     });
 
@@ -600,13 +623,15 @@ export class Snake {
 
     this._snakeDirection = Direction.right;
 
-    this._boxes.forEach((column) => {
-      column.forEach((box) => {
+    this._boxes.forEach(column => {
+      column.forEach(box => {
         box.type = BoxTypes.empty;
       });
     });
 
-    this._snake = this._options.origin.map((cords) => this.getBox(cords.x, cords.y));
+    this._snake = this._options.origin.map(cords =>
+      this.getBox(cords.x, cords.y)
+    );
 
     this.updateSnake();
 
@@ -652,7 +677,7 @@ export class Snake {
   private continue() {
     if (this._status === GameStatus.pause) {
       if (this._animation) {
-        this._animation.tweens.forEach((t) => {
+        this._animation.tweens.forEach(t => {
           if (!t.complete) {
             t.start();
           }

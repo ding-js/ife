@@ -1,6 +1,7 @@
-import './index.scss';
 import { Snake } from '@/libs/snake';
 import message from '@/libs/utils/message';
+
+import './index.scss';
 
 export default {
   name: 'Snake',
@@ -12,7 +13,7 @@ export default {
             <transition name="fade">
               <div class="snake__mode-wrapper" v-show={this.modeVisible}>
                 <div class="snake__mode">
-                  {this.modes.map((mode) => (
+                  {this.modes.map(mode => (
                     <button type="button" onClick={() => this.start(mode.name)}>
                       {mode.label}
                     </button>
@@ -59,7 +60,7 @@ export default {
   },
   computed: {
     showInfo() {
-      return ![this.speed, this.score].some((v) => !v && v !== 0);
+      return ![this.speed, this.score].some(v => !v && v !== 0);
     }
   },
   methods: {
@@ -102,7 +103,7 @@ export default {
           this.updateDodgeMode(score, speed);
           break;
         default:
-          return;
+          break;
       }
     },
     updateCommonMode(score, speed) {

@@ -1,179 +1,190 @@
-export interface IColorBarOptions {
+import { bind, unbind } from '../utils/drag';
+import { generateCanvas } from '../utils';
+import * as covert from 'color-convert';
+
+interface Color {
+  h: number;
+}
+export interface ColorBarOptions {
   width: number;
   height: number;
   lineWidth?: number;
-  onColorChange?(color: ImageData): void;
+  padding?: number;
+  onColorChange?({ h: number }): void;
 }
 
 export class ColorBar {
-  private _el: HTMLCanvasElement;
+  private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
-  private _width: number;
-  private _height: number;
-  private _padding: number = 10;
   private _gradient: CanvasGradient;
   private _y: number;
-  private _showSlider: boolean = true;
-  private _moveEvt: boolean = false;
+  private _contentWidth: number;
+  private _contentHeight: number;
+  private _id: number;
+  private _color: Color;
 
-  // 拾色条的颜色渐变顺序
-  static COLORS: string[] = [
-    'rgb(255, 0, 0)',
-    'rgb(255, 255, 0)',
-    'rgb(0, 255, 0)',
-    'rgb(0, 255, 255)',
-    'rgb(0, 0, 255)',
-    'rgb(255, 0, 255)',
-    'rgb(255, 0, 0)'
-  ];
+  private _options: ColorBarOptions;
 
-  private _options: IColorBarOptions;
-
-  constructor(element: HTMLCanvasElement, options?: IColorBarOptions) {
-    const _options: IColorBarOptions = {
-      width: null,
-      height: null,
+  constructor(canvas: HTMLCanvasElement, options: ColorBarOptions) {
+    const _options = {
       lineWidth: 1,
-      onColorChange: null
+      padding: 10
     };
+
+    const r = generateCanvas(canvas, options);
 
     if (options) {
       Object.assign(_options, options);
     }
 
-    this._options = _options;
+    this._options = _options as ColorBarOptions;
 
-    this._el = element;
+    this._canvas = canvas;
 
     this.init();
   }
 
   private init() {
-    const padding = this._padding;
+    const { padding, width, height } = this._options;
 
-    const canvas = this._el,
+    const canvas = this._canvas,
       ctx = canvas.getContext('2d');
 
-    const { width, height } = this._options;
-
-    const gradient = ctx.createLinearGradient(padding, padding, padding, height - padding * 2);
-
-    const colors = ColorBar.COLORS,
-      length = colors.length;
-
-    canvas.setAttribute('width', width.toString());
-
-    canvas.setAttribute('height', height.toString());
+    const gradient = ctx.createLinearGradient(
+      padding,
+      padding,
+      padding,
+      height - padding * 2
+    );
 
     // 填充背景色
-    colors.forEach((color, index) => {
-      gradient.addColorStop(index / (length - 1), color);
-    });
+    for (let i = 0; i <= 6; i++) {
+      const k = i / 6;
+
+      const [r, g, b] = covert.hsv.rgb(k * 360, 100, 100);
+
+      gradient.addColorStop(i / 6, `rgb(${r},${g},${b})`);
+    }
+
+    this._contentWidth = width - padding * 2;
+    this._contentHeight = height - padding * 2;
 
     this._gradient = gradient;
 
     this._ctx = ctx;
-    this._width = width;
-    this._height = height;
 
     ctx.lineWidth = this._options.lineWidth;
 
-    canvas.addEventListener('mousedown', (e) => {
-      if (e.which === 1) {
-        this._moveEvt = true;
-        this.setCoordinateByEvent(e);
-        canvas.addEventListener('mousemove', this.handleMouseMove);
-      }
+    this._id = bind(canvas, e => {
+      this.setCoordinate(e.y);
     });
-
-    document.addEventListener('mouseup', (e) => {
-      if (this._moveEvt && e.which === 1) {
-        this._moveEvt = false;
-        canvas.removeEventListener('mousemove', this.handleMouseMove);
-      }
-    });
-
-    this.setCoordinate(0);
   }
 
   // 这里背景色不会改变,可以复用CanvasGradient
-  private fill() {
+  private fillBackground() {
     const gradient = this._gradient,
-      ctx = this._ctx,
-      padding = this._padding;
+      ctx = this._ctx;
+    const { padding, width, height } = this._options;
 
     ctx.fillStyle = gradient;
-    ctx.fillRect(this._padding, this._padding, this._width - padding * 2, this._height - padding * 2);
-  }
-
-  private setCoordinateByEvent = (e: MouseEvent) => {
-    this._showSlider = true;
-    this.setCoordinate(e.layerY);
-  }
-
-  private handleMouseMove = (e: MouseEvent) => {
-    if (e.which === 1) {
-      this.setCoordinateByEvent(e);
-    }
+    ctx.fillRect(padding, padding, this._contentWidth, this._contentHeight);
   }
 
   private setCoordinate(y: number) {
-    const padding = this._padding;
-    let currentY;
+    const { padding, height } = this._options;
+    let result;
+
     if (y < padding) {
-      currentY = padding;
-    } else if (y > this._height - padding) {
-      currentY = this._height - padding - 1;
+      result = padding;
+    } else if (y > height - padding) {
+      result = height - padding;
     } else {
-      currentY = y;
+      result = y;
     }
 
-    this._y = currentY;
+    if (this._y === result) {
+      return;
+    }
+
+    this._y = result;
+
+    if (this._options.onColorChange) {
+      const k = (result - padding) / this._contentHeight;
+      const hue = Math.floor(k * 360);
+
+      const color = { h: hue };
+
+      this._color = color;
+
+      this._options.onColorChange(color);
+    }
+
     this.draw();
   }
 
   // 渲染光标
-  private renderCurrentColor() {
-    // 可以选择是否显示光标
-    if (this._showSlider) {
-      const lineWidth = this._options.lineWidth,
-        x = this._width / 2,
-        y = this._y,
-        sliderWidth = this._width,
-        sliderHeight = lineWidth * 6;
-
-      if (y !== undefined) {
-        const ctx = this._ctx;
-
-        ctx.save();
-        ctx.strokeStyle = '#000';
-        ctx.strokeRect(lineWidth / 2, y - sliderHeight / 2, sliderWidth - lineWidth, sliderHeight);
-
-        ctx.strokeStyle = '#fff';
-        ctx.strokeRect(lineWidth + lineWidth / 2, y - sliderHeight / 2 + lineWidth, sliderWidth - lineWidth * 3, sliderHeight - lineWidth * 2);
-        ctx.stroke();
-
-        ctx.restore();
-        if (this._options.onColorChange) {
-          const data = ctx.getImageData(x, y, 1, 1);
-          this._options.onColorChange(data);
-        }
-      }
+  private renderSlider() {
+    if (typeof this._y !== 'number') {
+      return;
     }
+
+    const { padding, width, height, lineWidth } = this._options;
+
+    const x = width / 2,
+      y = this._y,
+      sliderWidth = width,
+      sliderHeight = padding / 2;
+
+    const ctx = this._ctx;
+
+    ctx.save();
+
+    ctx.strokeStyle = '#000';
+
+    ctx.strokeRect(0, y - sliderHeight / 2, sliderWidth, sliderHeight);
+
+    ctx.strokeStyle = '#fff';
+
+    ctx.strokeRect(
+      lineWidth,
+      y - sliderHeight / 2 + lineWidth,
+      sliderWidth - lineWidth * 2,
+      sliderHeight - lineWidth * 2
+    );
+    ctx.stroke();
+
+    ctx.restore();
   }
 
   private draw() {
-    const ctx = this._ctx;
-    ctx.clearRect(0, 0, this._width, this._height);
-    this.fill();
-    this.renderCurrentColor();
+    const { width, height } = this._options;
+
+    this._ctx.clearRect(0, 0, width, height);
+
+    this.fillBackground();
+
+    this.renderSlider();
   }
 
-  // 隐藏光标
-  public hideSlider() {
-    if (this._showSlider) {
-      this._showSlider = false;
-      this.draw();
+  public destroy() {
+    unbind(this._id);
+  }
+
+  set color(color: Color) {
+    if (this._color && color.h === this._color.h) {
+      return;
     }
+
+    const { padding } = this._options;
+
+    const k = color.h / 360;
+
+    const y = this._contentHeight * k + padding;
+
+    this.setCoordinate(y);
+  }
+
+  get color() {
+    return this._color;
   }
 }

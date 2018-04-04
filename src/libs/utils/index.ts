@@ -21,20 +21,22 @@ export { default as debounce } from './debounce';
 
 export const generateCanvas = (
   container: HTMLElement | HTMLCanvasElement,
-  options: CanvasOptions = {}
+  options: CanvasOptions = {},
+  defaultOptions: CanvasOptions = {}
 ): CanvasResult => {
   if (!container || !container.tagName) {
     console.warn('Invaid element');
     return;
   }
 
-  const [w, h] = ['width', 'height'].map((key) => {
+  const [w, h] = ['width', 'height'].map(key => {
     if (typeof options[key] === 'number') {
       return options[key];
     }
 
     return (
       +container.getAttribute(key) ||
+      defaultOptions[key] ||
       +container['offset' + key.charAt(0).toUpperCase() + key.slice(1)] ||
       0
     );

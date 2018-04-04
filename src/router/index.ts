@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import NotFound from '@/containers/NotFound/index.vue';
-import Clock from '@/containers/Clock/index.vue';
-import ColorPicker from '@/containers/ColorPicker/index.vue';
+import NotFound from '@/containers/NotFound';
+import Clock from '@/containers/Clock';
+import ColorPicker from '@/containers/ColorPicker';
 import Cropper from '@/containers/Cropper';
 import InfiniteScroll from '@/containers/InfiniteScroll';
 import Snake from '@/containers/Snake';
