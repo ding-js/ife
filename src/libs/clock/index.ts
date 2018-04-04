@@ -1,4 +1,4 @@
-import { generateCanvas } from '@/libs/utils';
+import { generateCanvas } from '../utils/canvas';
 
 interface Options {
   /**
