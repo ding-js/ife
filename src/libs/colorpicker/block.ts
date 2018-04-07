@@ -27,6 +27,7 @@ export class ColorBlock {
   private _whiteGradient: CanvasGradient;
   private _blackGradient: CanvasGradient;
   private _color: Color;
+  private _id: number;
 
   private _options: ColorBlockOptions;
 
@@ -67,7 +68,7 @@ export class ColorBlock {
 
     this.initBackground();
 
-    bind(canvas, ({ x, y }) => {
+    this._id = bind(canvas, ({ x, y }) => {
       this.setCoordinate(x, y);
     });
   }
@@ -229,6 +230,14 @@ export class ColorBlock {
     this.fillColor();
 
     this.renderPointer();
+  }
+
+  public destroy(remove: boolean) {
+    unbind(this._id);
+
+    if (remove) {
+      this._canvas.parentNode.removeChild(this._canvas);
+    }
   }
 
   set color(color: Color) {

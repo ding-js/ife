@@ -169,5 +169,10 @@ export default {
         Object.assign(this.color, color);
       }
     });
+  },
+  beforeDestroy() {
+    if (this.$_picker) {
+      this.$_picker.destroy();
+    }
   }
 };
