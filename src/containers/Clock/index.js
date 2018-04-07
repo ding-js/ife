@@ -3,7 +3,7 @@ import { toast } from '@/libs/utils';
 
 import './index.scss';
 
-const getOriginTime = () => {
+const getInitialTime = () => {
   const now = new Date();
 
   return {
@@ -57,7 +57,7 @@ export default {
   name: 'Clock',
   data() {
     return {
-      time: getOriginTime(),
+      time: getInitialTime(),
       alarms: []
     };
   },
@@ -209,12 +209,17 @@ export default {
     resetClock() {
       const clock = this.$_clock;
 
-      Object.assign(this.time, getOriginTime());
+      Object.assign(this.time, getInitialTime());
 
       clock.offset = 0;
     }
   },
   mounted() {
     this.$_clock = new Clock(this.$refs.canvas);
+  },
+  beforeDestroy() {
+    if (this.$_clock) {
+      this.$_clock.destroy();
+    }
   }
 };

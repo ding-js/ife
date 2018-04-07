@@ -79,6 +79,7 @@ interface Time {
 }
 
 export default class Clock {
+  private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _options: Options;
   /**
@@ -91,6 +92,8 @@ export default class Clock {
   private _offset: number = 0;
   private _alarms: Alarm[] = [];
 
+  private _requestId: number;
+
   constructor(container: HTMLElement | HTMLCanvasElement, options?: Options) {
     const _options: Options = {
       color: '#9b9b9b'
@@ -102,6 +105,8 @@ export default class Clock {
     });
 
     const canvas = r.canvas;
+
+    this._canvas = canvas;
 
     this._ctx = canvas.getContext('2d');
 
@@ -122,7 +127,7 @@ export default class Clock {
 
     this._options = _options;
 
-    window.requestAnimationFrame(this.draw);
+    this.draw();
   }
 
   private draw = () => {
@@ -289,7 +294,7 @@ export default class Clock {
 
     this.checkAlarms(time.date);
 
-    window.requestAnimationFrame(this.draw);
+    this._requestId = window.requestAnimationFrame(this.draw);
   };
   /**
    * 根据半径和角度获取改点的坐标
@@ -392,6 +397,16 @@ export default class Clock {
    */
   public clearAlarms() {
     this._alarms = [];
+  }
+
+  public destroy(removeCanvas: boolean = true) {
+    if (this._requestId) {
+      window.cancelAnimationFrame(this._requestId);
+    }
+
+    if (removeCanvas && this._canvas) {
+      this._canvas.parentNode.removeChild(this._canvas);
+    }
   }
 
   set offset(time: number) {
