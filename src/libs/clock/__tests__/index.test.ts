@@ -3,10 +3,7 @@ import Clock from '../';
 describe('Clock lifecycle', () => {
   const container = document.body;
 
-  const clock = new Clock(container, {
-    width: 400,
-    height: 200
-  });
+  const clock = new Clock(container);
 
   const canvas = document.querySelector('canvas');
 
@@ -14,10 +11,6 @@ describe('Clock lifecycle', () => {
     expect(canvas).toBeDefined();
 
     expect(canvas.parentNode).toBe(container);
-
-    expect(canvas.getAttribute('width')).toBe('400');
-
-    expect(canvas.getAttribute('height')).toBe('200');
   });
 
   it('destory', () => {
