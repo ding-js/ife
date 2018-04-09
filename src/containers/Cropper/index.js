@@ -64,7 +64,9 @@ export default {
           <div ref="container" class="cropper__container" />
         </section>
         <section>
-          <div class="cropper__preview" ref="preview" />
+          {this.preview.map(v => (
+            <div class="cropper__preview" ref={`preview-${v}`} />
+          ))}
         </section>
       </div>
     );
@@ -79,7 +81,8 @@ export default {
         width: '',
         height: ''
       },
-      pickText: '点击选择要裁剪的图片'
+      pickText: '点击选择要裁剪的图片',
+      preview: [0.6, 0.9, 1.2]
     };
   },
   methods: {
@@ -160,14 +163,12 @@ export default {
   },
   mounted() {
     const { width, height } = this.containerSize;
-
+    console.log(this.$refs);
     this.$_cropper = new Cropper(this.$refs.container, {
-      preview: [
-        {
-          container: this.$refs.preview,
-          zoom: 0.7
-        }
-      ],
+      preview: this.preview.map((v, i) => ({
+        zoom: v,
+        container: this.$refs[`preview-${v}`]
+      })),
       width,
       height
     });

@@ -34,7 +34,8 @@ interface PreviewConfig {
 }
 
 interface Preview extends PreviewConfig {
-  image: HTMLImageElement;
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
 }
 
 interface PointType extends Coordinate {
@@ -118,14 +119,10 @@ export class Cropper {
         ? op.preview
         : [op.preview]
       ).map(v => {
-        const image = document.createElement('img');
-        Object.assign(v.container.style, {
-          overflow: 'hidden'
-        });
+        const cvs = document.createElement('canvas');
 
-        v.container.innerHTML = '';
-        v.container.appendChild(image);
-        return { ...v, image };
+        v.container.appendChild(cvs);
+        return { ...v, canvas: cvs, ctx: cvs.getContext('2d') };
       });
     }
 
@@ -495,10 +492,6 @@ export class Cropper {
       this.updatePoint();
     }
 
-    if (this._previewList) {
-      this._previewList.forEach(v => (v.image.src = image.src));
-    }
-
     this.draw();
   }
 
@@ -513,30 +506,23 @@ export class Cropper {
     const op = this._options;
 
     this._previewList.forEach(v => {
-      const k = scale * v.zoom;
-
       const w = cropper.width * v.zoom;
       const h = cropper.height * v.zoom;
 
-      const x = image.x - cropper.x;
-      const y = image.y - cropper.y;
-
-      const transform = `
-        scale(${k})
-        translate3d(${x}px,${y}px,0)
-      `;
-
       const transformOrigin = 'top left';
 
-      Object.assign(v.container.style, {
-        width: `${w}px`,
-        height: `${h}px`
-      });
+      v.canvas.width = w;
+      v.canvas.height = h;
 
-      Object.assign(v.image.style, {
-        transform,
-        transformOrigin
-      });
+      v.ctx.clearRect(0, 0, w, h);
+
+      v.ctx.drawImage(
+        image.element,
+        image.x - cropper.x,
+        image.y - cropper.y,
+        image.width * v.zoom,
+        image.height * v.zoom
+      );
     });
   }
 
