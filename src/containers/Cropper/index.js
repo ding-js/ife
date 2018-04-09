@@ -154,7 +154,7 @@ export default {
       image.src = defaultImage;
 
       image.onload = () => {
-        this.$_cropper.setImage(image);
+        this.$_cropper.image = image;
       };
     }
   },
@@ -165,7 +165,7 @@ export default {
       preview: [
         {
           container: this.$refs.preview,
-          scale: 1
+          zoom: 0.7
         }
       ],
       width,
