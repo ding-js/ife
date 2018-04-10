@@ -4,7 +4,12 @@
     "prettier": true,
     "interface-name": [true, "never-prefix"],
     "quotemark": [true, "single"],
-    "variable-name": [true, "allow-leading-underscore"],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ],
     "member-ordering": false,
     "trailing-comma": [true, "never"],
     "one-variable-per-declaration": false,

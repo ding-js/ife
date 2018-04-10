@@ -6,6 +6,7 @@ interface Options {
   preview?: PreviewConfig | PreviewConfig[];
   width?: number;
   height?: number;
+  onCropperResize(cropper: Square): void;
 }
 
 interface Coordinate {
@@ -16,6 +17,13 @@ interface Coordinate {
 interface Square extends Coordinate {
   width: number;
   height: number;
+}
+
+interface SquareConfig {
+  width?: number;
+  height?: number;
+  x?: number;
+  y?: number;
 }
 
 interface ImageSquare extends Square {
@@ -52,6 +60,10 @@ enum Types {
 }
 
 export class Cropper {
+  public static Messages = {
+    1001: '没有图片'
+  };
+
   private _options: Options;
   private _ctx: CanvasRenderingContext2D;
   private _canvas: HTMLCanvasElement;
@@ -70,7 +82,8 @@ export class Cropper {
     [key: number]: TypeConfig;
   };
 
-  private _lineWidth: number = 1;
+  private _cropperCanvas: HTMLCanvasElement;
+  private _cropperCtx: CanvasRenderingContext2D;
 
   constructor(container: HTMLElement | HTMLCanvasElement, options?: Options) {
     const r = generateCanvas(container, options, {
@@ -113,6 +126,18 @@ export class Cropper {
   private init() {
     const op = this._options;
     const canvas = this._canvas;
+    const cW = op.width / 3;
+    const cH = op.height / 3;
+
+    this._cropperCanvas = document.createElement('canvas');
+    this._cropperCtx = this._cropperCanvas.getContext('2d');
+
+    this.cropper = {
+      width: cW,
+      height: cH,
+      x: (op.width - cW) / 2,
+      y: (op.height - cH) / 2
+    };
 
     if (op.preview) {
       this._previewList = (Array.isArray(op.preview)
@@ -159,36 +184,37 @@ export class Cropper {
 
     const image = this._image;
 
-    if (image.element) {
-      // 图片原始宽高,不会改变
-      let width = image.element.width,
-        height = image.element.height,
-        k; // 最终的缩放系数
-
-      const scale = this._scale,
-        offset = e.deltaY / 800;
-
-      if (offset > 0) {
-        k = 1 / (1 + offset);
-      } else {
-        k = 1 + Math.abs(offset);
-      }
-
-      k *= scale;
-
-      this._scale = k;
-
-      width *= k;
-      height *= k;
-
-      image.x += (image.width - width) / 2;
-      image.y += (image.height - height) / 2;
-
-      image.width = width;
-      image.height = height;
-
-      this.draw();
+    if (!image) {
+      return;
     }
+
+    let width = image.clientWidth,
+      height = image.clientHeight,
+      k; // 最终的缩放系数
+
+    const scale = this._scale,
+      offset = e.deltaY / 800;
+
+    if (offset > 0) {
+      k = 1 / (1 + offset);
+    } else {
+      k = 1 + Math.abs(offset);
+    }
+
+    k *= scale;
+
+    this._scale = k;
+
+    width *= k;
+    height *= k;
+
+    image.x += (image.width - width) / 2;
+    image.y += (image.height - height) / 2;
+
+    image.width = width;
+    image.height = height;
+
+    this.draw();
   };
 
   private getPointByCoordinate(x, y): PointType {
@@ -284,12 +310,10 @@ export class Cropper {
       currentY = maxY;
     }
 
-    this._cropper.x = currentX;
-    this._cropper.y = currentY;
-
-    this.updatePoint();
-
-    this.draw();
+    this.cropper = {
+      x: currentX,
+      y: currentY
+    };
   };
 
   private handlePointMove = ({ x, y }) => {
@@ -301,13 +325,10 @@ export class Cropper {
       return;
     }
 
-    this.cropper.width = w;
-
-    this.cropper.height = h;
-
-    this.updatePoint();
-
-    this.draw();
+    this.cropper = {
+      width: w,
+      height: h
+    };
   };
 
   // 填充背景
@@ -357,7 +378,7 @@ export class Cropper {
       ctx.save();
 
       ctx.strokeStyle = '#39f';
-      ctx.lineWidth = this._lineWidth;
+      // ctx.lineWidth = this._lineWidth;
 
       ctx.strokeRect(cropper.x, cropper.y, cropper.width, cropper.height);
 
@@ -424,6 +445,10 @@ export class Cropper {
   }
 
   private draw() {
+    if (!this._image) {
+      return;
+    }
+
     const { width, height } = this._options;
 
     // 避免预览到背景
@@ -479,19 +504,6 @@ export class Cropper {
 
     this._scale = k;
 
-    if (!this._cropper) {
-      const cW = width / 3;
-      const cH = height / 3;
-      this._cropper = {
-        width: cW,
-        height: cH,
-        x: (width - cW) / 2,
-        y: (height - cH) / 2
-      };
-
-      this.updatePoint();
-    }
-
     this.draw();
   }
 
@@ -518,41 +530,53 @@ export class Cropper {
 
       v.ctx.drawImage(
         image.element,
-        image.x - cropper.x,
-        image.y - cropper.y,
+        (image.x - cropper.x) * v.zoom,
+        (image.y - cropper.y) * v.zoom,
         image.width * v.zoom,
         image.height * v.zoom
       );
     });
   }
 
-  public crop(): HTMLCanvasElement {
-    if (!this._image.element) {
-      utils.toast('请添加一张图片');
-      return;
-    }
+  public crop() {
+    return new Promise((resolve, reject) => {
+      const { width, height } = this._options;
 
-    const { width, height } = this._options;
+      const image = this._image;
 
-    this._ctx.clearRect(0, 0, width, height);
+      const cropper = this._cropper;
 
-    this.fillImage();
+      const ctx = this._cropperCtx;
 
-    const data = this.getCropperData();
-    if (data) {
-      const canvas = document.createElement('canvas'),
-        ctx = canvas.getContext('2d');
+      const scale = this._scale;
 
-      Object.assign(canvas, {
-        width: this._cropper.width,
-        height: this._cropper.height
+      if (!image.element) {
+        reject({
+          code: 1001,
+          message: Cropper.Messages['1001']
+        });
+      }
+
+      Object.assign(this._cropperCanvas, {
+        width: cropper.width,
+        height: cropper.height
       });
 
-      ctx.putImageData(data.imageData, data.offsetX, data.offsetY);
+      ctx.clearRect(0, 0, width, height);
 
-      this.draw();
-      return canvas;
-    }
+      ctx.drawImage(
+        image.element,
+
+        (image.x - cropper.x) * scale,
+        (image.y - cropper.y) * scale,
+        image.width * scale,
+        image.height * scale
+      );
+
+      const url = this._cropperCanvas.toDataURL();
+
+      resolve(url);
+    });
   }
 
   set image(image: File | HTMLImageElement) {
@@ -584,11 +608,21 @@ export class Cropper {
     return this._image.element;
   }
 
-  set cropper(cropper: Square) {
+  set cropper(cropper: SquareConfig) {
     if (!this._cropper) {
-      this._cropper = cropper;
+      this._cropper = cropper as Square;
     } else {
       Object.assign(this._cropper, cropper);
+    }
+
+    Object.keys(this._cropper).forEach(k => {
+      this._cropper[k] = Math.round(this._cropper[k]);
+    });
+
+    this.updatePoint();
+
+    if (this._options.onCropperResize) {
+      this._options.onCropperResize(this._cropper);
     }
 
     this.draw();

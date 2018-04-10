@@ -78,8 +78,8 @@ export default {
         height: 450
       },
       cropperSize: {
-        width: '',
-        height: ''
+        width: 200,
+        height: 200
       },
       pickText: '点击选择要裁剪的图片',
       preview: [0.6, 0.9, 1.2]
@@ -91,17 +91,15 @@ export default {
       const val = Number(e.target.value);
       let result = val;
 
-      if (Number.isNaN(val)) {
-        result = 0;
-      } else if (val > containerSize[key]) {
+      if (Number.isNaN(val) || val <= 0) {
+        result = 1;
+      }
+
+      if (val > containerSize[key]) {
         result = containerSize[key];
-      } else if (val < 0) {
-        result = 0;
       }
 
       cropperSize[key] = result;
-
-      e.target.value = result;
     },
     uploadImg(e) {
       const el = e.target;
@@ -135,17 +133,16 @@ export default {
         toast('请输入正确的宽高!');
         return;
       }
-      this.$_cropper.setCropper(width, height);
+      this.$_cropper.cropper = { width, height };
     },
-    doCrop() {
+    async doCrop() {
       try {
-        const canvas = this.$_cropper.crop();
-        downloader.href = canvas.toDataURL();
+        const url = await this.$_cropper.crop();
+        downloader.href = url;
+
         downloader.download = `dingjs-cropper-${++downloadCount}.png`;
         downloader.click();
-        toast('我就不假装上传了!');
       } catch (e) {
-        console.error(e);
         toast(
           '不支持HTML5,建议使用<a href="https://www.google.com/chrome/">「Chrome浏览器」浏览本页面!</a>'
         );
@@ -163,14 +160,20 @@ export default {
   },
   mounted() {
     const { width, height } = this.containerSize;
-    console.log(this.$refs);
+
     this.$_cropper = new Cropper(this.$refs.container, {
       preview: this.preview.map((v, i) => ({
         zoom: v,
         container: this.$refs[`preview-${v}`]
       })),
       width,
-      height
+      height,
+      onCropperResize: cropper => {
+        Object.assign(this.cropperSize, {
+          width: cropper.width,
+          height: cropper.height
+        });
+      }
     });
 
     this.setDefault();
