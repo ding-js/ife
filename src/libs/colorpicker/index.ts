@@ -25,6 +25,16 @@ interface CallbackColor {
   b: number;
   hex: string;
 }
+
+interface SetterColor {
+  h?: number;
+  s?: number;
+  l?: number;
+  r?: number;
+  g?: number;
+  b?: number;
+  hex?: string;
+}
 export default class ColorPicker {
   private _container: HTMLElement;
   private _options: ColorPickerOptions;
@@ -144,7 +154,12 @@ export default class ColorPicker {
     this.handleColorChange(color);
   }
 
-  set color(color: CallbackColor) {
+  public destroy(removeCanvas: boolean = true) {
+    this._block.destroy(removeCanvas);
+    this._bar.destroy(removeCanvas);
+  }
+
+  set color(color: SetterColor) {
     const rgb = ['r', 'g', 'b'];
     const hsl = ['h', 's', 'l'];
     let hsv;
@@ -164,13 +179,5 @@ export default class ColorPicker {
       s: hsv[1] / 100,
       v: hsv[2] / 100
     });
-  }
-
-  get block() {
-    return this._block;
-  }
-
-  get bar() {
-    return this._bar;
   }
 }

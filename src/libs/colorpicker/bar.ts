@@ -20,8 +20,8 @@ export class ColorBar {
   private _y: number;
   private _contentWidth: number;
   private _contentHeight: number;
-  private _id: number;
   private _color: Color;
+  private _id: number;
 
   private _options: ColorBarOptions;
 
@@ -166,8 +166,12 @@ export class ColorBar {
     this.renderSlider();
   }
 
-  public destroy() {
+  public destroy(remove: boolean) {
     unbind(this._id);
+
+    if (remove) {
+      this._canvas.parentNode.removeChild(this._canvas);
+    }
   }
 
   set color(color: Color) {
