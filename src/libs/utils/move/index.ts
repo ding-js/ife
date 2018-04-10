@@ -1,4 +1,10 @@
-type EventCb = (e: { x: number; y: number }) => void;
+interface E {
+  x: number;
+  y: number;
+  isStart: boolean;
+}
+
+type EventCb = (e: E) => void;
 
 interface Instance {
   move;
@@ -12,33 +18,50 @@ const eventsMap = new Map<number, Instance>();
 
 let uid = 0;
 
+const getCoordinateByEvent = (
+  element: HTMLElement,
+  e: MouseEvent | TouchEvent
+) => {
+  if ((e as TouchEvent).touches) {
+    const rect = element.getBoundingClientRect();
+    const touch = (e as TouchEvent).touches[0];
+
+    return {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top
+    };
+  } else {
+    return {
+      x: (e as MouseEvent).offsetX,
+      y: (e as MouseEvent).offsetY
+    };
+  }
+};
+
 export const bind = (element: HTMLElement, cb: EventCb) => {
   const instance = {
     move: (e: MouseEvent | TouchEvent) => {
-      const { target } = e;
-      if (element === target) {
-        const result: any = {};
-
-        if ((e as TouchEvent).touches) {
-          const rect = element.getBoundingClientRect();
-          const touch = (e as TouchEvent).touches[0];
-
-          Object.assign(result, {
-            x: touch.clientX - rect.left,
-            y: touch.clientY - rect.top
-          });
-        } else {
-          Object.assign(result, {
-            x: (e as MouseEvent).offsetX,
-            y: (e as MouseEvent).offsetY
-          });
-        }
-
-        cb(result);
+      if (e.target !== element) {
+        return;
       }
+
+      cb({
+        isStart: false,
+        ...getCoordinateByEvent(element, e)
+      });
     },
-    start: e => {
+    start: (e: MouseEvent | TouchEvent) => {
       e.preventDefault();
+
+      if (e.target !== element) {
+        return;
+      }
+
+      cb({
+        isStart: true,
+        ...getCoordinateByEvent(element, e)
+      });
+
       document.addEventListener('mousemove', instance.move);
       document.addEventListener('touchmove', instance.move);
     },

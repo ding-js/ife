@@ -154,13 +154,14 @@ export class Cropper {
     // 缩放
     canvas.addEventListener('mousewheel', this.handleMouseWheel);
 
-    // 判断点击区域
-    canvas.addEventListener('mousedown', this.handleMouseDown);
-
     this._id = bind(canvas, this.handleMove);
   }
 
-  private handleMove = (e: Coordinate) => {
+  private handleMove = e => {
+    if (e.isStart) {
+      this._startPoint = this.getPointByCoordinate(e.x, e.y);
+    }
+
     const type = this._types[this._startPoint.type];
 
     if (!type || !type.handler) {
@@ -168,15 +169,6 @@ export class Cropper {
     }
 
     type.handler(e);
-  };
-
-  private handleMouseDown = (e: MouseEvent) => {
-    if (e.which === 1) {
-      const x = e.offsetX,
-        y = e.offsetY;
-
-      this._startPoint = this.getPointByCoordinate(x, y);
-    }
   };
 
   private handleMouseWheel = (e: MouseWheelEvent) => {
@@ -577,6 +569,21 @@ export class Cropper {
 
       resolve(url);
     });
+  }
+
+  public destroy(removeCanvas: boolean = true) {
+    const remove = (el: HTMLElement) => el.parentNode.removeChild(el);
+    unbind(this._id);
+    window.removeEventListener('mousewheel', this.handleMouseWheel);
+
+    if (removeCanvas) {
+      remove(this._canvas);
+      if (this._previewList) {
+        this._previewList.forEach(v => {
+          remove(v.canvas);
+        });
+      }
+    }
   }
 
   set image(image: File | HTMLImageElement) {

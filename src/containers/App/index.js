@@ -2,6 +2,13 @@ import { debounce } from '@/libs/utils';
 import { getCachedMenuVisible, setCachedMenuVisible } from './storage';
 import './index.scss';
 
+const getWindowSize = () => {
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight
+  };
+};
+
 export default {
   name: 'App',
   data: () => ({
@@ -27,12 +34,12 @@ export default {
         name: 'Snake'
       }
     ],
-    menusVisible: window.innerWidth > 767 ? true : getCachedMenuVisible(),
-    style: {}
+    menusVisible: getCachedMenuVisible(),
+    window: getWindowSize()
   }),
   computed: {
     expanIcon() {
-      return this.menusVisible
+      return this.shouldMenuVisible
         ? `
           <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
           <path d="M0 0h24v24H0z" fill="none" />
@@ -41,6 +48,13 @@ export default {
           <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
           <path d="M0 0h24v24H0z" fill="none" />
         `;
+    },
+    shouldMenuVisible() {
+      if (this.window.width > 767) {
+        return true;
+      }
+
+      return this.menusVisible;
     }
   },
   render() {
@@ -52,13 +66,9 @@ export default {
           </h1>
           <ul
             class="menu-list"
-            style={
-              this.menusVisible
-                ? {}
-                : {
-                    display: 'none'
-                  }
-            }
+            style={{
+              display: this.shouldMenuVisible ? null : 'none'
+            }}
           >
             {this.menus.map(menu => (
               <router-link key={menu.name} to={{ name: menu.name }} tag="li">
@@ -89,8 +99,13 @@ export default {
           </div>
         </header>
         <div class="page-body">
-          <div class="content" style={this.style} ref="content">
-            <router-view />
+          <div
+            class="content"
+            style={{
+              minHeight: `${this.window.height - 24 - 80 - 24 - 24}px`
+            }}
+          >
+            <router-view window={this.window} />
           </div>
         </div>
       </div>
@@ -98,14 +113,8 @@ export default {
   },
   mounted() {
     this.$_resizedUpdateContentHeight = debounce(() => {
-      this.updateContentHeight();
-      // 避免小屏切换到大屏时菜单不显示
-      if (window.innerWidth > 767) {
-        this.menusVisible = true;
-      }
+      this.window = getWindowSize();
     }, 100);
-
-    this.updateContentHeight();
 
     window.addEventListener('resize', this.$_resizedUpdateContentHeight);
   },
@@ -113,15 +122,6 @@ export default {
     window.removeEventListener('resize', this.$_resizedUpdateContentHeight);
   },
   methods: {
-    updateContentHeight() {
-      const content = this.$refs.content;
-
-      if (content) {
-        this.style = {
-          minHeight: window.innerHeight - content.offsetTop - 24 + 'px'
-        };
-      }
-    },
     expandToggle() {
       this.menusVisible = !this.menusVisible;
     }
@@ -129,7 +129,6 @@ export default {
 
   watch: {
     menusVisible(visible) {
-      this.$nextTick(this.updateContentHeight);
       setCachedMenuVisible(visible);
     }
   }

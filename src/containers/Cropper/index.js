@@ -10,6 +10,22 @@ let downloadCount = 0;
 
 export default {
   name: 'Cropper',
+  props: {
+    window: {
+      required: true,
+      type: Object
+    }
+  },
+  data() {
+    return {
+      cropperSize: {
+        width: 200,
+        height: 200
+      },
+      pickText: '点击选择要裁剪的图片',
+      preview: [0.6, 0.9, 1.2]
+    };
+  },
   render(h) {
     return (
       <div class="cropper">
@@ -71,20 +87,29 @@ export default {
       </div>
     );
   },
-  data() {
-    return {
-      containerSize: {
-        width: 700,
-        height: 450
-      },
-      cropperSize: {
-        width: 200,
-        height: 200
-      },
-      pickText: '点击选择要裁剪的图片',
-      preview: [0.6, 0.9, 1.2]
-    };
+
+  computed: {
+    containerSize() {
+      const { width, height } = this.window;
+
+      console.log(width);
+
+      if (width > 767) {
+        return {
+          width: 700,
+          height: 450
+        };
+      }
+
+      const min = Math.min(width, height);
+
+      return {
+        width: min,
+        height: min
+      };
+    }
   },
+
   methods: {
     updateSize(e, key) {
       const { cropperSize, containerSize } = this;
@@ -148,6 +173,26 @@ export default {
         );
       }
     },
+    init() {
+      const { width, height } = this.containerSize;
+
+      this.$_cropper = new Cropper(this.$refs.container, {
+        preview: this.preview.map((v, i) => ({
+          zoom: v,
+          container: this.$refs[`preview-${v}`]
+        })),
+        width,
+        height,
+        onCropperResize: cropper => {
+          Object.assign(this.cropperSize, {
+            width: cropper.width,
+            height: cropper.height
+          });
+        }
+      });
+
+      this.setDefault();
+    },
     setDefault() {
       const image = new Image();
 
@@ -158,24 +203,24 @@ export default {
       };
     }
   },
+
+  watch: {
+    window: {
+      handler() {
+        if (this.$_cropper) {
+          this.$_cropper.destroy();
+          this.$_cropper = null;
+        }
+
+        this.init();
+      },
+      deep: true
+    }
+  },
   mounted() {
-    const { width, height } = this.containerSize;
-
-    this.$_cropper = new Cropper(this.$refs.container, {
-      preview: this.preview.map((v, i) => ({
-        zoom: v,
-        container: this.$refs[`preview-${v}`]
-      })),
-      width,
-      height,
-      onCropperResize: cropper => {
-        Object.assign(this.cropperSize, {
-          width: cropper.width,
-          height: cropper.height
-        });
-      }
-    });
-
-    this.setDefault();
+    this.init();
+  },
+  beforeDestroy() {
+    this.$_cropper.destroy();
   }
 };
