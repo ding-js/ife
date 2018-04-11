@@ -64,12 +64,7 @@ export default {
           <h1 class="logo">
             <router-link to="/">ding-js | ife</router-link>
           </h1>
-          <ul
-            class="menu-list"
-            style={{
-              display: this.shouldMenuVisible ? null : 'none'
-            }}
-          >
+          <ul class="menu-list" v-show={this.shouldMenuVisible}>
             {this.menus.map(menu => (
               <router-link key={menu.name} to={{ name: menu.name }} tag="li">
                 <a>{menu.label}</a>

@@ -92,8 +92,6 @@ export default {
     containerSize() {
       const { width, height } = this.window;
 
-      console.log(width);
-
       if (width > 767) {
         return {
           width: 700,
