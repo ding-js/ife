@@ -201,20 +201,6 @@ export default {
       };
     }
   },
-
-  watch: {
-    window: {
-      handler() {
-        if (this.$_cropper) {
-          this.$_cropper.destroy();
-          this.$_cropper = null;
-        }
-
-        this.init();
-      },
-      deep: true
-    }
-  },
   mounted() {
     this.init();
   },
