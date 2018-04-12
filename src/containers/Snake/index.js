@@ -246,6 +246,9 @@ export default {
       height: side
     });
   },
+  beforeDestroy() {
+    this.$_snake.destroy();
+  },
   watch: {
     speed(v) {
       const snake = this.$_snake;
