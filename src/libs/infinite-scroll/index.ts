@@ -95,7 +95,7 @@ export default class InfinitScroll<T> {
 
     const necessaryProps = ['contentElement', 'getDataset'];
 
-    for (let prop of necessaryProps) {
+    for (const prop of necessaryProps) {
       if (!options[prop]) {
         console.warn(`Option: ${prop} can not be empty`);
         return;
@@ -116,7 +116,10 @@ export default class InfinitScroll<T> {
   private shouldGetDataset() {
     const { scrollElement, threshold } = this.op;
 
-    const top = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight;
+    const top =
+      scrollElement.scrollHeight -
+      scrollElement.scrollTop -
+      scrollElement.clientHeight;
 
     return !this.loading && this.more && top < threshold;
   }
@@ -172,11 +175,17 @@ export default class InfinitScroll<T> {
    * @memberof InfinitScroll
    */
   public destroy() {
-    this.scrollEventSource.removeEventListener('scroll', this.debounceCheckdataset);
+    this.scrollEventSource.removeEventListener(
+      'scroll',
+      this.debounceCheckdataset
+    );
   }
 
   private init() {
-    this.scrollEventSource.addEventListener('scroll', this.debounceCheckdataset);
+    this.scrollEventSource.addEventListener(
+      'scroll',
+      this.debounceCheckdataset
+    );
 
     this.checkDataset();
 

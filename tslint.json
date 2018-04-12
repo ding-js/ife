@@ -18,6 +18,7 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "no-console": [true, "log", "error"],
-    "object-literal-key-quotes": [true, "as-needed"]
+    "object-literal-key-quotes": [true, "as-needed"],
+    "array-type": false
   }
 }

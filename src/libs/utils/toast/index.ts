@@ -1,10 +1,10 @@
 import './index.scss';
 
-interface IToastOptions {
+interface Options {
   delay: number;
 }
 
-export default function toast(options: IToastOptions) {
+export default function toast(options: Options) {
   const list: Toast[] = [],
     width = window.innerWidth,
     height = window.innerHeight;
@@ -21,7 +21,10 @@ export default function toast(options: IToastOptions) {
 
     // 当前栏高度无法容下元素时切换到另一栏
     if (prevBottomHeight + currentEl.offsetHeight > height) {
-      current.setPosition(defaultTop, prev.right + prevEl.offsetWidth + marginRight);
+      current.setPosition(
+        defaultTop,
+        prev.right + prevEl.offsetWidth + marginRight
+      );
     } else {
       current.setPosition(prevBottomHeight, prev.right);
     }
@@ -76,12 +79,11 @@ class Toast {
     document.body.appendChild(el);
 
     this._el = el;
-
   }
 
   public show = () => {
     this._el.classList.add('show');
-  }
+  };
 
   public hide = () => {
     this._el.classList.remove('show');
@@ -93,7 +95,7 @@ class Toast {
     setTimeout(() => {
       document.body.removeChild(this._el);
     }, 300);
-  }
+  };
 
   public setPosition(top: number, right: number) {
     const el = this.el;

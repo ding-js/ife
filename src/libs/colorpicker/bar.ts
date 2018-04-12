@@ -10,7 +10,7 @@ export interface ColorBarOptions {
   height: number;
   lineWidth?: number;
   padding?: number;
-  onColorChange?({ h: number }): void;
+  onColorChange?(color: Color): void;
 }
 
 export class ColorBar {

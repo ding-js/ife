@@ -3,6 +3,7 @@
     "moduleResolution": "node",
     "target": "esnext",
     "baseUrl": ".",
+    "pretty": true,
     "paths": {
       "@/*": ["src/*"]
     },
