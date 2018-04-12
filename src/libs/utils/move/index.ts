@@ -1,10 +1,15 @@
+type EventCb = (e: E) => void;
+
 interface E {
   x: number;
   y: number;
-  isStart: boolean;
 }
 
-type EventCb = (e: E) => void;
+interface Options {
+  onStart?: EventCb;
+  onMove?: EventCb;
+  onEnd?: EventCb;
+}
 
 interface Instance {
   move;
@@ -38,17 +43,34 @@ const getCoordinateByEvent = (
   }
 };
 
-export const bind = (element: HTMLElement, cb: EventCb) => {
+export const bind = (element: HTMLElement, cb: EventCb | Options) => {
+  const cbs: Options = {} as Options;
+
+  switch (typeof cb) {
+    case 'function':
+      cbs.onMove = cb as EventCb;
+      break;
+    case 'object':
+      Object.assign(cbs, cb);
+      break;
+    default:
+      break;
+  }
+
   const instance = {
+    last: null,
     move: (e: MouseEvent | TouchEvent) => {
       if (e.target !== element) {
         return;
       }
 
-      cb({
-        isStart: false,
-        ...getCoordinateByEvent(element, e)
-      });
+      const coordinate = getCoordinateByEvent(element, e);
+
+      instance.last = coordinate;
+
+      if (cbs.onMove) {
+        cbs.onMove(coordinate);
+      }
     },
     start: (e: MouseEvent | TouchEvent) => {
       e.preventDefault();
@@ -57,15 +79,18 @@ export const bind = (element: HTMLElement, cb: EventCb) => {
         return;
       }
 
-      cb({
-        isStart: true,
-        ...getCoordinateByEvent(element, e)
-      });
+      if (cbs.onStart) {
+        cbs.onStart(getCoordinateByEvent(element, e));
+      }
 
       document.addEventListener('mousemove', instance.move);
       document.addEventListener('touchmove', instance.move);
     },
     end: () => {
+      if (cbs.onEnd) {
+        cbs.onEnd(instance.last);
+      }
+
       document.removeEventListener('mousemove', instance.move);
       document.removeEventListener('touchmove', instance.move);
     },

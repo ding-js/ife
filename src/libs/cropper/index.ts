@@ -154,14 +154,17 @@ export class Cropper {
     // 缩放
     canvas.addEventListener('mousewheel', this.handleMouseWheel);
 
-    this._id = bind(canvas, this.handleMove);
+    this._id = bind(canvas, {
+      onStart: this.handleStart,
+      onMove: this.handleMove
+    });
   }
 
-  private handleMove = e => {
-    if (e.isStart) {
-      this._startPoint = this.getPointByCoordinate(e.x, e.y);
-    }
+  private handleStart = e => {
+    this._startPoint = this.getPointByCoordinate(e.x, e.y);
+  };
 
+  private handleMove = e => {
     const type = this._types[this._startPoint.type];
 
     if (!type || !type.handler) {

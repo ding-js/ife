@@ -6,6 +6,7 @@
 }
 
 .snake {
+  text-align: center;
   .message__wrapper {
     position: absolute;
     left: 0;
@@ -15,9 +16,7 @@
   }
   &__container {
     position: relative;
-    margin: 0 auto;
-    width: 600px;
-    height: 600px;
+    display: inline-block;
   }
   &__mode-wrapper {
     @include center;

@@ -1,5 +1,6 @@
 import Tween from '../utils/tween';
 import { generateCanvas } from '../utils/canvas';
+import { bind, unbind } from '../utils/move';
 
 enum BoxTypes {
   empty,
@@ -25,23 +26,26 @@ enum GameStatus {
   disabled
 }
 
-type StringMap = { [key: string]: string };
-
-interface IDirection {
+interface Coordinate {
   x: number;
   y: number;
+}
+
+interface DirectionConfig extends Coordinate {
   keyCode: number[];
   opposite: number;
 }
 
-interface ISnakeOptions {
+interface Reason {
+  code: number;
+  message: string;
+}
+
+interface Options {
   width?: number;
   height?: number;
   sideLength?: number;
-  origin?: {
-    x: number;
-    y: number;
-  }[];
+  origin?: Coordinate[];
 
   /**
    *
@@ -52,19 +56,13 @@ interface ISnakeOptions {
    * @returns {Boolean} 是否继续行动，一般用于判定满足足够的分数后进入下一关
    * @memberof ISnakeOptions
    */
-  scoreCallback?(scroe: number, speed: number, ref: Snake): Boolean;
-  endCallback?(
-    reason: {
-      code: number;
-      message: string;
-    },
-    ref: Snake
-  ): void;
+  scoreCallback?(scroe: number, speed: number, ref: Snake): boolean;
+  endCallback?(reason: Reason, ref: Snake): void;
   pauseCallback?(ref: Snake): void;
   continueCallback?(ref: Snake): void;
 }
 
-interface IContent {
+interface Content {
   x: number;
   y: number;
   width: number;
@@ -73,7 +71,7 @@ interface IContent {
   colums: number;
 }
 
-interface Ibox {
+interface Box {
   x: number;
   y: number;
   xIndex: number;
@@ -83,7 +81,7 @@ interface Ibox {
   animateY?: number;
 }
 
-interface IBoxType {
+interface BoxType {
   background?: string;
   render?(
     ctx: CanvasRenderingContext2D,
@@ -94,23 +92,24 @@ interface IBoxType {
 }
 
 export class Snake {
-  static EndReasons: StringMap = {
-    '1001': '红烧蛇肉',
-    '1002': '撞墙啦',
-    '1003': '撞边界啦'
+  public static EndReasons = {
+    1001: '红烧蛇肉',
+    1002: '撞墙啦',
+    1003: '撞边界啦'
   };
-  private _options: ISnakeOptions;
+  private _options: Options;
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
-  private _content: IContent;
-  private _boxes: Ibox[][] = [];
-  private _snake: Ibox[];
-  private _food: Ibox[];
-  private _wall: Ibox[];
+  private _content: Content;
+  private _boxes: Box[][] = [];
+  private _snake: Box[];
+  private _food: Box[];
+  private _wall: Box[];
   private _snakeDirection: Direction;
   private _keys: Direction[];
   private _status: GameStatus;
   private _speed: number = 1;
+  private _startCoordinate: Coordinate;
   private _animation: {
     id: number;
     cb(time: number): void;
@@ -118,7 +117,7 @@ export class Snake {
   };
 
   private _boxTypes: {
-    [key: number]: IBoxType;
+    [key: number]: BoxType;
   } = {
     [BoxTypes.empty]: {},
     [BoxTypes.wall]: {
@@ -183,7 +182,7 @@ export class Snake {
   };
 
   private _direction: {
-    [key: number]: IDirection;
+    [key: number]: DirectionConfig;
   } = {
     [Direction.left]: {
       x: -1,
@@ -211,11 +210,10 @@ export class Snake {
     }
   };
 
-  constructor(
-    container: HTMLElement | HTMLCanvasElement,
-    options?: ISnakeOptions
-  ) {
-    const _options: ISnakeOptions = {
+  private _id: number;
+
+  constructor(container: HTMLElement | HTMLCanvasElement, options?: Options) {
+    const _options: Options = {
       sideLength: 18
     };
 
@@ -245,8 +243,8 @@ export class Snake {
     this._content = {
       x: pdH,
       y: pdV,
-      width: width,
-      height: height,
+      width,
+      height,
       rows: width / side,
       colums: height / side
     };
@@ -269,7 +267,7 @@ export class Snake {
 
     // 初始化地图格
     for (let x = 0; x < content.colums; x++) {
-      const colum: Ibox[] = [];
+      const colum: Box[] = [];
       for (let y = 0; y < content.rows; y++) {
         colum.push({
           x: content.x + x * side,
@@ -288,7 +286,41 @@ export class Snake {
 
     this._status = GameStatus.disabled;
 
-    document.addEventListener('keydown', this.handleKeyboard);
+    this._id = bind(canvas, {
+      onStart: e => {
+        this._startCoordinate = e;
+      },
+      onEnd: e => {
+        if (!this._startCoordinate) {
+          return;
+        }
+
+        const pi = Math.PI;
+        const x = { x: this._startCoordinate.x, y: -this._startCoordinate.y };
+        const y = { x: e.x, y: -e.y };
+
+        const k = Math.acos(
+          (y.x - x.x) /
+            Math.sqrt(Math.pow(y.x - x.x, 2) + Math.pow(y.y - x.y, 2))
+        );
+
+        let dir = Direction.right;
+
+        if (k > 0.25 * pi && k < 0.75 * pi) {
+          dir = Direction.up;
+        } else if (k > 0.75 * pi) {
+          dir = Direction.left;
+        }
+
+        if (y.y - x.y < 0 && dir === Direction.up) {
+          dir = Direction.down;
+        }
+
+        this.pushDirection(dir);
+      }
+    });
+
+    window.addEventListener('keydown', this.handleKeyboard);
   }
 
   private handleKeyboard = e => {
@@ -314,20 +346,26 @@ export class Snake {
         break;
     }
 
-    for (let i in direction) {
+    for (const i in direction) {
       if (direction[i].keyCode.indexOf(code) > -1) {
         e.preventDefault();
-        if (status === GameStatus.runing) {
-          this._keys.push(+i);
-        } else if (status === GameStatus.beforeStart) {
-          this._keys.push(+i);
-          this.start();
-        }
+        this.pushDirection(+i);
       }
     }
   };
 
-  private getBox(x: number, y: number): Ibox {
+  private pushDirection(key: Direction) {
+    const status = this._status;
+
+    if (status === GameStatus.runing) {
+      this._keys.push(key);
+    } else if (status === GameStatus.beforeStart) {
+      this._keys.push(key);
+      this.start();
+    }
+  }
+
+  private getBox(x: number, y: number): Box {
     const boxes = this._boxes;
     const colum = boxes[x];
 
@@ -369,7 +407,7 @@ export class Snake {
     ctx.restore();
   }
 
-  private drawBox(box: Ibox) {
+  private drawBox(box: Box) {
     const types = this._boxTypes,
       ctx = this._ctx,
       side = this._options.sideLength;
@@ -454,13 +492,13 @@ export class Snake {
 
   private updateAnimation(tweens: Tween[], cb) {
     this._animation = {
-      cb: cb,
+      cb,
       id: requestAnimationFrame(cb),
-      tweens: tweens
+      tweens
     };
   }
 
-  private createTween(now: Ibox, next: Ibox, timeout: number): Tween {
+  private createTween(now: Box, next: Box, timeout: number): Tween {
     const t = new Tween({
       x: now.x,
       y: now.y,
@@ -612,51 +650,10 @@ export class Snake {
     snake[snake.length - 1].type = BoxTypes.footer;
   }
 
-  public reset() {
-    this._status = GameStatus.beforeStart;
-
-    this._food = [];
-
-    this._wall = [];
-
-    this._keys = [];
-
-    this._snakeDirection = Direction.right;
-
-    this._boxes.forEach(column => {
-      column.forEach(box => {
-        box.type = BoxTypes.empty;
-      });
-    });
-
-    this._snake = this._options.origin.map(cords =>
-      this.getBox(cords.x, cords.y)
-    );
-
-    this.updateSnake();
-
-    this.createFood();
-  }
-
-  public start() {
-    this._status = GameStatus.runing;
-
-    this.draw();
-
-    this.next();
-  }
-
   private pauseGame(cb) {
     if (this._status === GameStatus.runing) {
       if (this._animation) {
         cancelAnimationFrame(this._animation.id);
-
-        // this._animation.tweens.forEach((t) => {
-        //   if (!t.complete) {
-        //     // t.spend = new Date().getTime() - t.startTime;
-        //     // t.tween.stop();
-        //   }
-        // });
 
         cb();
       } else {
@@ -705,19 +702,6 @@ export class Snake {
     }
   }
 
-  public endGame(reasonCode: string) {
-    if (this._options.endCallback) {
-      this._options.endCallback(
-        {
-          code: Number(reasonCode),
-          message: Snake.EndReasons[reasonCode]
-        },
-        this
-      );
-    }
-    this._status = GameStatus.end;
-  }
-
   private createFood() {
     const content = this._content,
       x = Math.floor(Math.random() * content.colums),
@@ -732,6 +716,53 @@ export class Snake {
 
     this._food.push(box);
     return box;
+  }
+
+  public reset() {
+    this._status = GameStatus.beforeStart;
+
+    this._food = [];
+
+    this._wall = [];
+
+    this._keys = [];
+
+    this._snakeDirection = Direction.right;
+
+    this._boxes.forEach(column => {
+      column.forEach(box => {
+        box.type = BoxTypes.empty;
+      });
+    });
+
+    this._snake = this._options.origin.map(cords =>
+      this.getBox(cords.x, cords.y)
+    );
+
+    this.updateSnake();
+
+    this.createFood();
+  }
+
+  public start() {
+    this._status = GameStatus.runing;
+
+    this.draw();
+
+    this.next();
+  }
+
+  public endGame(reasonCode: string) {
+    if (this._options.endCallback) {
+      this._options.endCallback(
+        {
+          code: Number(reasonCode),
+          message: Snake.EndReasons[reasonCode]
+        },
+        this
+      );
+    }
+    this._status = GameStatus.end;
   }
 
   public nextLevel(msg: string) {
@@ -769,6 +800,11 @@ export class Snake {
   public prepareStart() {
     this.reset();
     this.draw();
+  }
+
+  public destroy() {
+    unbind(this._id);
+    window.removeEventListener('keydown', this.handleKeyboard);
   }
 
   set speed(speed: number) {
