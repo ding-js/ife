@@ -35,7 +35,8 @@ export default {
       }
     ],
     menusVisible: getCachedMenuVisible(),
-    window: getWindowSize()
+    window: getWindowSize(),
+    contentOffsetTop: 0
   }),
   computed: {
     expanIcon() {
@@ -96,8 +97,9 @@ export default {
         <div class="page-body">
           <div
             class="content"
+            ref="content"
             style={{
-              minHeight: `${this.window.height - 24 - 80 - 24 - 24}px`
+              minHeight: `${this.window.height - this.contentOffsetTop - 24}px`
             }}
           >
             <router-view window={this.window} />
@@ -107,24 +109,39 @@ export default {
     );
   },
   mounted() {
-    this.$_resizedUpdateContentHeight = debounce(() => {
+    this.$_handleResize = debounce(() => {
       this.window = getWindowSize();
+      this.updateContentOffsetHeight();
     }, 100);
 
-    window.addEventListener('resize', this.$_resizedUpdateContentHeight);
+    this.updateContentOffsetHeight();
+
+    window.addEventListener('resize', this.$_handleResize);
   },
   beforeDestroy() {
-    window.removeEventListener('resize', this.$_resizedUpdateContentHeight);
+    window.removeEventListener('resize', this.$_handleResize);
   },
   methods: {
     expandToggle() {
       this.menusVisible = !this.menusVisible;
+    },
+    updateContentOffsetHeight() {
+      const content = this.$refs.content;
+
+      if (!content) {
+        return;
+      }
+      this.contentOffsetTop = content.offsetTop;
     }
   },
 
   watch: {
     menusVisible(visible) {
       setCachedMenuVisible(visible);
+
+      this.$nextTick(() => {
+        this.updateContentOffsetHeight();
+      });
     }
   }
 };

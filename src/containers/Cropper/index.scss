@@ -20,7 +20,6 @@
   &__container,
   &__preview {
     display: inline-block;
-    border: 1px solid #eee;
   }
 
   canvas {
@@ -29,6 +28,7 @@
 
   &__preview {
     margin: 0 8px;
+    border: 1px solid #eee;
   }
 
   .form-group + .form-group {
