@@ -135,7 +135,7 @@ export default {
 
       // 判断文件类型
       if (file.type.match(/^image\/.+/)) {
-        this.$_cropper.setImage(file);
+        this.$_cropper.image = file;
         this.pickText = file.name;
       } else {
         toast('请选择正确的图片');
