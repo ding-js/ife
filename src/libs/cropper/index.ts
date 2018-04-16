@@ -6,7 +6,7 @@ interface Options {
   preview?: PreviewConfig | PreviewConfig[];
   width?: number;
   height?: number;
-  onCropperResize(cropper: Square): void;
+  onCropperChange(cropper: Square): void;
 }
 
 interface Coordinate {
@@ -132,12 +132,15 @@ export class Cropper {
     this._cropperCanvas = document.createElement('canvas');
     this._cropperCtx = this._cropperCanvas.getContext('2d');
 
-    this.cropper = {
-      width: cW,
-      height: cH,
-      x: (op.width - cW) / 2,
-      y: (op.height - cH) / 2
-    };
+    this.cropper = Object.assign(
+      {
+        width: cW,
+        height: cH,
+        x: (op.width - cW) / 2,
+        y: (op.height - cH) / 2
+      },
+      this._cropper
+    );
 
     if (op.preview) {
       this._previewList = (Array.isArray(op.preview)
@@ -620,19 +623,28 @@ export class Cropper {
 
   set cropper(cropper: SquareConfig) {
     if (!this._cropper) {
-      this._cropper = cropper as Square;
-    } else {
-      Object.assign(this._cropper, cropper);
+      this._cropper = {} as Square;
     }
 
-    Object.keys(this._cropper).forEach(k => {
-      this._cropper[k] = Math.round(this._cropper[k]);
+    let change = false;
+
+    Object.keys(cropper).forEach(k => {
+      const v = Math.round(cropper[k]);
+
+      if (this._cropper[k] !== v) {
+        this._cropper[k] = v;
+        change = true;
+      }
     });
+
+    if (!change) {
+      return;
+    }
 
     this.updatePoint();
 
-    if (this._options.onCropperResize) {
-      this._options.onCropperResize(this._cropper);
+    if (this._options.onCropperChange) {
+      this._options.onCropperChange(this._cropper);
     }
 
     this.draw();

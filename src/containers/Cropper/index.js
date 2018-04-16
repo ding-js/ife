@@ -18,9 +18,11 @@ export default {
   },
   data() {
     return {
-      cropperSize: {
+      cropperOptions: {
         width: 200,
-        height: 200
+        height: 200,
+        x: 0,
+        y: 0
       },
       pickText: '点击选择要裁剪的图片',
       preview: [0.6, 0.9, 1.2]
@@ -38,7 +40,7 @@ export default {
                 min="0"
                 max={this.containerSize.width}
                 name="width"
-                value={this.cropperSize.width}
+                value={this.cropperOptions.width}
                 onInput={e => {
                   this.updateSize(e, 'width');
                 }}
@@ -49,7 +51,7 @@ export default {
                 min="0"
                 max={this.containerSize.height}
                 name="height"
-                value={this.cropperSize.height}
+                value={this.cropperOptions.height}
                 onInput={e => {
                   this.updateSize(e, 'height');
                 }}
@@ -110,7 +112,7 @@ export default {
 
   methods: {
     updateSize(e, key) {
-      const { cropperSize, containerSize } = this;
+      const { cropperOptions, containerSize } = this;
       const val = Number(e.target.value);
       let result = val;
 
@@ -122,7 +124,7 @@ export default {
         result = containerSize[key];
       }
 
-      cropperSize[key] = result;
+      cropperOptions[key] = result;
     },
     uploadImg(e) {
       const el = e.target;
@@ -146,7 +148,7 @@ export default {
         return;
       }
 
-      const { width, height } = this.cropperSize;
+      const { width, height } = this.cropperOptions;
 
       const invaid = [width, height].some(v => {
         return [v => !!v, v => v > 0].some(f => !f(v));
@@ -181,11 +183,8 @@ export default {
         })),
         width,
         height,
-        onCropperResize: cropper => {
-          Object.assign(this.cropperSize, {
-            width: cropper.width,
-            height: cropper.height
-          });
+        onCropperChange: cropper => {
+          Object.assign(this.cropperOptions, cropper);
         }
       });
 
