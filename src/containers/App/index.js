@@ -2,6 +2,7 @@ import { debounce } from '@/libs/utils';
 import { getCachedMenuVisible, setCachedMenuVisible } from './storage';
 import './index.scss';
 
+// 获取视窗宽高
 const getWindowSize = () => {
   return {
     width: window.innerWidth,
@@ -36,20 +37,9 @@ export default {
     ],
     menusVisible: getCachedMenuVisible(),
     window: getWindowSize(),
-    contentOffsetTop: 0
+    contentOffsetTop: 0 // 内容区域离页面顶部的距离，用于计算内容区域的最小高度
   }),
   computed: {
-    expanIcon() {
-      return this.shouldMenuVisible
-        ? `
-          <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
-          <path d="M0 0h24v24H0z" fill="none" />
-        `
-        : `
-          <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
-          <path d="M0 0h24v24H0z" fill="none" />
-        `;
-    },
     shouldMenuVisible() {
       if (this.window.width > 767) {
         return true;
@@ -60,12 +50,12 @@ export default {
   },
   render() {
     return (
-      <div id="app">
-        <header class="page-header">
-          <h1 class="logo">
+      <div id="app" class="app">
+        <header class="app__header">
+          <h1 class="app__logo">
             <router-link to="/">ding-js | ife</router-link>
           </h1>
-          <ul class="menu-list" v-show={this.shouldMenuVisible}>
+          <nav class="app__nav" v-show={this.shouldMenuVisible}>
             {this.menus.map(menu => (
               <router-link key={menu.name} to={{ name: menu.name }} tag="li">
                 <a>{menu.label}</a>
@@ -81,20 +71,26 @@ export default {
                 查看源码
               </a>
             </li>
-          </ul>
-          <div class="menu-btn-wrapper">
+          </nav>
+          <div>
             <svg
               onClick={this.expandToggle}
               fill="#666"
               height="36"
-              viewBox="0 0 24 24"
               width="36"
+              viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
-              domPropsInnerHTML={this.expanIcon}
-            />
+              class={{
+                'app__nav-btn': true,
+                'app__nav-btn--expand': this.shouldMenuVisible
+              }}
+            >
+              <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" />
+              <path d="M0-.75h24v24H0z" fill="none" />
+            </svg>
           </div>
         </header>
-        <div class="page-body">
+        <div class="app__body">
           <div
             class="content"
             ref="content"
@@ -131,6 +127,7 @@ export default {
       if (!content) {
         return;
       }
+
       this.contentOffsetTop = content.offsetTop;
     }
   },
