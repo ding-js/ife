@@ -40,8 +40,11 @@ export default {
     contentOffsetTop: 0 // 内容区域离页面顶部的距离，用于计算内容区域的最小高度
   }),
   computed: {
+    isMobile() {
+      return this.window.width < 768;
+    },
     shouldMenuVisible() {
-      if (this.window.width > 767) {
+      if (!this.isMobile) {
         return true;
       }
 
@@ -72,23 +75,25 @@ export default {
               </a>
             </li>
           </nav>
-          <div>
-            <svg
-              onClick={this.expandToggle}
-              fill="#666"
-              height="36"
-              width="36"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              class={{
-                'app__nav-btn': true,
-                'app__nav-btn--expand': this.shouldMenuVisible
-              }}
-            >
-              <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" />
-              <path d="M0-.75h24v24H0z" fill="none" />
-            </svg>
-          </div>
+          {this.isMobile ? (
+            <div>
+              <svg
+                onClick={this.expandToggle}
+                fill="#666"
+                height="36"
+                width="36"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                class={{
+                  'app__nav-btn': true,
+                  'app__nav-btn--expand': this.shouldMenuVisible
+                }}
+              >
+                <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" />
+                <path d="M0-.75h24v24H0z" fill="none" />
+              </svg>
+            </div>
+          ) : null}
         </header>
         <div class="app__body">
           <div
