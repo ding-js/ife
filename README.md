@@ -6,11 +6,11 @@
 
 ### 目前包含以下模块
 
-1.  [颜色选择器](https://ding-js.github.io/ife/public/dist/colorpicker.html)
-2.  [无限滚动](https://ding-js.github.io/ife/public/dist/infinite-scroll.html)
-3.  [模拟时钟](https://ding-js.github.io/ife/public/dist/clock.html)
-4.  [图片裁剪](https://ding-js.github.io/ife/public/dist/cropper.html)
-5.  [贪食蛇](https://ding-js.github.io/ife/public/dist/snake.html)
+1.  [颜色选择器 - Color Picker](https://ding-js.github.io/ife/public/dist/colorpicker.html)
+2.  [无限滚动 - Infinite Scroll](https://ding-js.github.io/ife/public/dist/infinite-scroll.html)
+3.  [模拟时钟 - Clock](https://ding-js.github.io/ife/public/dist/clock.html)
+4.  [图片裁剪 - Cropper](https://ding-js.github.io/ife/public/dist/cropper.html)
+5.  [贪食蛇 - Snake](https://ding-js.github.io/ife/public/dist/snake.html)
 
 ### 目录说明
 
