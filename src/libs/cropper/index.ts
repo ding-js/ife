@@ -6,7 +6,7 @@ interface Options {
   preview?: PreviewConfig | PreviewConfig[];
   width?: number;
   height?: number;
-  onCropperChange(cropper: Square): void;
+  onCropperChange?(cropper: Square): void;
 }
 
 interface Coordinate {
@@ -59,7 +59,7 @@ enum Types {
   background
 }
 
-export class Cropper {
+export default class Cropper {
   public static Messages = {
     1001: '没有图片'
   };
@@ -132,15 +132,12 @@ export class Cropper {
     this._cropperCanvas = document.createElement('canvas');
     this._cropperCtx = this._cropperCanvas.getContext('2d');
 
-    this.cropper = Object.assign(
-      {
-        width: cW,
-        height: cH,
-        x: (op.width - cW) / 2,
-        y: (op.height - cH) / 2
-      },
-      this._cropper
-    );
+    this.cropper = {
+      width: cW,
+      height: cH,
+      x: (op.width - cW) / 2,
+      y: (op.height - cH) / 2
+    };
 
     if (op.preview) {
       this._previewList = (Array.isArray(op.preview)
@@ -226,6 +223,7 @@ export class Cropper {
 
     // 设置偏移(点击坐标与定点坐标)
     if (
+      point &&
       x > point.x &&
       x < point.x + point.width &&
       y > point.y &&
@@ -233,6 +231,7 @@ export class Cropper {
     ) {
       t.type = Types.pointRD;
     } else if (
+      cropper &&
       x > cropper.x &&
       x < cropper.x + cropper.width &&
       y > cropper.y &&
@@ -242,6 +241,7 @@ export class Cropper {
       t.offsetY = y - cropper.y;
       t.type = Types.cropper;
     } else if (
+      image &&
       x > image.x &&
       x < image.x + image.width &&
       y > image.y &&
@@ -362,31 +362,29 @@ export class Cropper {
   private fillImage() {
     const ctx = this._ctx,
       image = this._image;
+
     if (image) {
       ctx.drawImage(image.element, image.x, image.y, image.width, image.height);
     }
   }
 
   private fillCropper() {
-    const image = this._image;
-    if (image.element) {
-      const ctx = this._ctx,
-        cropper = this._cropper;
+    const ctx = this._ctx,
+      cropper = this._cropper;
 
-      ctx.save();
+    ctx.save();
 
-      ctx.strokeStyle = '#39f';
-      // ctx.lineWidth = this._lineWidth;
+    ctx.strokeStyle = '#39f';
 
-      ctx.strokeRect(cropper.x, cropper.y, cropper.width, cropper.height);
+    ctx.strokeRect(cropper.x, cropper.y, cropper.width, cropper.height);
 
-      ctx.fillStyle = '#39f';
-      const point = this._point;
+    ctx.fillStyle = '#39f';
 
-      ctx.fillRect(point.x, point.y, point.width, point.height);
+    const point = this._point;
 
-      ctx.restore();
-    }
+    ctx.fillRect(point.x, point.y, point.width, point.height);
+
+    ctx.restore();
   }
 
   private getCropperData() {
@@ -443,10 +441,6 @@ export class Cropper {
   }
 
   private draw() {
-    if (!this._image) {
-      return;
-    }
-
     const { width, height } = this._options;
 
     // 避免预览到背景
@@ -506,7 +500,7 @@ export class Cropper {
   }
 
   private preview() {
-    if (!this._previewList) {
+    if (!this._previewList || !this._image) {
       return;
     }
 

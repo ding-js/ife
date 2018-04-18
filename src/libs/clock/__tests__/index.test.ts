@@ -10,13 +10,11 @@ describe('Clock lifecycle', () => {
 
     const clock = new Clock(container);
 
-    const canvas = document.querySelector('canvas');
-
-    expect(canvas.parentNode).toBe(container);
+    expect(container.querySelector('canvas')).not.toBeNull();
 
     clock.destroy();
 
-    expect(canvas.parentNode).toBeNull();
+    expect(container.querySelector('canvas')).toBeNull();
   });
 });
 

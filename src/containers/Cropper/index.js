@@ -1,4 +1,4 @@
-import { Cropper } from '@/libs/cropper';
+import Cropper from '@/libs/cropper';
 import { toast } from '@/libs/utils';
 import * as defaultImage from './assets/default.jpg';
 

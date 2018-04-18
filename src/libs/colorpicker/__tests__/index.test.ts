@@ -11,19 +11,11 @@ describe('Color Picker lifecycle', () => {
 
     const picker = new ColorPicker(container);
 
-    const canvas = container.querySelectorAll('canvas');
-
-    expect(canvas.length).toBe(2);
-
-    const block = canvas[0];
-    const bar = canvas[1];
-
-    expect(block.parentNode).toBe(container);
-    expect(block.parentNode).toBe(container);
+    expect(container.querySelectorAll('canvas').length).toBe(2);
 
     picker.destroy();
-    expect(bar.parentNode).not.toBe(container);
-    expect(bar.parentNode).not.toBe(container);
+
+    expect(container.querySelectorAll('canvas').length).toBe(0);
   });
 });
 
