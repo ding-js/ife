@@ -1,5 +1,5 @@
 import ColorPicker from '../';
-import { Buffer } from 'buffer';
+// import { Buffer } from 'buffer';
 
 beforeAll(() => {
   document.body.innerHTML = '<div id="t1" /><div id="t2" />';
