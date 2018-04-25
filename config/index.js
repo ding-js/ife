@@ -8,9 +8,9 @@ module.exports = {
   build: {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/index.html'),
-    assetsRoot: path.resolve(__dirname, '../public/dist'),
+    assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: './',
-    assetsPublicPath: '/ife/public/dist/',
+    assetsPublicPath: '/ife/dist/',
     // assetsPublicPath: '/dist/',
     productionSourceMap: false,
     // Gzip off by default as many popular static hosts such as

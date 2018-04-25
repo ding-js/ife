@@ -6,11 +6,11 @@
 
 ### 目前包含以下模块
 
-1.  [颜色选择器 - Color Picker](https://ding-js.github.io/ife/public/dist/colorpicker.html)
-2.  [无限滚动 - Infinite Scroll](https://ding-js.github.io/ife/public/dist/infinite-scroll.html)
-3.  [模拟时钟 - Clock](https://ding-js.github.io/ife/public/dist/clock.html)
-4.  [图片裁剪 - Cropper](https://ding-js.github.io/ife/public/dist/cropper.html)
-5.  [贪食蛇 - Snake](https://ding-js.github.io/ife/public/dist/snake.html)
+1.  [颜色选择器 - Color Picker](https://ding-js.github.io/ife/dist/index.html/#/color-picker)
+2.  [无限滚动 - Infinite Scroll](https://ding-js.github.io/ife/dist/index.html/#/infinite-scroll)
+3.  [模拟时钟 - Clock](https://ding-js.github.io/ife/dist/index.html/#/clock)
+4.  [图片裁剪 - Cropper](https://ding-js.github.io/ife/dist/index.html/#/cropper)
+5.  [贪食蛇 - Snake](https://ding-js.github.io/ife/dist/index.html/#/snake)
 
 ### 目录说明
 
@@ -27,7 +27,3 @@
 ### 2.x
 
 由于工作原因变更技术栈，正好给项目做了一次升级，将原来的业务代码 `pug` , `jquery` 升级成 `vue`。原先核心功能模块仍由 `JavaScript`/`TypeScript` 实现
-
-### 单页引用为何有多个 html ？
-
-在 ife 上上传的链接还是 1.0 版本的，后续也无法修改，为了保证链接不会 404，做了一些兼容

@@ -1,4 +1,4 @@
-import ColorPicker from '@/libs/colorpicker';
+import ColorPicker from '@/libs/color-picker';
 
 import './index.scss';
 

@@ -47,33 +47,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: to => {
-        // 兼容来自 http://ife.baidu.com
-        const path = location.pathname;
-
-        if (/\.html$/.test(path)) {
-          const htmlMatch = path.match(/([^/]+)\.html$/);
-          const htmlName = htmlMatch && htmlMatch[1];
-
-          const routeMap = {
-            colorpicker: 'ColorPicker',
-            clock: 'Clock',
-            cropper: 'Cropper',
-            'infinite-scroll': 'InfiniteScroll',
-            snake: 'Snake'
-          };
-
-          if (htmlName && routeMap[htmlName]) {
-            return {
-              name: routeMap[htmlName]
-            };
-          }
-        }
-
-        return {
-          name: 'Clock'
-        };
-      }
+      component: Clock
     },
     ...components.map(v => ({
       path: '/' + transformCase(v.name),
