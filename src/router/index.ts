@@ -47,7 +47,9 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: Clock
+      redirect: {
+        name: 'Clock'
+      }
     },
     ...components.map(v => ({
       path: '/' + transformCase(v.name),
