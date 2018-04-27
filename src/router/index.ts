@@ -43,7 +43,7 @@ export const components = [
 ];
 
 export default new Router({
-  // mode: 'history',
+  mode: 'hash',
   routes: [
     {
       path: '/',
