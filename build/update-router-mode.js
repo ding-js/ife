@@ -10,7 +10,7 @@ router = 'declare const __webpack_public_path__: string;\n' + router;
 
 router = router.replace(
   /mode:\s?\'.+\',/,
-  "mode: 'history',\n  base: '__webpack_public_path__',"
+  "mode: 'history',\n  base: __webpack_public_path__,"
 );
 
 fs.writeFileSync(path, router, {
