@@ -56,7 +56,7 @@ export default {
       <div id="app" class="app">
         <header class="app__header">
           <h1 class="app__logo">
-            <router-link to="/">ding-js | ife</router-link>
+            <a href="https://dingyuchao.me" />
           </h1>
           <nav class="app__nav" v-show={this.shouldMenuVisible}>
             {this.menus.map(menu => (
