@@ -121,7 +121,9 @@ export default class InfinitScroll<T> {
       scrollElement.scrollTop -
       scrollElement.clientHeight;
 
-    return !this.loading && this.more && top < threshold;
+    return (
+      !this.dataset.length || (!this.loading && this.more && top < threshold)
+    );
   }
 
   private async checkDataset() {
