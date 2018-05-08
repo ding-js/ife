@@ -119,7 +119,7 @@ export default {
         snake.prepareStart();
         this.speed = 1;
       } else {
-        const currentSpeed = 1 + Math.floor(score / 10) * 10;
+        const currentSpeed = 1 + Math.floor(score / 3) * 2;
 
         this.speed = currentSpeed;
       }
