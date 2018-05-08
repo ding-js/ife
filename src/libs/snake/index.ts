@@ -22,7 +22,7 @@ enum GameStatus {
   beforeStart,
   end,
   pause,
-  runing,
+  running,
   disabled
 }
 
@@ -50,13 +50,13 @@ interface Options {
   /**
    *
    *
-   * @param {number} scroe
+   * @param {number} score
    * @param {number} speed
    * @param {Snake} ref
    * @returns {Boolean} 是否继续行动，一般用于判定满足足够的分数后进入下一关
    * @memberof ISnakeOptions
    */
-  scoreCallback?(scroe: number, speed: number, ref: Snake): boolean;
+  scoreCallback?(score: number, speed: number, ref: Snake): boolean;
   endCallback?(reason: Reason, ref: Snake): void;
   pauseCallback?(ref: Snake): void;
   continueCallback?(ref: Snake): void;
@@ -68,7 +68,7 @@ interface Content {
   width: number;
   height: number;
   rows: number;
-  colums: number;
+  columns: number;
 }
 
 interface Box {
@@ -246,7 +246,7 @@ export class Snake {
       width,
       height,
       rows: width / side,
-      colums: height / side
+      columns: height / side
     };
 
     this._canvas = r.canvas;
@@ -266,10 +266,10 @@ export class Snake {
     this._ctx = ctx;
 
     // 初始化地图格
-    for (let x = 0; x < content.colums; x++) {
-      const colum: Box[] = [];
+    for (let x = 0; x < content.columns; x++) {
+      const column: Box[] = [];
       for (let y = 0; y < content.rows; y++) {
-        colum.push({
+        column.push({
           x: content.x + x * side,
           y: content.y + y * side,
           xIndex: x,
@@ -277,7 +277,7 @@ export class Snake {
           type: BoxTypes.empty
         });
       }
-      this._boxes.push(colum);
+      this._boxes.push(column);
     }
 
     this.reset();
@@ -335,7 +335,7 @@ export class Snake {
           case GameStatus.pause:
             this.continue();
             break;
-          case GameStatus.runing:
+          case GameStatus.running:
             this.pause();
             break;
           default:
@@ -357,7 +357,7 @@ export class Snake {
   private pushDirection(key: Direction) {
     const status = this._status;
 
-    if (status === GameStatus.runing) {
+    if (status === GameStatus.running) {
       this._keys.push(key);
     } else if (status === GameStatus.beforeStart) {
       this._keys.push(key);
@@ -367,13 +367,13 @@ export class Snake {
 
   private getBox(x: number, y: number): Box {
     const boxes = this._boxes;
-    const colum = boxes[x];
+    const column = boxes[x];
 
-    if (!colum) {
+    if (!column) {
       return;
     }
 
-    return colum[y];
+    return column[y];
   }
 
   private info(msgs: string | string[], fontSize: number = 24) {
@@ -444,7 +444,7 @@ export class Snake {
     ctx.strokeStyle = '#ddd';
     ctx.lineWidth = 1;
 
-    for (let x = 0; x <= content.colums; x++) {
+    for (let x = 0; x <= content.columns; x++) {
       const xC = content.x + x * side;
       ctx.moveTo(xC, content.y);
       ctx.lineTo(xC, content.y + content.height);
@@ -502,10 +502,10 @@ export class Snake {
     const t = new Tween({
       x: now.x,
       y: now.y,
-      onUpdate(positon) {
+      onUpdate(position) {
         Object.assign(now, {
-          animateX: positon.x,
-          animateY: positon.y
+          animateX: position.x,
+          animateY: position.y
         });
       }
     })
@@ -539,7 +539,7 @@ export class Snake {
   }
 
   private next = () => {
-    if (this._status !== GameStatus.runing) {
+    if (this._status !== GameStatus.running) {
       return;
     }
 
@@ -559,7 +559,7 @@ export class Snake {
 
     const box = this.getBox(x, y);
 
-    if (box && x >= 0 && x < content.colums && y >= 0 && y < content.rows) {
+    if (box && x >= 0 && x < content.columns && y >= 0 && y < content.rows) {
       const tweenList = [this.createTween(head, box, timeout)];
 
       const animationComplete = () => {
@@ -589,7 +589,7 @@ export class Snake {
 
         this.updateSnake();
 
-        if (shouldNext && this._status === GameStatus.runing) {
+        if (shouldNext && this._status === GameStatus.running) {
           this.next();
         }
 
@@ -651,7 +651,7 @@ export class Snake {
   }
 
   private pauseGame(cb) {
-    if (this._status === GameStatus.runing) {
+    if (this._status === GameStatus.running) {
       if (this._animation) {
         cancelAnimationFrame(this._animation.id);
 
@@ -680,7 +680,7 @@ export class Snake {
           }
         });
 
-        this._status = GameStatus.runing;
+        this._status = GameStatus.running;
 
         this.updateAnimation(this._animation.tweens, this._animation.cb);
       } else {
@@ -690,7 +690,7 @@ export class Snake {
   }
 
   private eat(box) {
-    const scroe = this.score;
+    const score = this.score;
     const food = this._food;
 
     this._food = food.splice(food.indexOf(box));
@@ -698,13 +698,13 @@ export class Snake {
     this.createFood();
 
     if (this._options.scoreCallback) {
-      return this._options.scoreCallback(scroe, this.speed, this);
+      return this._options.scoreCallback(score, this.speed, this);
     }
   }
 
   private createFood() {
     const content = this._content,
-      x = Math.floor(Math.random() * content.colums),
+      x = Math.floor(Math.random() * content.columns),
       y = Math.floor(Math.random() * content.rows),
       box = this.getBox(x, y);
 
@@ -745,7 +745,7 @@ export class Snake {
   }
 
   public start() {
-    this._status = GameStatus.runing;
+    this._status = GameStatus.running;
 
     this.draw();
 
@@ -777,7 +777,7 @@ export class Snake {
     let i = 0;
     while (i < walls) {
       const box = this.getBox(
-        Math.floor(Math.random() * content.colums),
+        Math.floor(Math.random() * content.columns),
         Math.floor(Math.random() * content.rows)
       );
       if (box.type === BoxTypes.empty) {

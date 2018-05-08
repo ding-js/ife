@@ -130,7 +130,7 @@ export default {
 
       for (let i = 0; i < 5; i++) {
         levels.push({
-          scroe: (i + 1) * 5,
+          score: (i + 1) * 5,
           speed: 1 + i * 5
         });
       }
@@ -150,7 +150,7 @@ export default {
           return;
         }
 
-        if (score >= level.scroe) {
+        if (score >= level.score) {
           snake.disable();
 
           if (levelIndex >= levels.length - 1) {
@@ -179,7 +179,7 @@ export default {
 
       for (let i = 0; i < 5; i++) {
         levels.push({
-          scroe: (i + 1) * 5,
+          score: (i + 1) * 5,
           speed: 1 + i * 5,
           walls: (i + 1) * 10
         });
@@ -202,7 +202,7 @@ export default {
 
         const level = levels[levelIndex];
 
-        if (score >= level.scroe) {
+        if (score >= level.score) {
           snake.disable();
 
           if (levelIndex >= levels.length - 1) {
@@ -228,7 +228,7 @@ export default {
         }
       };
     })(),
-    snedEndMessage({ message }) {
+    sendEndMessage({ message }) {
       this.message(message, () => {
         this.showModes();
       });
@@ -241,7 +241,7 @@ export default {
 
     this.$_snake = new Snake(this.$refs.container, {
       scoreCallback: this.updateMode,
-      endCallback: this.snedEndMessage,
+      endCallback: this.sendEndMessage,
       width: side,
       height: side
     });
