@@ -27,7 +27,7 @@ build:
     - yarn
     - npm run build
   variables:
-    VUE_APP_PUBLIC_PATH: /
+    VUE_APP_PUBLIC_PATH: /ife/
     VUE_APP_ROUTER_MODE: history
   artifacts:
     paths:
