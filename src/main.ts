@@ -1,5 +1,4 @@
-import './vendor';
-
+import '@/styles/index.scss';
 import Vue from 'vue';
 import App from '@/containers/App';
 import router from './router';

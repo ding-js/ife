@@ -125,7 +125,10 @@ export default {
               <p>暂无闹钟</p>
             ) : (
               this.alarms.map((alarm, index) => (
-                <p key={index}>闹铃时间：{alarm.time.toLocaleString()}</p>
+                <p key={index}>
+                  闹铃时间：
+                  {alarm.time.toLocaleString()}
+                </p>
               ))
             )}
           </div>

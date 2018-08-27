@@ -1,10 +1,17 @@
 module.exports = {
+  moduleFileExtensions: ["js", "jsx", "json", "vue", "ts", "tsx"],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest'
+    "^.+\\.vue$": "vue-jest",
+    ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$":
+      "jest-transform-stub",
+    "^.+\\.tsx?$": "ts-jest"
   },
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
-    '\\.(css|scss)$': '<rootDir>/tests/__mocks__/styleMock.js'
-  }
+    "^@/(.*)$": "<rootDir>/src/$1"
+  },
+  snapshotSerializers: ["jest-serializer-vue"],
+  testMatch: [
+    "**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)"
+  ],
+  testURL: "http://localhost/"
 };
