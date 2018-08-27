@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Router from 'vue-router';
+import Router, { RouterMode } from 'vue-router';
 
 import NotFound from '@/containers/NotFound';
 import Clock from '@/containers/Clock';
@@ -43,7 +43,8 @@ export const components = [
 ];
 
 const router = new Router({
-  mode: 'hash',
+  mode: process.env.VUE_APP_ROUTER_MODE as RouterMode,
+  base: process.env.VUE_APP_PUBLIC_PATH,
   routes: [
     {
       path: '/',
