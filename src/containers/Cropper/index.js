@@ -150,11 +150,11 @@ export default {
 
       const { width, height } = this.cropperOptions;
 
-      const invaid = [width, height].some(v => {
+      const invalid = [width, height].some(v => {
         return [v => !!v, v => v > 0].some(f => !f(v));
       });
 
-      if (invaid) {
+      if (invalid) {
         toast('请输入正确的宽高!');
         return;
       }

@@ -93,15 +93,12 @@ export default class Cropper {
 
     const _options = Object.assign({}, options, {
       width: r.width,
-      heigth: r.height
+      height: r.height
     });
 
     this._canvas = r.canvas;
-
     this._ctx = r.canvas.getContext('2d');
-
     this._options = _options;
-
     this._types = {
       [Types.cropper]: {
         cursor: 'all-scroll',
@@ -178,7 +175,6 @@ export default class Cropper {
     e.preventDefault();
 
     const image = this._image;
-
     if (!image) {
       return;
     }
@@ -186,7 +182,6 @@ export default class Cropper {
     let width = image.clientWidth,
       height = image.clientHeight,
       k; // 最终的缩放系数
-
     const scale = this._scale,
       offset = e.deltaY / 800;
 
@@ -202,10 +197,8 @@ export default class Cropper {
 
     width *= k;
     height *= k;
-
     image.x += (image.width - width) / 2;
     image.y += (image.height - height) / 2;
-
     image.width = width;
     image.height = height;
 
@@ -371,88 +364,25 @@ export default class Cropper {
   private fillCropper() {
     const ctx = this._ctx,
       cropper = this._cropper;
-
-    ctx.save();
-
-    ctx.strokeStyle = '#39f';
-
-    ctx.strokeRect(cropper.x, cropper.y, cropper.width, cropper.height);
-
-    ctx.fillStyle = '#39f';
-
     const point = this._point;
 
+    ctx.save();
+    ctx.strokeStyle = '#39f';
+    ctx.strokeRect(cropper.x, cropper.y, cropper.width, cropper.height);
+    ctx.fillStyle = '#39f';
     ctx.fillRect(point.x, point.y, point.width, point.height);
-
     ctx.restore();
-  }
-
-  private getCropperData() {
-    const image = this._image,
-      cropper = this._cropper;
-
-    let [currentX, currentY, currentH, currentW] = [
-      cropper.x,
-      cropper.y,
-      cropper.height,
-      cropper.width
-    ];
-
-    let offsetX = 0,
-      offsetY = 0;
-
-    // 左边超出边界
-    if (cropper.x < image.x) {
-      currentX = image.x;
-      offsetX = image.x - cropper.x;
-      currentW -= offsetX;
-    }
-
-    // 上边超出边界
-    if (cropper.y < image.y) {
-      currentY = image.y;
-      offsetY = image.y - cropper.y;
-      currentH -= offsetY;
-    }
-
-    // 右边超出边界
-    if (cropper.x + cropper.width > image.x + image.width) {
-      currentW -= cropper.x + cropper.width - (image.x + image.width);
-    }
-
-    // 下边超出边界
-    if (cropper.y + cropper.height > image.y + image.height) {
-      currentH -= cropper.y + cropper.height - (image.y + image.height);
-    }
-
-    if (currentW < 0 || currentH < 0) {
-      return;
-    }
-
-    return {
-      width: currentW,
-      height: currentH,
-      x: currentX,
-      y: currentY,
-      offsetX,
-      offsetY,
-      imageData: this._ctx.getImageData(currentX, currentY, currentW, currentH)
-    };
   }
 
   private draw() {
     const { width, height } = this._options;
 
     // 避免预览到背景
-
     this._ctx.clearRect(0, 0, width, height);
 
     this.fillBackground();
-
     this.fillImage();
-
     this.fillCropper();
-
     this.preview();
   }
 
@@ -462,10 +392,8 @@ export default class Cropper {
     }
 
     const { width, height } = this._options;
-
     const clientW = image.width,
       clientH = image.height;
-
     let currentW = clientW,
       currentH = clientH,
       k = 1; // contain 时的缩放比
@@ -495,7 +423,6 @@ export default class Cropper {
     };
 
     this._scale = k;
-
     this.draw();
   }
 
@@ -513,13 +440,10 @@ export default class Cropper {
       const w = cropper.width * v.zoom;
       const h = cropper.height * v.zoom;
 
-      const transformOrigin = 'top left';
-
       v.canvas.width = w;
       v.canvas.height = h;
 
       v.ctx.clearRect(0, 0, w, h);
-
       v.ctx.drawImage(
         image.element,
         (image.x - cropper.x) * v.zoom,
@@ -533,14 +457,9 @@ export default class Cropper {
   public crop() {
     return new Promise((resolve, reject) => {
       const { width, height } = this._options;
-
       const image = this._image;
-
       const cropper = this._cropper;
-
       const ctx = this._cropperCtx;
-
-      const scale = this._scale;
 
       if (!image.element) {
         reject({
@@ -558,11 +477,10 @@ export default class Cropper {
 
       ctx.drawImage(
         image.element,
-
-        (image.x - cropper.x) * scale,
-        (image.y - cropper.y) * scale,
-        image.width * scale,
-        image.height * scale
+        image.x - cropper.x,
+        image.y - cropper.y,
+        image.width,
+        image.height
       );
 
       const url = this._cropperCanvas.toDataURL();
@@ -594,7 +512,6 @@ export default class Cropper {
         utils.toast('请选择正确的图片文件');
         return;
       }
-
       const reader = new FileReader();
 
       reader.onload = e => {
