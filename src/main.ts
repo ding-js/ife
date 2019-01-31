@@ -13,3 +13,5 @@ new Vue({
     return h(App);
   }
 });
+
+console.info(`version %c${process.env.VUE_APP_VERSION}`, 'color:#108ee9');
