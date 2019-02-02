@@ -1,3 +1,4 @@
+import { canvasToBuffer } from '@/test-utils';
 import Cropper from '../';
 
 beforeAll(() => {
@@ -8,11 +9,11 @@ describe('Cropper lifecycle', () => {
   it('create & destroy', () => {
     const container = document.querySelector('#t1') as HTMLElement;
     const cropper = new Cropper(container);
+    const canvas = container.querySelector('canvas');
 
-    expect(container.querySelector('canvas')).not.toBeNull();
-
+    expect(canvas).not.toBeNull();
+    expect(canvasToBuffer(canvas)).toMatchImageSnapshot();
     cropper.destroy();
-
     expect(container.querySelector('canvas')).toBeNull();
   });
 });

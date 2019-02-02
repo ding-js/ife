@@ -1,8 +1,5 @@
 module.exports = {
   root: true,
-  env: {
-    node: true
-  },
   extends: ['plugin:vue/essential', '@vue/prettier', '@vue/typescript'],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -19,6 +16,21 @@ module.exports = {
       ],
       env: {
         jest: true
+      },
+      globals: {
+        page: true,
+        browser: true,
+        context: true,
+        jestPuppeteer: true
+      }
+    },
+    {
+      files: ['./*.js'],
+      parserOptions: {
+        parser: 'babel-parser'
+      },
+      env: {
+        node: true
       }
     }
   ]
