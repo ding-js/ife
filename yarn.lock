@@ -767,6 +767,32 @@
   resolved "http://registry.npm.taobao.org/@types/webpack-env/download/@types/webpack-env-1.13.7.tgz#137a4e57aa31ab57b1baf66f5dc3b6bf085e9944"
   integrity sha1-E3pOV6oxq1exuvZvXcO2vwhemUQ=
 
+"@typescript-eslint/eslint-plugin@^1.1.0":
+  version "1.2.0"
+  resolved "http://registry.npm.taobao.org/@typescript-eslint/eslint-plugin/download/@typescript-eslint/eslint-plugin-1.2.0.tgz#a73021a0d5bd1116a88689186844ce4421d52ab0"
+  integrity sha1-pzAhoNW9ERaohokYaETORCHVKrA=
+  dependencies:
+    "@typescript-eslint/parser" "1.2.0"
+    requireindex "^1.2.0"
+    tsutils "^3.7.0"
+
+"@typescript-eslint/parser@1.2.0", "@typescript-eslint/parser@^1.1.0":
+  version "1.2.0"
+  resolved "http://registry.npm.taobao.org/@typescript-eslint/parser/download/@typescript-eslint/parser-1.2.0.tgz#256de163b7cb0d79d0388266a5bfb5585bccb1ff"
+  integrity sha1-JW3hY7fLDXnQOIJmpb+1WFvMsf8=
+  dependencies:
+    "@typescript-eslint/typescript-estree" "1.2.0"
+    eslint-scope "^4.0.0"
+    eslint-visitor-keys "^1.0.0"
+
+"@typescript-eslint/typescript-estree@1.2.0":
+  version "1.2.0"
+  resolved "http://registry.npm.taobao.org/@typescript-eslint/typescript-estree/download/@typescript-eslint/typescript-estree-1.2.0.tgz#d9043a407d5e0f07db2b4a80d86852f7826c34f0"
+  integrity sha1-2QQ6QH1eDwfbK0qA2GhS94JsNPA=
+  dependencies:
+    lodash.unescape "4.0.1"
+    semver "5.5.0"
+
 "@vue/babel-helper-vue-jsx-merge-props@^1.0.0-beta.2":
   version "1.0.0-beta.2"
   resolved "http://registry.npm.taobao.org/@vue/babel-helper-vue-jsx-merge-props/download/@vue/babel-helper-vue-jsx-merge-props-1.0.0-beta.2.tgz#f3e20d77b89ddb7a4b9b7a75372f05cd3ac22d92"
@@ -1002,13 +1028,13 @@
     eslint-plugin-prettier "^3.0.0"
     prettier "^1.15.2"
 
-"@vue/eslint-config-typescript@^3.2.1":
-  version "3.2.1"
-  resolved "http://registry.npm.taobao.org/@vue/eslint-config-typescript/download/@vue/eslint-config-typescript-3.2.1.tgz#d489fecca9920f27e4539cf0784a5eb3eb4c67d7"
-  integrity sha1-1In+zKmSDyfkU5zweEpes+tMZ9c=
+"@vue/eslint-config-typescript@^4.0.0":
+  version "4.0.0"
+  resolved "http://registry.npm.taobao.org/@vue/eslint-config-typescript/download/@vue/eslint-config-typescript-4.0.0.tgz#a202983598a4a826460cbb8ee43826875b0f6673"
+  integrity sha1-ogKYNZikqCZGDLuO5Dgmh1sPZnM=
   dependencies:
-    eslint-plugin-typescript "^0.14.0"
-    typescript-eslint-parser "^21.0.2"
+    "@typescript-eslint/eslint-plugin" "^1.1.0"
+    "@typescript-eslint/parser" "^1.1.0"
 
 "@vue/preload-webpack-plugin@^1.1.0":
   version "1.1.0"
@@ -1016,9 +1042,9 @@
   integrity sha1-12jboAQmHAKbU6d8XqLV+e5PPM4=
 
 "@vue/test-utils@^1.0.0-beta.28":
-  version "1.0.0-beta.28"
-  resolved "http://registry.npm.taobao.org/@vue/test-utils/download/@vue/test-utils-1.0.0-beta.28.tgz#767c43413df8cde86128735e58923803e444b9a5"
-  integrity sha1-dnxDQT34zehhKHNeWJI4A+REuaU=
+  version "1.0.0-beta.29"
+  resolved "http://registry.npm.taobao.org/@vue/test-utils/download/@vue/test-utils-1.0.0-beta.29.tgz#c942cf25e891cf081b6a03332b4ae1ef430726f0"
+  integrity sha1-yULPJeiRzwgbagMzK0rh70MHJvA=
   dependencies:
     dom-event-types "^1.0.0"
     lodash "^4.17.4"
@@ -1272,9 +1298,9 @@ ajv@^5.2.3, ajv@^5.3.0:
     json-schema-traverse "^0.3.0"
 
 ajv@^6.1.0, ajv@^6.5.5:
-  version "6.7.0"
-  resolved "http://registry.npm.taobao.org/ajv/download/ajv-6.7.0.tgz#e3ce7bb372d6577bb1839f1dfdfcbf5ad2948d96"
-  integrity sha1-4857s3LWV3uxg58d/fy/WtKUjZY=
+  version "6.8.1"
+  resolved "http://registry.npm.taobao.org/ajv/download/ajv-6.8.1.tgz#0890b93742985ebf8973cd365c5b23920ce3cb20"
+  integrity sha1-CJC5N0KYXr+Jc802XFsjkgzjyyA=
   dependencies:
     fast-deep-equal "^2.0.1"
     fast-json-stable-stringify "^2.0.0"
@@ -3352,9 +3378,9 @@ ejs@^2.6.1:
   integrity sha1-SY7A1JVlWrxvI81hho2SZGQHGqA=
 
 electron-to-chromium@^1.3.103:
-  version "1.3.111"
-  resolved "http://registry.npm.taobao.org/electron-to-chromium/download/electron-to-chromium-1.3.111.tgz#9bde11c953425c1756f85c66e61de2b74ced75d0"
-  integrity sha1-m94RyVNCXBdW+Fxm5h3it0ztddA=
+  version "1.3.112"
+  resolved "http://registry.npm.taobao.org/electron-to-chromium/download/electron-to-chromium-1.3.112.tgz#1f40a68ceda6328f95218dffeda0f4f3d5412a2f"
+  integrity sha1-H0CmjO2mMo+VIY3/7aD089VBKi8=
 
 elegant-spinner@^1.0.1:
   version "1.0.1"
@@ -3501,13 +3527,6 @@ eslint-plugin-prettier@^3.0.0:
   integrity sha1-GdUh45gfad1tFPZK7IxqasbrCw0=
   dependencies:
     prettier-linter-helpers "^1.0.0"
-
-eslint-plugin-typescript@^0.14.0:
-  version "0.14.0"
-  resolved "http://registry.npm.taobao.org/eslint-plugin-typescript/download/eslint-plugin-typescript-0.14.0.tgz#068549c3f4c7f3f85d88d398c29fa96bf500884c"
-  integrity sha1-BoVJw/TH8/hdiNOYwp+pa/UAiEw=
-  dependencies:
-    requireindex "~1.1.0"
 
 eslint-plugin-vue@^4.7.1:
   version "4.7.1"
@@ -6002,9 +6021,9 @@ lines-and-columns@^1.1.6:
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
 lint-staged@^8.1.1:
-  version "8.1.1"
-  resolved "http://registry.npm.taobao.org/lint-staged/download/lint-staged-8.1.1.tgz#4a9837c75ea23d1ea81f2c5b5f334153cc7f7932"
-  integrity sha1-Spg3x16iPR6oHyxbXzNBU8x/eTI=
+  version "8.1.3"
+  resolved "http://registry.npm.taobao.org/lint-staged/download/lint-staged-8.1.3.tgz#bb069db5466c0fe16710216e633a84f2b362fa60"
+  integrity sha1-uwadtUZsD+FnECFuYzqE8rNi+mA=
   dependencies:
     "@iamstarkov/listr-update-renderer" "0.4.1"
     chalk "^2.3.1"
@@ -6815,9 +6834,9 @@ node-pre-gyp@^0.11.0:
     tar "^4"
 
 node-releases@^1.1.3:
-  version "1.1.6"
-  resolved "http://registry.npm.taobao.org/node-releases/download/node-releases-1.1.6.tgz#47d160033e24a64e79487a62de63cf691052ec54"
-  integrity sha1-R9FgAz4kpk55SHpi3mPPaRBS7FQ=
+  version "1.1.7"
+  resolved "http://registry.npm.taobao.org/node-releases/download/node-releases-1.1.7.tgz#b09a10394d0ed8f7778f72bb861dde68b146303b"
+  integrity sha1-sJoQOU0O2Pd3j3K7hh3eaLFGMDs=
   dependencies:
     semver "^5.3.0"
 
@@ -8346,10 +8365,10 @@ require-uncached@^1.0.3:
     caller-path "^0.1.0"
     resolve-from "^1.0.0"
 
-requireindex@~1.1.0:
-  version "1.1.0"
-  resolved "http://registry.npm.taobao.org/requireindex/download/requireindex-1.1.0.tgz#e5404b81557ef75db6e49c5a72004893fe03e162"
-  integrity sha1-5UBLgVV+91225JxacgBIk/4D4WI=
+requireindex@^1.2.0:
+  version "1.2.0"
+  resolved "http://registry.npm.taobao.org/requireindex/download/requireindex-1.2.0.tgz#3463cdb22ee151902635aa6c9535d4de9c2ef1ef"
+  integrity sha1-NGPNsi7hUZAmNapslTXU3pwu8e8=
 
 requires-port@^1.0.0:
   version "1.0.0"
@@ -8840,7 +8859,7 @@ source-map-support@^0.4.15:
   dependencies:
     source-map "^0.5.6"
 
-source-map-support@^0.5.6, source-map-support@~0.5.6:
+source-map-support@^0.5.6, source-map-support@~0.5.9:
   version "0.5.10"
   resolved "http://registry.npm.taobao.org/source-map-support/download/source-map-support-0.5.10.tgz#2214080bc9d51832511ee2bab96e3c2f9353120c"
   integrity sha1-IhQIC8nVGDJRHuK6uW48L5NTEgw=
@@ -9295,13 +9314,13 @@ terser-webpack-plugin@^1.1.0, terser-webpack-plugin@^1.2.1:
     worker-farm "^1.5.2"
 
 terser@^3.8.1:
-  version "3.14.1"
-  resolved "http://registry.npm.taobao.org/terser/download/terser-3.14.1.tgz#cc4764014af570bc79c79742358bd46926018a32"
-  integrity sha1-zEdkAUr1cLx5x5dCNYvUaSYBijI=
+  version "3.16.0"
+  resolved "http://registry.npm.taobao.org/terser/download/terser-3.16.0.tgz#04028e6e5da461d91691cedd75fa53a17f2f20d9"
+  integrity sha1-BAKObl2kYdkWkc7ddfpToX8vINk=
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
-    source-map-support "~0.5.6"
+    source-map-support "~0.5.9"
 
 test-exclude@^4.2.1:
   version "4.2.3"
@@ -9566,6 +9585,13 @@ tsutils@^2.27.2:
   dependencies:
     tslib "^1.8.1"
 
+tsutils@^3.7.0:
+  version "3.8.0"
+  resolved "http://registry.npm.taobao.org/tsutils/download/tsutils-3.8.0.tgz#7a3dbadc88e465596440622b65c04edc8e187ae5"
+  integrity sha1-ej263IjkZVlkQGIrZcBO3I4YeuU=
+  dependencies:
+    tslib "^1.8.1"
+
 tty-browserify@0.0.0:
   version "0.0.0"
   resolved "http://registry.npm.taobao.org/tty-browserify/download/tty-browserify-0.0.0.tgz#a157ba402da24e9bf957f9aa69d524eed42901a6"
@@ -9602,23 +9628,6 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "http://registry.npm.taobao.org/typedarray/download/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
-
-typescript-eslint-parser@^21.0.2:
-  version "21.0.2"
-  resolved "http://registry.npm.taobao.org/typescript-eslint-parser/download/typescript-eslint-parser-21.0.2.tgz#270af10e4724528677fbcf34ea495284bec3a894"
-  integrity sha1-JwrxDkckUoZ3+8806klShL7DqJQ=
-  dependencies:
-    eslint-scope "^4.0.0"
-    eslint-visitor-keys "^1.0.0"
-    typescript-estree "5.3.0"
-
-typescript-estree@5.3.0:
-  version "5.3.0"
-  resolved "http://registry.npm.taobao.org/typescript-estree/download/typescript-estree-5.3.0.tgz#fb6c977b5e21073eb16cbdc0338a7f752da99ff5"
-  integrity sha1-+2yXe14hBz6xbL3AM4p/dS2pn/U=
-  dependencies:
-    lodash.unescape "4.0.1"
-    semver "5.5.0"
 
 typescript@^3.2.4:
   version "3.3.1"
