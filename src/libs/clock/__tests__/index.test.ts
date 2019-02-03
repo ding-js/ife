@@ -12,14 +12,10 @@ class FakeDate extends RealDate {
 
 FakeDate.now = jest.fn(() => date.getTime());
 
-beforeAll(() => {
-  document.body.innerHTML = '<div id="t1" /><div id="t2" /><div id="t3" />';
-});
-
 describe('Clock lifecycle', () => {
-  it('create & destory', () => {
-    (window as any).__proto__.Date = FakeDate;
-    const container = document.querySelector('#t1') as HTMLElement;
+  it('create & destroy', () => {
+    (window as any).Date = FakeDate;
+    const container = document.createElement('div');
     const clock = new Clock(container);
     const canvas = container.querySelector('canvas');
 
@@ -27,15 +23,14 @@ describe('Clock lifecycle', () => {
     expect(canvasToBuffer(canvas)).toMatchImageSnapshot();
     clock.destroy();
     expect(container.querySelector('canvas')).toBeNull();
-    (window as any).__proto__.Date = RealDate;
+    (window as any).Date = RealDate;
   });
 });
 
 describe('Clock public methods', () => {
   it('add alarm', done => {
-    const container = document.querySelector('#t2') as HTMLElement;
+    const container = document.createElement('div');
     const clock = new Clock(container);
-
     const alarm = {
       time: new Date(Date.now() + 1000), // +1s
       cb: () => {
@@ -56,7 +51,7 @@ describe('Clock public methods', () => {
   });
 
   it('clear alarms', () => {
-    const container = document.querySelector('#t3') as HTMLElement;
+    const container = document.createElement('div');
     const clock = new Clock(container);
 
     clock.addAlarm(new Date(), () => null);

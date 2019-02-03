@@ -1,13 +1,9 @@
 import { canvasToBuffer } from '@/test-utils';
 import ColorPicker from '../';
 
-beforeAll(() => {
-  document.body.innerHTML = '<div id="t1" /><div id="t2" />';
-});
-
 describe('Color Picker lifecycle', () => {
-  it('create & destory', () => {
-    const container = document.querySelector('#t1') as HTMLElement;
+  it('create & destroy', () => {
+    const container = document.createElement('div');
     const picker = new ColorPicker(container);
 
     expect(container.querySelectorAll('canvas').length).toBe(2);
@@ -18,7 +14,7 @@ describe('Color Picker lifecycle', () => {
 
 describe('Color Picker public methods', () => {
   it('color setter', async () => {
-    const container = document.querySelector('#t2') as HTMLElement;
+    const container = document.createElement('div');
     const picker = new ColorPicker(container);
     const canvas = container.querySelectorAll('canvas');
     const block = canvas[0];

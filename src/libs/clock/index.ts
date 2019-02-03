@@ -9,7 +9,7 @@ interface Options {
    */
   radius?: number;
   /**
-   * 时钟颜色
+   * 时钟颜色，当前只支持单色
    *
    * @type {string}
    * @memberof Options
@@ -30,7 +30,7 @@ interface Alarm {
   repeat: boolean;
 }
 
-interface Pointer {
+interface Hand {
   /**
    * 顶点y坐标
    *
@@ -91,95 +91,81 @@ export default class Clock {
    */
   private _offset: number = 0;
   private _alarms: Alarm[] = [];
-
   private _requestId: number;
 
   constructor(container: HTMLElement | HTMLCanvasElement, options?: Options) {
     const _options: Options = {
       color: '#9b9b9b'
     };
-
     const r = generateCanvas(container, options, {
       width: 300,
       height: 300
     });
-
     const canvas = r.canvas;
 
     this._canvas = canvas;
-
     this._ctx = canvas.getContext('2d');
 
     Object.assign(_options, options, {
       width: r.width,
       height: r.height
     });
-
+    // 时钟半径
     const defaultRadius = Math.min(_options.width, _options.height) / 2;
 
-    if (
-      !_options.radius ||
-      _options.radius > defaultRadius ||
-      _options.radius <= 1
-    ) {
+    if (!_options.radius || _options.radius > defaultRadius || _options.radius <= 1) {
       _options.radius = defaultRadius;
+      console.warn('use default radius');
     }
 
     this._options = _options;
-
     this.draw();
   }
 
   private draw = () => {
     const time = this.getCurrentTime();
-
     const ctx = this._ctx;
-
     const { width, height, color, radius } = this._options;
-
     const center: Coordinate = {
       x: width / 2,
       y: height / 2
     };
-
     const borderWidth = radius * 0.08;
-    const borderRadius = radius - borderWidth / 2;
+    const borderBottomToCenter = radius - borderWidth / 2; // 去除边框的内容区域
 
     ctx.clearRect(0, 0, width, height);
-
     ctx.save();
 
     // 绘制边框
     ctx.strokeStyle = color;
     ctx.lineWidth = borderWidth;
+
     ctx.beginPath();
-    ctx.arc(center.x, center.y, borderRadius, 0, 2 * Math.PI);
+    ctx.arc(center.x, center.y, borderBottomToCenter, 0, 2 * Math.PI);
     ctx.stroke();
 
     ctx.restore();
-
     ctx.save();
 
     // 绘制刻度
-    const distanceToTop = borderWidth + radius * 0.02; // 离边框的距离
-    const scaleCount = 5 * 12;
+    const calibrationTopToEdge = radius * 0.02 + borderWidth;
+    const calibrationCount = 5 * 12;
+    const calibrationHeight = radius * 0.1;
+    const mainCalibrationWidth = radius * 0.028;
+    const normalCalibrationWidth = mainCalibrationWidth / 2;
 
     ctx.fillStyle = color;
+    ctx.translate(center.x, center.y);
 
-    ctx.translate(radius, radius);
-
-    for (let i = 0; i < scaleCount; i++) {
-      const scaleWidth = i % 5 === 0 ? radius / 35 : radius / 70;
-      const scaleHeight = radius * 0.1;
-
-      const x = -scaleWidth / 2,
-        y = distanceToTop - radius;
+    for (let i = 0; i < calibrationCount; i++) {
+      const calibrationWidth = i % 5 === 0 ? mainCalibrationWidth : normalCalibrationWidth;
+      const x = -calibrationWidth / 2;
+      const y = -height / 2 + calibrationTopToEdge;
 
       ctx.beginPath();
-      ctx.rect(x, y, scaleWidth, scaleHeight);
+      ctx.rect(x, y, calibrationWidth, calibrationHeight);
       ctx.fill();
-      // 循环结束转完一圈
-      ctx.rotate(2 * Math.PI / scaleCount);
+      ctx.rotate((2 * Math.PI) / calibrationCount);
     }
 
     ctx.restore();
@@ -187,7 +173,6 @@ export default class Clock {
 
     // 绘制数字
     const numberRadius = radius - radius * 0.31;
-
     const fontsize = radius * 0.18;
 
     ctx.fillStyle = color;
@@ -196,7 +181,7 @@ export default class Clock {
     ctx.textBaseline = 'middle';
 
     for (let i = 1; i <= 12; i++) {
-      const radian = 2 * Math.PI * i / 12;
+      const radian = (2 * Math.PI * i) / 12;
       // 数字始终是正常阅读的方向，所以不能使用旋转
       const { x, y } = this.getCoordinate(numberRadius, radian);
 
@@ -210,13 +195,12 @@ export default class Clock {
     ctx.fillText(`${time.hour < 12 ? 'A.M' : 'P.M'}`, center.x, height * 0.3);
 
     ctx.restore();
-
     ctx.save();
 
     // 绘制指针
 
     // 三个指针的配置
-    const pointers: Pointer[] = [
+    const pointers: Hand[] = [
       {
         topY: -0.72,
         bottomY: 0.24,
@@ -240,18 +224,18 @@ export default class Clock {
       }
     ];
 
-    const tanBottom = Math.tan(Math.PI * 2 * 60 / 360),
-      tanTop = Math.tan(Math.PI * 2 * 30 / 360);
+    const tanBottom = Math.tan((Math.PI * 2 * 60) / 360),
+      tanTop = Math.tan((Math.PI * 2 * 30) / 360);
 
     ctx.fillStyle = color;
 
     pointers.forEach(p => {
       const bottomY = radius * p.bottomY,
-        bottomHalf = radius * p.bottomWidth / 2,
+        bottomHalf = (radius * p.bottomWidth) / 2,
         bottomHeight = bottomHalf / tanBottom;
 
       const topY = radius * p.topY,
-        topHalf = radius * p.topWidth / 2,
+        topHalf = (radius * p.topWidth) / 2,
         topHeight = topHalf / tanTop;
 
       ctx.translate(radius, radius);
@@ -259,7 +243,7 @@ export default class Clock {
 
       ctx.beginPath();
       ctx.moveTo(0, bottomY);
-      // buttomLeft
+      // bottomLeft
       ctx.lineTo(-bottomHalf, bottomY - bottomHeight);
 
       // topLeft
@@ -318,10 +302,7 @@ export default class Clock {
   private getCurrentTime(): Time {
     const now = new Date();
 
-    const date =
-      typeof this._offset === 'number'
-        ? new Date(now.getTime() + this._offset)
-        : now;
+    const date = typeof this._offset === 'number' ? new Date(now.getTime() + this._offset) : now;
 
     const [hour, minute, second, milliSecond] = [
       date.getHours(),
@@ -335,11 +316,7 @@ export default class Clock {
       exactM = minute + exactS / 60,
       exactH = hour + exactM / 60;
 
-    const [hourDegree, minuteDegree, secondDegree] = [
-      exactH / 12,
-      exactM / 60,
-      exactS / 60
-    ].map(v => v * 2 * Math.PI);
+    const [hourDegree, minuteDegree, secondDegree] = [exactH / 12, exactM / 60, exactS / 60].map(v => v * 2 * Math.PI);
 
     return {
       date,

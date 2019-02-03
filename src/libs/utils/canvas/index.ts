@@ -15,8 +15,7 @@ export const generateCanvas = (
   defaultOptions: CanvasOptions = {}
 ): CanvasResult => {
   if (!container || !container.tagName) {
-    console.warn('Invaid element');
-    return;
+    throw new Error('Invalid element');
   }
 
   const [w, h] = ['width', 'height'].map(key => {
@@ -31,6 +30,10 @@ export const generateCanvas = (
       0
     );
   });
+
+  if (!w || !h) {
+    throw new Error('Invalid options');
+  }
 
   let canvas: HTMLCanvasElement;
 

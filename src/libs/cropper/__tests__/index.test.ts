@@ -1,13 +1,9 @@
 import { canvasToBuffer } from '@/test-utils';
 import Cropper from '../';
 
-beforeAll(() => {
-  document.body.innerHTML = '<div id="t1"></div>';
-});
-
 describe('Cropper lifecycle', () => {
   it('create & destroy', () => {
-    const container = document.querySelector('#t1') as HTMLElement;
+    const container = document.createElement('div');
     const cropper = new Cropper(container);
     const canvas = container.querySelector('canvas');
 
