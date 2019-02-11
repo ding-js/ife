@@ -1,4 +1,4 @@
-<p align="center">
+<p>
   <a href="https://travis-ci.com/ding-js/ife"><img src="https://img.shields.io/travis/com/ding-js/ife.svg" alt="Build Status"></a>
 </p>
 
