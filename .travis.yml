@@ -5,8 +5,20 @@ install:
   # install node-canvas dependencies
   - sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
   - yarn
-script:
- - yarn test
+jobs:
+  include:
+    - stage: Test
+      script:
+        - yarn test
+    - stage: Deploy
+      if: branch = master
+      script:
+        - yarn build
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN
+        local-dir: ./dist
 cache: yarn
 addons:
   apt:
