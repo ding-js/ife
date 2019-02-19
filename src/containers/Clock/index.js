@@ -34,7 +34,7 @@ const parts = [
 
 const timeZones = [];
 
-for (let i = -12; i <= 12; i++) {
+for (let i = 12; i >= -12; i--) {
   let name = 'UTC';
 
   if (i > 0) {
@@ -49,9 +49,6 @@ for (let i = -12; i <= 12; i++) {
   });
 }
 
-timeZones.sort((x, y) => {
-  return y.offset - x.offset;
-});
 
 export default {
   name: 'Clock',
@@ -118,7 +115,6 @@ export default {
             </button>
           </div>
         </section>
-
         <section>
           <div class="clock__alarms">
             {!this.alarms || this.alarms.length < 1 ? (
@@ -153,22 +149,15 @@ export default {
     },
     updateZone(e) {
       const value = Number(e.target.value);
-      const offset = this.getTimezoneOffsetMilliSeconds(value);
 
       this.time.offset = value;
-      this.$_clock.offset = offset;
-    },
-    getTimezoneOffsetMilliSeconds(value) {
-      return value + new Date().getTimezoneOffset() * 60 * 1000;
+      this.$_clock.offset = value;
     },
     setTime() {
       const clock = this.$_clock;
       const now = new Date();
       const settedTime = this.getFormTime();
-      const offset =
-        settedTime.getTime() -
-        now.getTime() +
-        this.getTimezoneOffsetMilliSeconds(this.time.offset);
+      const offset = settedTime.getTime() - now.getTime() + this.time.offset;
 
       clock.offset = offset;
     },
@@ -177,27 +166,18 @@ export default {
       const settedTime = this.getFormTime();
 
       clock.addAlarm(settedTime, this.triggerAlarm, false);
-
       this.alarms = clock.alarms;
     },
     clearAlarms() {
       const clock = this.$_clock;
 
       clock.clearAlarms();
-
       this.alarms = [];
     },
     getFormTime() {
       const now = new Date();
-
-      const [year, month, date] = [
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      ];
-
+      const [year, month, date] = [now.getFullYear(), now.getMonth(), now.getDate()];
       const { hours, minutes, seconds } = this.time;
-
       const settedTime = new Date(year, month, date, hours, minutes, seconds); // 丢弃毫秒
 
       return settedTime;
@@ -206,15 +186,13 @@ export default {
       const clock = this.$_clock;
 
       this.alarms = clock.alarms;
-
       toast('闹钟响啦...');
     },
     resetClock() {
       const clock = this.$_clock;
 
       Object.assign(this.time, getInitialTime());
-
-      clock.offset = 0;
+      clock.offset = undefined;
     }
   },
   mounted() {

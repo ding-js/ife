@@ -33,7 +33,7 @@ interface Coordinate {
 
 interface DirectionConfig extends Coordinate {
   keyCode: number[];
-  opposite: number;
+  opposite: Direction;
 }
 
 interface Reason {
@@ -83,12 +83,7 @@ interface Box {
 
 interface BoxType {
   background?: string;
-  render?(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    sideLength: number
-  ): void;
+  render?(ctx: CanvasRenderingContext2D, x: number, y: number, sideLength: number): void;
 }
 
 export class Snake {
@@ -152,13 +147,7 @@ export class Snake {
       render: (ctx, x, y, sideLength) => {
         ctx.fillStyle = '#888';
         ctx.beginPath();
-        ctx.arc(
-          x + sideLength / 2,
-          y + sideLength / 2,
-          sideLength / 2,
-          0,
-          Math.PI * 2
-        );
+        ctx.arc(x + sideLength / 2, y + sideLength / 2, sideLength / 2, 0, Math.PI * 2);
         ctx.fill();
       }
     },
@@ -166,13 +155,7 @@ export class Snake {
       render: (ctx, x, y, sideLength) => {
         ctx.fillStyle = '#888';
         ctx.beginPath();
-        ctx.arc(
-          x + sideLength / 2,
-          y + sideLength / 2,
-          sideLength * 0.35,
-          0,
-          Math.PI * 2
-        );
+        ctx.arc(x + sideLength / 2, y + sideLength / 2, sideLength * 0.35, 0, Math.PI * 2);
         ctx.fill();
       }
     },
@@ -299,10 +282,7 @@ export class Snake {
         const x = { x: this._startCoordinate.x, y: -this._startCoordinate.y };
         const y = { x: e.x, y: -e.y };
 
-        const k = Math.acos(
-          (y.x - x.x) /
-            Math.sqrt(Math.pow(y.x - x.x, 2) + Math.pow(y.y - x.y, 2))
-        );
+        const k = Math.acos((y.x - x.x) / Math.sqrt(Math.pow(y.x - x.x, 2) + Math.pow(y.y - x.y, 2)));
 
         let dir = Direction.right;
 
@@ -525,10 +505,7 @@ export class Snake {
         const type = keys[i];
 
         // 不冲突时更新方向
-        if (
-          type !== this._snakeDirection &&
-          type !== this._direction[this._snakeDirection].opposite
-        ) {
+        if (type !== this._snakeDirection && type !== this._direction[this._snakeDirection].opposite) {
           this._snakeDirection = type;
           // 允许连续键多次操作
           this._keys = keys.slice(i + 1);
@@ -735,9 +712,7 @@ export class Snake {
       });
     });
 
-    this._snake = this._options.origin.map(cords =>
-      this.getBox(cords.x, cords.y)
-    );
+    this._snake = this._options.origin.map(cords => this.getBox(cords.x, cords.y));
 
     this.updateSnake();
 
@@ -776,10 +751,7 @@ export class Snake {
     const content = this._content;
     let i = 0;
     while (i < walls) {
-      const box = this.getBox(
-        Math.floor(Math.random() * content.columns),
-        Math.floor(Math.random() * content.rows)
-      );
+      const box = this.getBox(Math.floor(Math.random() * content.columns), Math.floor(Math.random() * content.rows));
       if (box.type === BoxTypes.empty) {
         box.type = BoxTypes.wall;
         this._wall.push(box);
@@ -816,8 +788,6 @@ export class Snake {
   }
 
   get score() {
-    return this._snake && this._snake.length
-      ? this._snake.length - this._options.origin.length + 1
-      : 0;
+    return this._snake && this._snake.length ? this._snake.length - this._options.origin.length + 1 : 0;
   }
 }

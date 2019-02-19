@@ -2,7 +2,7 @@ import { canvasToBuffer } from '@/test-utils';
 import Clock from '../';
 
 const RealDate = Date;
-const date = new Date('2019-01-01 14:07:23');
+const date = new Date('Tue Jan 01 2019 14:07:23 GMT+0800');
 
 class FakeDate extends RealDate {
   constructor() {
@@ -20,6 +20,8 @@ describe('Clock lifecycle', () => {
     const canvas = container.querySelector('canvas');
 
     expect(canvas).not.toBeNull();
+    // 这里 hack 了 Date 导致计算 offset 时返回的日期也是 date
+    // 所以图片呈现的是 UTC 时间 -8 2019-01-01 06:07:23
     expect(canvasToBuffer(canvas)).toMatchImageSnapshot();
     clock.destroy();
     expect(container.querySelector('canvas')).toBeNull();

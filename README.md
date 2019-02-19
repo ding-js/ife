@@ -1,5 +1,5 @@
 <p>
-  <a href="https://travis-ci.com/ding-js/ife"><img src="https://img.shields.io/travis/com/ding-js/ife.svg" alt="Build Status"></a>
+  <a href="https://travis-ci.com/ding-js/ife"><img src="https://img.shields.io/travis/com/ding-js/ife/master.svg" alt="Build Status"></a>
 </p>
 
 # 百度 IFE 课程 | Ding
