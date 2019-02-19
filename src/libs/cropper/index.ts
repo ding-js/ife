@@ -128,7 +128,6 @@ export default class Cropper {
 
     this._cropperCanvas = document.createElement('canvas');
     this._cropperCtx = this._cropperCanvas.getContext('2d');
-
     this.cropper = {
       width: cW,
       height: cH,
@@ -137,10 +136,7 @@ export default class Cropper {
     };
 
     if (op.preview) {
-      this._previewList = (Array.isArray(op.preview)
-        ? op.preview
-        : [op.preview]
-      ).map(v => {
+      this._previewList = (Array.isArray(op.preview) ? op.preview : [op.preview]).map(v => {
         const cvs = document.createElement('canvas');
 
         v.container.appendChild(cvs);
@@ -215,13 +211,7 @@ export default class Cropper {
     } as PointType;
 
     // 设置偏移(点击坐标与定点坐标)
-    if (
-      point &&
-      x > point.x &&
-      x < point.x + point.width &&
-      y > point.y &&
-      y < point.y + point.height
-    ) {
+    if (point && x > point.x && x < point.x + point.width && y > point.y && y < point.y + point.height) {
       t.type = Types.pointRD;
     } else if (
       cropper &&
@@ -233,13 +223,7 @@ export default class Cropper {
       t.offsetX = x - cropper.x;
       t.offsetY = y - cropper.y;
       t.type = Types.cropper;
-    } else if (
-      image &&
-      x > image.x &&
-      x < image.x + image.width &&
-      y > image.y &&
-      y < image.y + image.height
-    ) {
+    } else if (image && x > image.x && x < image.x + image.width && y > image.y && y < image.y + image.height) {
       t.offsetX = x - image.x;
       t.offsetY = y - image.y;
       t.type = Types.image;
@@ -475,13 +459,7 @@ export default class Cropper {
 
       ctx.clearRect(0, 0, width, height);
 
-      ctx.drawImage(
-        image.element,
-        image.x - cropper.x,
-        image.y - cropper.y,
-        image.width,
-        image.height
-      );
+      ctx.drawImage(image.element, image.x - cropper.x, image.y - cropper.y, image.width, image.height);
 
       const url = this._cropperCanvas.toDataURL();
 
@@ -489,18 +467,16 @@ export default class Cropper {
     });
   }
 
-  public destroy(removeCanvas: boolean = true) {
+  public destroy() {
     const remove = (el: HTMLElement) => el.parentNode.removeChild(el);
     unbind(this._id);
     window.removeEventListener('mousewheel', this.handleMouseWheel);
 
-    if (removeCanvas) {
-      remove(this._canvas);
-      if (this._previewList) {
-        this._previewList.forEach(v => {
-          remove(v.canvas);
-        });
-      }
+    remove(this._canvas);
+    if (this._previewList) {
+      this._previewList.forEach(v => {
+        remove(v.canvas);
+      });
     }
   }
 

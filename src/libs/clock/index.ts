@@ -1,4 +1,5 @@
 import { generateCanvas } from '../utils/canvas';
+import { isNumber } from '../utils';
 
 interface Options {
   /**
@@ -303,7 +304,7 @@ export default class Clock {
   // 获取计算过偏移的时间
   private _getCurrentTime(): Time {
     const now = new Date();
-    const date = typeof this._offset === 'number' ? new Date(now.getTime() + this._offset) : now;
+    const date = isNumber(this._offset) ? new Date(now.getTime() + this._offset) : now;
     const [hour, minute, second, millisecond] = [
       date.getUTCHours(),
       date.getUTCMinutes(),
@@ -330,7 +331,7 @@ export default class Clock {
   }
 
   // 检验触发闹钟
-  private _checkAlarms(currentDate: Date) {
+  private _checkAlarms(clockDate: Date) {
     const alarms = this._alarms;
     if (!alarms || !alarms.length) {
       return;
@@ -339,8 +340,8 @@ export default class Clock {
     for (let i = 0; i < alarms.length; i++) {
       const alarm = alarms[i];
       const offset = alarm.time.getTimezoneOffset() * 60 * 1000;
-
-      if (Math.abs(currentDate.getTime() - alarm.time.getTime() + offset) < 500) {
+      // clockDate 是计算过时区偏移的，而 alarm.time 是不计算的，这边对比的时候要加上偏移
+      if (Math.abs(clockDate.getTime() - alarm.time.getTime() + offset) < 500) {
         if (!alarm.repeat) {
           this._alarms.splice(i, i + 1);
           i--;
@@ -377,18 +378,18 @@ export default class Clock {
     this._alarms = [];
   }
 
-  public destroy(removeCanvas: boolean = true) {
+  public destroy() {
     if (this._requestId) {
       window.cancelAnimationFrame(this._requestId);
     }
 
-    if (removeCanvas && this._canvas) {
+    if (this._canvas) {
       this._canvas.parentNode.removeChild(this._canvas);
     }
   }
 
   set offset(time: number) {
-    if (time === undefined || time === null || typeof time !== 'number') {
+    if (!isNumber(time)) {
       this._offset = -new Date().getTimezoneOffset() * 60 * 1000;
     } else {
       this._offset = time;

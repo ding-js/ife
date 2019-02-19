@@ -9,13 +9,15 @@
     "test": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "color-convert": "^1.9.1",
     "vue": "~2.5.22",
-    "vue-class-component": "^6.3.2",
+    "vue-class-component": "^7.0.1",
     "vue-property-decorator": "^7.3.0",
     "vue-router": "^3.0.2"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.13",
+    "@types/color-convert": "^1.9.0",
+    "@types/jest": "^24.0.6",
     "@types/jest-image-snapshot": "^2.4.0",
     "@vue/cli-plugin-babel": "^3.3.0",
     "@vue/cli-plugin-eslint": "^3.3.0",
@@ -31,7 +33,7 @@
     "lint-staged": "^8.1.1",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
-    "ts-jest": "^23.10.5",
+    "ts-jest": "^24.0.0",
     "tslint": "^5.12.1",
     "tslint-config-prettier": "^1.17.0",
     "tslint-plugin-prettier": "^2.0.1",

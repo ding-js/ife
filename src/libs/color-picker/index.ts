@@ -1,5 +1,7 @@
+import { ChangedColor, HSVColor } from './types';
 import { ColorBlock, ColorBlockOptions } from './block';
 import { ColorBar, ColorBarOptions } from './bar';
+import { isNumber } from '../utils';
 import * as covert from 'color-convert';
 
 interface ColorPickerOptions {
@@ -7,40 +9,16 @@ interface ColorPickerOptions {
   height?: number;
   barWidth?: number;
   blockWidth?: number;
-  onColorChange?(color: CallbackColor): void;
+  onColorChange?(color: ChangedColor): void;
 }
 
-interface Color {
-  h: number;
-  s: number;
-  v: number;
-}
-
-interface CallbackColor {
-  h: number;
-  s: number;
-  l: number;
-  r: number;
-  g: number;
-  b: number;
-  hex: string;
-}
-
-interface SetterColor {
-  h?: number;
-  s?: number;
-  l?: number;
-  r?: number;
-  g?: number;
-  b?: number;
-  hex?: string;
-}
+type ColorSetter = Partial<ChangedColor>;
 export default class ColorPicker {
   private _container: HTMLElement;
   private _options: ColorPickerOptions;
   private _block: ColorBlock;
   private _bar: ColorBar;
-  private _color: Color;
+  private _color: HSVColor;
 
   constructor(container: HTMLElement, options?: ColorPickerOptions) {
     const _options: ColorPickerOptions = {
@@ -53,131 +31,103 @@ export default class ColorPicker {
     Object.assign(_options, options);
 
     this._options = _options;
-
     this._container = container;
-
-    this.init();
+    this._init();
   }
 
-  private init() {
-    const {
-      padding,
-      height,
-      blockWidth,
-      barWidth,
-      onColorChange
-    } = this._options;
-
-    const block = document.createElement('canvas'),
-      bar = document.createElement('canvas');
-
+  private _init() {
+    const { height, blockWidth, barWidth } = this._options;
+    const block = document.createElement('canvas');
+    const bar = document.createElement('canvas');
     const blockOptions: ColorBlockOptions = {
       width: blockWidth,
       height,
-      onColorChange: ({ s, v }) => {
-        this.setHSV({
-          s,
-          v
-        } as Color);
+      onColorChange: ([, s, v]) => {
+        this.color = { hsv: [undefined, s, v] };
       }
     };
-
     const barOptions: ColorBarOptions = {
       width: barWidth,
       height,
-      onColorChange: ({ h }) => {
-        this.setHSV({
-          h
-        } as Color);
+      onColorChange: ([h]) => {
+        this.color = { hsv: [h, undefined, undefined] };
       }
     };
 
     this._container.appendChild(block);
-
     this._container.appendChild(bar);
-
     this._block = new ColorBlock(block, blockOptions);
-
     this._bar = new ColorBar(bar, barOptions);
 
-    this.setHSV({
-      h: 0,
-      s: 0.5,
-      v: 0.5
-    });
+    // 设置初始化颜色
+    this.color = { hsv: [0, 50, 50] };
   }
 
-  private handleColorChange(color: Color) {
-    if (typeof color.h === 'number') {
+  private _handleColorChange(from: ColorSetter) {
+    const color = this._color;
+    const [h, s, v] = color;
+    if (isNumber(h)) {
       this._bar.color = color;
     }
 
-    if (typeof color.s === 'number' && typeof color.v === 'number') {
+    if (isNumber(s) && isNumber(v)) {
       this._block.color = color;
     }
 
-    if (this._options.onColorChange) {
-      const { h } = color;
-      const s = color.s * 100;
-      const v = color.v * 100;
-      const rgb = covert.hsv.rgb(h, s, v);
-      const hsl = covert.rgb.hsl(rgb).map(n => n / 100);
+    if (typeof this._options.onColorChange === 'function') {
+      const rgb = from.rgb || covert.hsv.rgb([h, s, v]);
+      const hsl = covert.rgb.hsl(rgb);
       const hex = covert.rgb.hex(rgb);
 
       this._options.onColorChange({
         hex,
-        h: hsl[0],
-        s: hsl[1],
-        l: hsl[2],
-        r: rgb[0],
-        g: rgb[1],
-        b: rgb[2]
+        hsl,
+        rgb,
+        hsv: color,
+        ...from // 避免 hsv 反转换成源数据出现误差
       });
     }
   }
 
-  private setHSV(color: Color) {
+  public destroy() {
+    this._block.destroy();
+    this._bar.destroy();
+  }
+
+  set color(color: ColorSetter) {
     if (!this._bar || !this._block) {
       return;
     }
-
-    color = Object.assign({}, this._color, color);
-
-    const hsv = ['h', 's', 'v'];
-
-    if (this._color && hsv.every(p => color[p] === this._color[p])) {
-      return;
-    }
-
-    this._color = color;
-
-    this.handleColorChange(color);
-  }
-
-  public destroy(removeCanvas: boolean = true) {
-    this._block.destroy(removeCanvas);
-    this._bar.destroy(removeCanvas);
-  }
-
-  set color(color: SetterColor) {
-    const rgb = ['r', 'g', 'b'];
-    const hsl = ['h', 's', 'l'];
+    let from: ColorSetter;
     let hsv;
 
-    if (rgb.every(p => typeof color[p] === 'number')) {
-      hsv = covert.rgb.hsv(color.r, color.g, color.b);
-    } else if (hsl.every(p => typeof color[p] === 'number')) {
-      hsv = covert.hsl.hsv(color.h * 100, color.s * 100, color.l * 100);
+    if (color.rgb) {
+      hsv = covert.rgb.hsv(color.rgb);
+      from = { rgb: color.rgb };
+    } else if (color.hsl) {
+      hsv = covert.hsl.hsv(color.hsl);
+      from = { hsl: color.hsl };
     } else if (color.hex) {
       hsv = covert.rgb.hsv(covert.hex.rgb(color.hex));
+      from = { hex: color.hex };
+    } else if (color.hsv) {
+      hsv = color.hsv;
+      from = { hsv: color.hsv };
     } else {
       return;
     }
 
-    this.setHSV({
-      h: hsv[0],
-      s: hsv[1] / 100,
-      v: hsv[2] / 100
+    (this._color || []).forEach((v, i) => {
+      if (!isNumber(hsv[i])) {
+        hsv[i] = v;
+      }
     });
+
+    if (this._color && hsv.every((v, i) => v === this._color[i])) {
+      return;
+    }
+
+    this._color = hsv;
+    this._handleColorChange(from);
   }
 }

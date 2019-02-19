@@ -20,9 +20,7 @@ describe('Color Picker public methods', () => {
     const block = canvas[0];
     const bar = canvas[1];
     picker.color = {
-      r: 50,
-      g: 255,
-      b: 40
+      rgb: [50, 255, 40]
     };
 
     expect(canvasToBuffer(block)).toMatchImageSnapshot();

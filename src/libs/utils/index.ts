@@ -18,3 +18,7 @@ export const debounce = (func, wait: number) => {
     }, wait);
   };
 };
+
+export function isNumber(num: any) {
+  return typeof num === 'number';
+}
