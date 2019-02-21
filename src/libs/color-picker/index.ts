@@ -1,8 +1,10 @@
-import { ChangedColor, HSVColor } from './types';
-import { ColorBlock, ColorBlockOptions } from './block';
-import { ColorBar, ColorBarOptions } from './bar';
-import { isNumber } from '../utils';
 import * as covert from 'color-convert';
+
+import { isNumber } from '../utils';
+
+import { ColorBar, ColorBarOptions } from './bar';
+import { ColorBlock, ColorBlockOptions } from './block';
+import { ChangedColor, HSVColor } from './types';
 
 interface ColorPickerOptions {
   padding?: number;

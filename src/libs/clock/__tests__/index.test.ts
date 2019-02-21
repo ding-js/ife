@@ -1,4 +1,5 @@
 import { canvasToBuffer } from '@/test-utils';
+
 import Clock from '../';
 
 const RealDate = Date;

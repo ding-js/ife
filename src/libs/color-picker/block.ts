@@ -1,8 +1,10 @@
-import { bind, unbind } from '../utils/move';
-import { generateCanvas } from '../utils/canvas';
-import { isNumber } from '../utils';
-import { HSVColor } from './types';
 import * as covert from 'color-convert';
+
+import { isNumber } from '../utils';
+import { generateCanvas } from '../utils/canvas';
+import { bind, unbind } from '../utils/move';
+
+import { HSVColor } from './types';
 
 export interface ColorBlockOptions {
   width: number;
@@ -137,7 +139,8 @@ export class ColorBlock {
   private _setCoordinate(x: number, y: number) {
     const { padding } = this._options;
     const { _contentHeight, _contentWidth } = this;
-    let currentX, currentY;
+    let currentX;
+    let currentY;
 
     // 检查边界
     if (x < padding) {
@@ -198,7 +201,9 @@ export class ColorBlock {
   }
 
   set color(color: HSVColor) {
-    const mergedColor: HSVColor = this._color ? (this._color.slice() as HSVColor) : (new Array(3) as HSVColor);
+    const mergedColor: HSVColor = this._color
+      ? (this._color.slice() as HSVColor)
+      : (new Array(3) as HSVColor);
     let shouldUpdate = false;
 
     color.forEach((v, i) => {

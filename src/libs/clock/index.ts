@@ -1,5 +1,5 @@
-import { generateCanvas } from '../utils/canvas';
 import { isNumber } from '../utils';
+import { generateCanvas } from '../utils/canvas';
 
 interface Options {
   /**
@@ -313,11 +313,13 @@ export default class Clock {
     ];
 
     // 时针、分针、秒针可以百分比移动
-    const exactS = second + millisecond / 1000,
-      exactM = minute + exactS / 60,
-      exactH = hour + exactM / 60;
+    const exactS = second + millisecond / 1000;
+    const exactM = minute + exactS / 60;
+    const exactH = hour + exactM / 60;
 
-    const [hourDegree, minuteDegree, secondDegree] = [exactH / 12, exactM / 60, exactS / 60].map(v => v * 2 * Math.PI);
+    const [hourDegree, minuteDegree, secondDegree] = [exactH / 12, exactM / 60, exactS / 60].map(
+      v => v * 2 * Math.PI
+    );
 
     return {
       date,
@@ -389,11 +391,7 @@ export default class Clock {
   }
 
   set offset(time: number) {
-    if (!isNumber(time)) {
-      this._offset = -new Date().getTimezoneOffset() * 60 * 1000;
-    } else {
-      this._offset = time;
-    }
+    this._offset = isNumber(time) ? time : -new Date().getTimezoneOffset() * 60 * 1000;
   }
 
   get offset() {

@@ -1,6 +1,6 @@
-import Tween from '../utils/tween';
 import { generateCanvas } from '../utils/canvas';
 import { bind, unbind } from '../utils/move';
+import Tween from '../utils/tween';
 
 enum BoxTypes {
   empty,
@@ -121,19 +121,19 @@ export class Snake {
     [BoxTypes.head]: {
       background: '#555',
       render: (ctx, x, y, sideLength) => {
-        const k = sideLength / 14, // 基数
-          d = this._direction[this._snakeDirection],
-          r = sideLength / 2,
-          eyes = [
-            {
-              x: x + r + d.x * k * 3 + (d.x === 0 ? k * 2.5 : 0),
-              y: y + r + d.y * k * 3 + (d.y === 0 ? k * 2.5 : 0)
-            },
-            {
-              x: x + r + d.x * k * 3 + (d.x === 0 ? -k * 2.5 : 0),
-              y: y + r + d.y * k * 3 + (d.y === 0 ? -k * 2.5 : 0)
-            }
-          ];
+        const k = sideLength / 14; // 基数
+        const d = this._direction[this._snakeDirection];
+        const r = sideLength / 2;
+        const eyes = [
+          {
+            x: x + r + d.x * k * 3 + (d.x === 0 ? k * 2.5 : 0),
+            y: y + r + d.y * k * 3 + (d.y === 0 ? k * 2.5 : 0)
+          },
+          {
+            x: x + r + d.x * k * 3 + (d.x === 0 ? -k * 2.5 : 0),
+            y: y + r + d.y * k * 3 + (d.y === 0 ? -k * 2.5 : 0)
+          }
+        ];
         ctx.fillStyle = '#fff';
 
         eyes.forEach(eye => {
@@ -217,11 +217,11 @@ export class Snake {
       }
     }
 
-    const side = _options.sideLength,
-      pdV = (_options.width % side) / 2,
-      pdH = (_options.height % side) / 2,
-      width = _options.width - pdH * 2,
-      height = _options.height - pdV * 2;
+    const side = _options.sideLength;
+    const pdV = (_options.width % side) / 2;
+    const pdH = (_options.height % side) / 2;
+    const width = _options.width - pdH * 2;
+    const height = _options.height - pdV * 2;
 
     this._content = {
       x: pdH,
@@ -240,11 +240,11 @@ export class Snake {
   }
 
   private init() {
-    const op = this._options,
-      canvas = this._canvas,
-      ctx = canvas.getContext('2d'),
-      content = this._content,
-      side = op.sideLength;
+    const op = this._options;
+    const canvas = this._canvas;
+    const ctx = canvas.getContext('2d');
+    const content = this._content;
+    const side = op.sideLength;
 
     this._ctx = ctx;
 
@@ -282,7 +282,9 @@ export class Snake {
         const x = { x: this._startCoordinate.x, y: -this._startCoordinate.y };
         const y = { x: e.x, y: -e.y };
 
-        const k = Math.acos((y.x - x.x) / Math.sqrt(Math.pow(y.x - x.x, 2) + Math.pow(y.y - x.y, 2)));
+        const k = Math.acos(
+          (y.x - x.x) / Math.sqrt(Math.pow(y.x - x.x, 2) + Math.pow(y.y - x.y, 2))
+        );
 
         let dir = Direction.right;
 
@@ -304,9 +306,9 @@ export class Snake {
   }
 
   private handleKeyboard = e => {
-    const direction = this._direction,
-      code = e.keyCode,
-      status = this._status;
+    const direction = this._direction;
+    const code = e.keyCode;
+    const status = this._status;
 
     switch (code) {
       case 32:
@@ -356,10 +358,10 @@ export class Snake {
     return column[y];
   }
 
-  private info(msgs: string | string[], fontSize: number = 24) {
-    const ctx = this._ctx,
-      op = this._options,
-      content = this._content;
+  private info(messages: string | string[], fontSize: number = 24) {
+    const ctx = this._ctx;
+    const op = this._options;
+    const content = this._content;
 
     ctx.save();
 
@@ -371,11 +373,11 @@ export class Snake {
     ctx.textBaseline = 'middle';
     ctx.font = 'bold ' + fontSize + 'px serif';
 
-    if (!Array.isArray(msgs)) {
-      msgs = [msgs];
+    if (!Array.isArray(messages)) {
+      messages = [messages];
     }
 
-    msgs.forEach((msg, index) => {
+    messages.forEach((msg, index) => {
       ctx.fillText(
         msg,
         op.width * 0.5,
@@ -388,13 +390,13 @@ export class Snake {
   }
 
   private drawBox(box: Box) {
-    const types = this._boxTypes,
-      ctx = this._ctx,
-      side = this._options.sideLength;
+    const types = this._boxTypes;
+    const ctx = this._ctx;
+    const side = this._options.sideLength;
 
-    const type = types[box.type],
-      x = box.animateX ? box.animateX : box.x,
-      y = box.animateY ? box.animateY : box.y;
+    const type = types[box.type];
+    const x = box.animateX ? box.animateX : box.x;
+    const y = box.animateY ? box.animateY : box.y;
 
     if (type.background) {
       ctx.save();
@@ -411,10 +413,10 @@ export class Snake {
   }
 
   private drawMap() {
-    const op = this._options,
-      ctx = this._ctx,
-      content = this._content,
-      side = op.sideLength;
+    const op = this._options;
+    const ctx = this._ctx;
+    const content = this._content;
+    const side = op.sideLength;
 
     ctx.save();
 
@@ -460,8 +462,8 @@ export class Snake {
   }
 
   private draw() {
-    const op = this._options,
-      ctx = this._ctx;
+    const op = this._options;
+    const ctx = this._ctx;
 
     ctx.clearRect(0, 0, op.width, op.height);
 
@@ -496,8 +498,8 @@ export class Snake {
   }
 
   private updateDirection() {
-    const keys = this._keys,
-      keysLen = keys.length;
+    const keys = this._keys;
+    const keysLen = keys.length;
 
     // 根据键盘输入转向
     if (keysLen > 0) {
@@ -505,7 +507,10 @@ export class Snake {
         const type = keys[i];
 
         // 不冲突时更新方向
-        if (type !== this._snakeDirection && type !== this._direction[this._snakeDirection].opposite) {
+        if (
+          type !== this._snakeDirection &&
+          type !== this._direction[this._snakeDirection].opposite
+        ) {
           this._snakeDirection = type;
           // 允许连续键多次操作
           this._keys = keys.slice(i + 1);
@@ -525,14 +530,14 @@ export class Snake {
     // 动效时间
     const timeout = this._speed > 30 ? 1 : 300 - this._speed * 10;
 
-    const snake = this._snake,
-      direction = this._direction[this._snakeDirection],
-      content = this._content;
+    const snake = this._snake;
+    const direction = this._direction[this._snakeDirection];
+    const content = this._content;
 
-    const head = snake[0],
-      footer = snake[snake.length - 1],
-      x = head.xIndex + direction.x,
-      y = head.yIndex + direction.y;
+    const head = snake[0];
+    const footer = snake[snake.length - 1];
+    const x = head.xIndex + direction.x;
+    const y = head.yIndex + direction.y;
 
     const box = this.getBox(x, y);
 
@@ -604,8 +609,8 @@ export class Snake {
       }
 
       for (let i = 1, l = snake.length; i < l; i++) {
-        const thisBox = snake[i],
-          nextBox = snake[i - 1];
+        const thisBox = snake[i];
+        const nextBox = snake[i - 1];
         tweenList.push(this.createTween(thisBox, nextBox, timeout));
       }
 
@@ -680,10 +685,10 @@ export class Snake {
   }
 
   private createFood() {
-    const content = this._content,
-      x = Math.floor(Math.random() * content.columns),
-      y = Math.floor(Math.random() * content.rows),
-      box = this.getBox(x, y);
+    const content = this._content;
+    const x = Math.floor(Math.random() * content.columns);
+    const y = Math.floor(Math.random() * content.rows);
+    const box = this.getBox(x, y);
 
     if (box.type === BoxTypes.empty) {
       box.type = BoxTypes.food;
@@ -751,7 +756,10 @@ export class Snake {
     const content = this._content;
     let i = 0;
     while (i < walls) {
-      const box = this.getBox(Math.floor(Math.random() * content.columns), Math.floor(Math.random() * content.rows));
+      const box = this.getBox(
+        Math.floor(Math.random() * content.columns),
+        Math.floor(Math.random() * content.rows)
+      );
       if (box.type === BoxTypes.empty) {
         box.type = BoxTypes.wall;
         this._wall.push(box);
@@ -788,6 +796,8 @@ export class Snake {
   }
 
   get score() {
-    return this._snake && this._snake.length ? this._snake.length - this._options.origin.length + 1 : 0;
+    return this._snake && this._snake.length
+      ? this._snake.length - this._options.origin.length + 1
+      : 0;
   }
 }

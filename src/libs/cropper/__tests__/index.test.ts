@@ -1,4 +1,5 @@
 import { canvasToBuffer } from '@/test-utils';
+
 import Cropper from '../';
 
 describe('Cropper lifecycle', () => {

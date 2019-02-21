@@ -116,14 +116,9 @@ export default class InfinitScroll<T> {
   private shouldGetDataset() {
     const { scrollElement, threshold } = this.op;
 
-    const top =
-      scrollElement.scrollHeight -
-      scrollElement.scrollTop -
-      scrollElement.clientHeight;
+    const top = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight;
 
-    return (
-      !this.dataset.length || (!this.loading && this.more && top < threshold)
-    );
+    return !this.dataset.length || (!this.loading && this.more && top < threshold);
   }
 
   private async checkDataset() {
@@ -177,17 +172,11 @@ export default class InfinitScroll<T> {
    * @memberof InfinitScroll
    */
   public destroy() {
-    this.scrollEventSource.removeEventListener(
-      'scroll',
-      this.debounceCheckdataset
-    );
+    this.scrollEventSource.removeEventListener('scroll', this.debounceCheckdataset);
   }
 
   private init() {
-    this.scrollEventSource.addEventListener(
-      'scroll',
-      this.debounceCheckdataset
-    );
+    this.scrollEventSource.addEventListener('scroll', this.debounceCheckdataset);
 
     this.checkDataset();
 

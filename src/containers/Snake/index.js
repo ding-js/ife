@@ -236,8 +236,7 @@ export default {
   },
   mounted() {
     const { window } = this;
-    const side =
-      window.width > 767 ? 600 : Math.min(window.width, window.height);
+    const side = window.width > 767 ? 600 : Math.min(window.width, window.height);
 
     this.$_snake = new Snake(this.$refs.container, {
       scoreCallback: this.updateMode,

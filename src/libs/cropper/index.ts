@@ -91,10 +91,7 @@ export default class Cropper {
       height: 450
     });
 
-    const _options = Object.assign({}, options, {
-      width: r.width,
-      height: r.height
-    });
+    const _options = { ...options, width: r.width, height: r.height };
 
     this._canvas = r.canvas;
     this._ctx = r.canvas.getContext('2d');
@@ -175,17 +172,13 @@ export default class Cropper {
       return;
     }
 
-    let width = image.clientWidth,
-      height = image.clientHeight,
-      k; // 最终的缩放系数
-    const scale = this._scale,
-      offset = e.deltaY / 800;
+    let width = image.clientWidth;
+    let height = image.clientHeight;
+    let k; // 最终的缩放系数
+    const scale = this._scale;
+    const offset = e.deltaY / 800;
 
-    if (offset > 0) {
-      k = 1 / (1 + offset);
-    } else {
-      k = 1 + Math.abs(offset);
-    }
+    k = offset > 0 ? 1 / (1 + offset) : 1 + Math.abs(offset);
 
     k *= scale;
 
@@ -201,17 +194,26 @@ export default class Cropper {
     this.draw();
   };
 
-  private getPointByCoordinate(x, y): PointType {
+  private getPointByCoordinate(x: number, y: number): PointType {
     const point = this._point;
     const cropper = this._cropper;
     const image = this._image;
     const t: PointType = {
       x,
-      y
-    } as PointType;
+      y,
+      type: undefined,
+      offsetX: undefined,
+      offsetY: undefined
+    };
 
     // 设置偏移(点击坐标与定点坐标)
-    if (point && x > point.x && x < point.x + point.width && y > point.y && y < point.y + point.height) {
+    if (
+      point &&
+      x > point.x &&
+      x < point.x + point.width &&
+      y > point.y &&
+      y < point.y + point.height
+    ) {
       t.type = Types.pointRD;
     } else if (
       cropper &&
@@ -223,7 +225,13 @@ export default class Cropper {
       t.offsetX = x - cropper.x;
       t.offsetY = y - cropper.y;
       t.type = Types.cropper;
-    } else if (image && x > image.x && x < image.x + image.width && y > image.y && y < image.y + image.height) {
+    } else if (
+      image &&
+      x > image.x &&
+      x < image.x + image.width &&
+      y > image.y &&
+      y < image.y + image.height
+    ) {
       t.offsetX = x - image.x;
       t.offsetY = y - image.y;
       t.type = Types.image;
@@ -263,9 +271,8 @@ export default class Cropper {
     const oY = s.offsetY;
     const maxX = width - this._cropper.width;
     const maxY = height - this._cropper.height;
-
-    let currentX = x - oX,
-      currentY = y - oY;
+    let currentX = x - oX;
+    let currentY = y - oY;
 
     // 判断边界
 
@@ -310,10 +317,10 @@ export default class Cropper {
   private fillBackground() {
     const { width, height } = this._options;
 
-    const ctx = this._ctx,
-      side = width / 40,
-      x = Math.ceil(width / side),
-      y = Math.ceil(height / side);
+    const ctx = this._ctx;
+    const side = width / 40;
+    const x = Math.ceil(width / side);
+    const y = Math.ceil(height / side);
 
     ctx.save();
 
@@ -337,8 +344,8 @@ export default class Cropper {
   }
 
   private fillImage() {
-    const ctx = this._ctx,
-      image = this._image;
+    const ctx = this._ctx;
+    const image = this._image;
 
     if (image) {
       ctx.drawImage(image.element, image.x, image.y, image.width, image.height);
@@ -346,8 +353,8 @@ export default class Cropper {
   }
 
   private fillCropper() {
-    const ctx = this._ctx,
-      cropper = this._cropper;
+    const ctx = this._ctx;
+    const cropper = this._cropper;
     const point = this._point;
 
     ctx.save();
@@ -376,11 +383,11 @@ export default class Cropper {
     }
 
     const { width, height } = this._options;
-    const clientW = image.width,
-      clientH = image.height;
-    let currentW = clientW,
-      currentH = clientH,
-      k = 1; // contain 时的缩放比
+    const clientW = image.width;
+    const clientH = image.height;
+    let currentW = clientW;
+    let currentH = clientH;
+    let k = 1; // contain 时的缩放比
 
     // contain 图片
     if (clientW > width) {
@@ -459,7 +466,13 @@ export default class Cropper {
 
       ctx.clearRect(0, 0, width, height);
 
-      ctx.drawImage(image.element, image.x - cropper.x, image.y - cropper.y, image.width, image.height);
+      ctx.drawImage(
+        image.element,
+        image.x - cropper.x,
+        image.y - cropper.y,
+        image.width,
+        image.height
+      );
 
       const url = this._cropperCanvas.toDataURL();
 
@@ -510,7 +523,12 @@ export default class Cropper {
 
   set cropper(cropper: SquareConfig) {
     if (!this._cropper) {
-      this._cropper = {} as Square;
+      this._cropper = {
+        width: undefined,
+        height: undefined,
+        x: undefined,
+        y: undefined
+      };
     }
 
     let change = false;

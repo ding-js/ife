@@ -49,7 +49,6 @@ for (let i = 12; i >= -12; i--) {
   });
 }
 
-
 export default {
   name: 'Clock',
   data() {

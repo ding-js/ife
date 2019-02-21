@@ -1,11 +1,13 @@
+/* tslint:disable ordered-imports*/
+
 import Vue from 'vue';
 import Router, { RouterMode } from 'vue-router';
 
-import NotFound from '@/containers/NotFound';
 import Clock from '@/containers/Clock';
 import ColorPicker from '@/containers/ColorPicker';
 import Cropper from '@/containers/Cropper';
 import InfiniteScroll from '@/containers/InfiniteScroll';
+import NotFound from '@/containers/NotFound';
 import Snake from '@/containers/Snake';
 
 Vue.use(Router);

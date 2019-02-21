@@ -59,7 +59,12 @@ export default {
             <div class="row">
               <div class="form-group">
                 <label for="hex">#</label>
-                <input type="text" value={this.color.hex.toUpperCase()} onInput={this.updateColorByHEX} maxlength="6" />
+                <input
+                  type="text"
+                  value={this.color.hex.toUpperCase()}
+                  onInput={this.updateColorByHEX}
+                  maxlength="6"
+                />
               </div>
             </div>
           </form>

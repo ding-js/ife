@@ -23,10 +23,7 @@ const eventsMap = new Map<number, Instance>();
 
 let uid = 0;
 
-const getCoordinateByEvent = (
-  element: HTMLElement,
-  e: MouseEvent | TouchEvent
-) => {
+const getCoordinateByEvent = (element: HTMLElement, e: MouseEvent | TouchEvent) => {
   if ((e as TouchEvent).touches) {
     const rect = element.getBoundingClientRect();
     const touch = (e as TouchEvent).touches[0];
@@ -44,7 +41,7 @@ const getCoordinateByEvent = (
 };
 
 export const bind = (element: HTMLElement, cb: EventCb | Options) => {
-  const cbs: Options = {} as Options;
+  const cbs: Options = {};
 
   switch (typeof cb) {
     case 'function':

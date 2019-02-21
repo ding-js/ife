@@ -1,8 +1,10 @@
-import { bind, unbind } from '../utils/move';
-import { generateCanvas } from '../utils/canvas';
-import { isNumber } from '../utils';
-import { HSVColor } from './types';
 import * as covert from 'color-convert';
+
+import { isNumber } from '../utils';
+import { generateCanvas } from '../utils/canvas';
+import { bind, unbind } from '../utils/move';
+
+import { HSVColor } from './types';
 
 export interface ColorBarOptions {
   width: number;
@@ -87,9 +89,9 @@ export class ColorBar {
     const { padding, width } = this._options;
     const lineWidth = 1;
 
-    const y = this._y,
-      sliderWidth = width,
-      sliderHeight = padding / 2;
+    const y = this._y;
+    const sliderWidth = width;
+    const sliderHeight = padding / 2;
 
     const ctx = this._ctx;
 

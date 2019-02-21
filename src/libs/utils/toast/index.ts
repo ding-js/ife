@@ -5,26 +5,23 @@ interface Options {
 }
 
 export default function toast(options: Options) {
-  const list: Toast[] = [],
-    width = window.innerWidth,
-    height = window.innerHeight;
+  const list: Toast[] = [];
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
-  const defaultRight = width * 0.04,
-    defaultTop = height * 0.06,
-    marginBottom = width * 0.01,
-    marginRight = width * 0.01;
+  const defaultRight = width * 0.04;
+  const defaultTop = height * 0.06;
+  const marginBottom = width * 0.01;
+  const marginRight = width * 0.01;
 
   const computePosition = (current: Toast, prev: Toast) => {
-    const currentEl = current.el,
-      prevEl = prev.el,
-      prevBottomHeight = prev.top + prevEl.offsetHeight + marginBottom;
+    const currentEl = current.el;
+    const prevEl = prev.el;
+    const prevBottomHeight = prev.top + prevEl.offsetHeight + marginBottom;
 
     // 当前栏高度无法容下元素时切换到另一栏
     if (prevBottomHeight + currentEl.offsetHeight > height) {
-      current.setPosition(
-        defaultTop,
-        prev.right + prevEl.offsetWidth + marginRight
-      );
+      current.setPosition(defaultTop, prev.right + prevEl.offsetWidth + marginRight);
     } else {
       current.setPosition(prevBottomHeight, prev.right);
     }

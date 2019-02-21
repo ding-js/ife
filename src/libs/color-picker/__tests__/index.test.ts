@@ -1,4 +1,5 @@
 import { canvasToBuffer } from '@/test-utils';
+
 import ColorPicker from '../';
 
 describe('Color Picker lifecycle', () => {
