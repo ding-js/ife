@@ -1,0 +1,40 @@
+---
+defaultSeverity: error
+extends:
+  - tslint:latest
+  - tslint-config-prettier
+rulesDirectory:
+  - tslint-plugin-prettier
+rules:
+  prettier: true
+  interface-name:
+    - true
+    - never-prefix
+  member-ordering: false
+  no-empty-interface: false
+  no-implicit-dependencies:
+    - true
+    - dev
+    - - "@"
+  no-submodule-imports: false
+  no-this-assignment:
+    - true
+    - allow-destructuring: true
+  no-unused-expression:
+    - true
+    - allow-fast-null-checks
+  object-literal-sort-keys: false
+  only-arrow-functions: false
+  ordered-imports:
+    - true
+    - grouped-imports: true
+  array-type: false
+  variable-name:
+    - true
+    - ban-keywords
+    - check-format
+    - allow-pascal-case
+    - allow-leading-underscore
+  no-console:
+    - true
+    - log

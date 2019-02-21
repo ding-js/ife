@@ -6,7 +6,8 @@
     "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "vue-cli-service test:unit"
+    "test": "vue-cli-service test:unit",
+    "format": "prettier --write \"./src/**/*.{js,ts,scss}\" && tslint -p . --fix"
   },
   "dependencies": {
     "color-convert": "^1.9.1",
