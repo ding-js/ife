@@ -32,16 +32,17 @@
 
 由于变更技术栈，正好给项目做一次升级，将原来的视图层代码从 `pug` `jquery` 升级成 `vue`，原先核心功能模块仍由 `JavaScript`/`TypeScript` 实现。
 
-
-## Develop 
+## Develop
 
 NPM
+
 ```shellscript
 npm install --no-optional
 npm start
 ```
 
 YARN
+
 ```shellscript
 yarn install --ignore-optional
 yarn start
