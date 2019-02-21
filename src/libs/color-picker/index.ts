@@ -99,7 +99,7 @@ export default class ColorPicker {
       return;
     }
     let from: ColorSetter;
-    let hsv;
+    let hsv: HSVColor;
 
     if (color.rgb) {
       hsv = covert.rgb.hsv(color.rgb);
@@ -117,14 +117,16 @@ export default class ColorPicker {
       return;
     }
 
-    (this._color || []).forEach((v, i) => {
-      if (!isNumber(hsv[i])) {
-        hsv[i] = v;
-      }
-    });
+    if (this._color) {
+      this._color.forEach((v, i) => {
+        if (!isNumber(hsv[i])) {
+          hsv[i] = v;
+        }
+      });
 
-    if (this._color && hsv.every((v, i) => v === this._color[i])) {
-      return;
+      if (hsv.every((v, i) => v === this._color[i])) {
+        return;
+      }
     }
 
     this._color = hsv;

@@ -12,6 +12,8 @@ export default {
     }
   }),
   render() {
+    const hsl = 'hsl';
+    const rgb = 'rgb';
     return (
       <div class="color-picker">
         <section class="picker-wrapper">
@@ -29,11 +31,11 @@ export default {
                   <label for={v}>{v.toUpperCase()}:</label>
                   <input
                     type="number"
-                    value={this.color.rgb[i]}
+                    value={this.color[rgb][i]}
                     max="255"
                     min="0"
                     step="1"
-                    onInput={e => this.updateInput(e, v, i)}
+                    onInput={e => this.updateInput(e, i, rgb)}
                   />
                 </div>
               ))}
@@ -44,11 +46,11 @@ export default {
                   <label for={v}>{v.toUpperCase()}:</label>
                   <input
                     type="number"
-                    value={this.color.hsl[i]}
-                    max="100"
+                    value={this.color[hsl][i]}
+                    max={v === 'h' ? '360' : '100'}
                     min="0"
-                    step="5"
-                    onInput={e => this.updateInput(e, v, i)}
+                    step={v === 'h' ? '5' : '1'}
+                    onInput={e => this.updateInput(e, i, hsl)}
                   />
                 </div>
               ))}
@@ -57,7 +59,7 @@ export default {
             <div class="row">
               <div class="form-group">
                 <label for="hex">#</label>
-                <input value={this.color.hex.toUpperCase()} type="text" onInput={this.updateColorByHEX} />
+                <input type="text" value={this.color.hex.toUpperCase()} onInput={this.updateColorByHEX} maxlength="6" />
               </div>
             </div>
           </form>
@@ -69,7 +71,10 @@ export default {
     );
   },
   methods: {
-    updateInput(e, name, i) {
+    updateInput(e, i, key) {
+      if (!key) {
+        return;
+      }
       const target = e.target;
       const value = Number(target.value);
       const max = Number(target.getAttribute('max'));
@@ -88,47 +93,17 @@ export default {
         result = min;
       }
 
-      const color = Object.assign({}, this.color);
-
-      switch (name) {
-        case 'r':
-        case 'g':
-        case 'b':
-          color.rgb[i] = result;
-          this.updateColorByRGB(color.rgb);
-          break;
-        case 'h':
-        case 's':
-        case 'l':
-          color.hsl[i] = result;
-          this.updateColorByHSL(color.hsl);
-          break;
-        default:
-          break;
-      }
-    },
-    updateColorByRGB(color) {
-      if (color.some(v => typeof v !== 'number')) {
-        return;
-      }
-
+      const color = this.color[key].slice();
+      color[i] = result;
       this.$_picker.color = {
-        rgb: color
-      };
-    },
-    updateColorByHSL(color) {
-      if (color.some(v => typeof v !== 'number')) {
-        return;
-      }
-
-      this.$_picker.color = {
-        hsl: color
+        [key]: color
       };
     },
     updateColorByHEX(e) {
-      const value = e.target.value;
+      const value = e.target.value.toUpperCase();
+      e.target.value = value;
 
-      if (value.length !== 6) {
+      if (value.length !== 6 && value.length !== 3) {
         return;
       }
 
